@@ -14,6 +14,7 @@ import com.mendix.webui.CustomJavaAction;
 import kafka.impl.KafkaConsumerRepository;
 import kafka.impl.KafkaProcessorRepository;
 import kafka.impl.KafkaProducerRepository;
+import kafka.impl.KafkaModule;
 
 /**
  * Stops all Kafka Consumers, Producers and Processors.
@@ -31,11 +32,26 @@ public class StopAll extends CustomJavaAction<java.lang.Boolean>
 	public java.lang.Boolean executeAction() throws Exception
 	{
 		// BEGIN USER CODE
-		KafkaProducerRepository.closeAll();
-		KafkaConsumerRepository.stopAll();
-		KafkaProcessorRepository.closeAll();
-		
-		return true;
+		boolean isOk = true;
+		try {	
+			KafkaProducerRepository.closeAll();
+		} catch (Exception e) {
+			KafkaModule.LOGGER.error("Failed to close KafkaProducerRepository " + e);
+			isOk = false;
+		}
+		try {	
+			KafkaConsumerRepository.stopAll();
+		} catch (Exception e) {
+			KafkaModule.LOGGER.error("Failed to close KafkaConsumerRepository " + e);
+			isOk = false;
+		}
+		try {	
+			KafkaProcessorRepository.closeAll();
+		} catch (Exception e) {
+			KafkaModule.LOGGER.error("Failed to close KafkaProcessorRepository " + e);
+			isOk = false;
+		}
+		return isOk;
 		// END USER CODE
 	}
 

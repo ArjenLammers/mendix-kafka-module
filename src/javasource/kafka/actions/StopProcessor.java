@@ -11,6 +11,7 @@ package kafka.actions;
 
 import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.webui.CustomJavaAction;
+import kafka.impl.KafkaModule;
 import kafka.impl.KafkaProcessorRepository;
 
 /**
@@ -28,11 +29,16 @@ public class StopProcessor extends CustomJavaAction<java.lang.Boolean>
 		this.ProcessorName = ProcessorName;
 	}
 
-	@Override
+	@java.lang.Override
 	public java.lang.Boolean executeAction() throws Exception
 	{
 		// BEGIN USER CODE
-		KafkaProcessorRepository.close(ProcessorName);
+		try {	
+			KafkaProcessorRepository.close(ProcessorName);
+		} catch (Exception e) {
+			KafkaModule.LOGGER.error("Failed to close Processor " + ProcessorName + e);
+		}
+
 		
 		return true;
 		// END USER CODE
@@ -41,7 +47,7 @@ public class StopProcessor extends CustomJavaAction<java.lang.Boolean>
 	/**
 	 * Returns a string representation of this action
 	 */
-	@Override
+	@java.lang.Override
 	public java.lang.String toString()
 	{
 		return "StopProcessor";
