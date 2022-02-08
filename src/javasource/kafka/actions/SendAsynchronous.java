@@ -78,6 +78,11 @@ public class SendAsynchronous extends CustomJavaAction<java.lang.Boolean>
 		}
 		
 		kafkaProducer.send(record);
+
+		if (!useCachedProducer) {
+			// If not useCachedProducer Prevent keeping the kafkaProducer instance in memory and retry every x/min to Kafka
+			kafkaProducer.close();
+		}
 		
 		return true;
 		// END USER CODE

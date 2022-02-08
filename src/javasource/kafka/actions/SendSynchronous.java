@@ -87,6 +87,12 @@ public class SendSynchronous extends CustomJavaAction<IMendixObject>
 		Future<RecordMetadata> future = kafkaProducer.send(producerRecord);
 		RecordMetadata record = future.get();
 		RecordMetaData result = new RecordMetaData(getContext());
+
+		if (!useCachedProducer) {
+			// If not useCachedProducer Prevent keeping the kafkaProducer instance in memory and retry every x/min to Kafka
+			kafkaProducer.close();
+		}
+
 		result.setHasOffset(record.hasOffset());
 		if (record.hasOffset())
 			result.setOffset(record.offset());
