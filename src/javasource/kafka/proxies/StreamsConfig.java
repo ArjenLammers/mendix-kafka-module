@@ -68,6 +68,12 @@ public class StreamsConfig extends kafka.proxies.Config
 		ssl_keymanager_algorithm("ssl_keymanager_algorithm"),
 		ssl_secure_random_implementation("ssl_secure_random_implementation"),
 		ssl_trustmanager_algorithm("ssl_trustmanager_algorithm"),
+		schema_registry_basic_auth_user_info("schema_registry_basic_auth_user_info"),
+		basic_auth_credentials_source("basic_auth_credentials_source"),
+		schema_registry_url("schema_registry_url"),
+		auto_register_schemas("auto_register_schemas"),
+		use_latest_version("use_latest_version"),
+		json_fail_invalid_schema("json_fail_invalid_schema"),
 		Server_Config("Kafka.Server_Config");
 
 		private java.lang.String metaName;

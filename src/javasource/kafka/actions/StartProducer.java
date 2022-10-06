@@ -40,9 +40,12 @@ public class StartProducer extends CustomJavaAction<java.lang.Boolean>
 		this.producer = __producer == null ? null : kafka.proxies.Producer.initialize(getContext(), __producer);
 
 		// BEGIN USER CODE
-		KafkaProducer<String, String> kafkaProducer = new KafkaProducer<String, String>(
-					KafkaPropertiesFactory.getKafkaProperties(getContext(), producer));
-		KafkaProducerRepository.put(producer.getName(), kafkaProducer);
+		String producerName = producer.getName();
+		KafkaProducer<String, String> kafkaProducer = KafkaProducerRepository.get(producerName);
+		if (kafkaProducer == null) {
+			kafkaProducer = new KafkaProducer<String, String>(KafkaPropertiesFactory.getKafkaProperties(getContext(), producer));
+			KafkaProducerRepository.put(producer.getName(), kafkaProducer);
+		}
 		
 		return true;
 		// END USER CODE

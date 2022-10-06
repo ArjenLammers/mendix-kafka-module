@@ -40,23 +40,29 @@ public class StopAll extends CustomJavaAction<java.lang.Boolean>
 	{
 		// BEGIN USER CODE
 		boolean isOk = true;
-		try {	
-			KafkaProducerRepository.closeAll();
-		} catch (Exception e) {
-			KafkaModule.LOGGER.error("Failed to close KafkaProducerRepository " + e);
-			isOk = false;
+		if (producers) {
+			try {
+				KafkaProducerRepository.closeAll();
+			} catch (Exception e) {
+				KafkaModule.LOGGER.error("Failed to close KafkaProducerRepository " + e);
+				isOk = false;
+			}
 		}
-		try {	
-			KafkaConsumerRepository.stopAll();
-		} catch (Exception e) {
-			KafkaModule.LOGGER.error("Failed to close KafkaConsumerRepository " + e);
-			isOk = false;
+		if (consumers) {
+			try {
+				KafkaConsumerRepository.stopAll();
+			} catch (Exception e) {
+				KafkaModule.LOGGER.error("Failed to close KafkaConsumerRepository " + e);
+				isOk = false;
+			}
 		}
-		try {	
-			KafkaProcessorRepository.closeAll();
-		} catch (Exception e) {
-			KafkaModule.LOGGER.error("Failed to close KafkaProcessorRepository " + e);
-			isOk = false;
+		if (processors) {
+			try {
+				KafkaProcessorRepository.closeAll();
+			} catch (Exception e) {
+				KafkaModule.LOGGER.error("Failed to close KafkaProcessorRepository " + e);
+				isOk = false;
+			}
 		}
 		return isOk;
 		// END USER CODE

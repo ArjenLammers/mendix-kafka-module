@@ -33,9 +33,8 @@ public class SendAsynchronous extends CustomJavaAction<java.lang.Boolean>
 	private java.lang.String value;
 	private java.util.List<IMendixObject> __headers;
 	private java.util.List<kafka.proxies.Header> headers;
-	private java.lang.Boolean useCachedProducer;
 
-	public SendAsynchronous(IContext context, IMendixObject producer, java.lang.String topic, java.lang.String key, java.lang.String value, java.util.List<IMendixObject> headers, java.lang.Boolean useCachedProducer)
+	public SendAsynchronous(IContext context, IMendixObject producer, java.lang.String topic, java.lang.String key, java.lang.String value, java.util.List<IMendixObject> headers)
 	{
 		super(context);
 		this.__producer = producer;
@@ -43,7 +42,6 @@ public class SendAsynchronous extends CustomJavaAction<java.lang.Boolean>
 		this.key = key;
 		this.value = value;
 		this.__headers = headers;
-		this.useCachedProducer = useCachedProducer;
 	}
 
 	@java.lang.Override
@@ -59,13 +57,12 @@ public class SendAsynchronous extends CustomJavaAction<java.lang.Boolean>
 		// BEGIN USER CODE
 		KafkaProducer<String, String>  kafkaProducer;
 		
-		if (useCachedProducer) {
-			kafkaProducer = KafkaProducerRepository.get(producer.getName());
-		} else {
-			kafkaProducer = new KafkaProducer<String, String>(
-					KafkaPropertiesFactory.getKafkaProperties(getContext(), producer));
-		}
+		kafkaProducer = KafkaProducerRepository.get(producer.getName());
 
+		if (kafkaProducer == null) {
+			throw new Exception("Unable to build a producer using the specified configuration settings");
+		}
+		
 		ProducerRecord<String, String> record;
 		if (key == null || key.isEmpty()) {
 			record = new ProducerRecord<String, String>(topic, value);
@@ -78,13 +75,6 @@ public class SendAsynchronous extends CustomJavaAction<java.lang.Boolean>
 		}
 		
 		kafkaProducer.send(record);
-		
-		if (!useCachedProducer) {
-			// if the cache is not used, Producers are created every time we call this JA
-			// and they must be closed; unclosed Producers communicate with the broker every 60s 
-			// to re-authenticate; for more information see sasl.kerberos.min.time.before.relogin
-			kafkaProducer.close();
-		}
 		
 		return true;
 		// END USER CODE

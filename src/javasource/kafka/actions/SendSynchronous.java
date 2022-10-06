@@ -38,9 +38,8 @@ public class SendSynchronous extends CustomJavaAction<IMendixObject>
 	private java.lang.String value;
 	private java.util.List<IMendixObject> __headers;
 	private java.util.List<kafka.proxies.Header> headers;
-	private java.lang.Boolean useCachedProducer;
 
-	public SendSynchronous(IContext context, IMendixObject producer, java.lang.String topic, java.lang.String key, java.lang.String value, java.util.List<IMendixObject> headers, java.lang.Boolean useCachedProducer)
+	public SendSynchronous(IContext context, IMendixObject producer, java.lang.String topic, java.lang.String key, java.lang.String value, java.util.List<IMendixObject> headers)
 	{
 		super(context);
 		this.__producer = producer;
@@ -48,7 +47,6 @@ public class SendSynchronous extends CustomJavaAction<IMendixObject>
 		this.key = key;
 		this.value = value;
 		this.__headers = headers;
-		this.useCachedProducer = useCachedProducer;
 	}
 
 	@java.lang.Override
@@ -64,13 +62,12 @@ public class SendSynchronous extends CustomJavaAction<IMendixObject>
 		// BEGIN USER CODE
 		KafkaProducer<String, String>  kafkaProducer;
 		
-		if (useCachedProducer) {
-			kafkaProducer = KafkaProducerRepository.get(producer.getName());
-		} else {
-			kafkaProducer = new KafkaProducer<String, String>(
-					KafkaPropertiesFactory.getKafkaProperties(getContext(), producer));
+		kafkaProducer = KafkaProducerRepository.get(producer.getName());
+		
+		if (kafkaProducer == null) {
+			throw new Exception("Unable to build a producer using the specified configuration settings");
 		}
-
+		
 		ProducerRecord<String, String> producerRecord;
 		if (key == null || key.isEmpty()) {
 			producerRecord = new ProducerRecord<String, String>(topic, value);
@@ -81,7 +78,7 @@ public class SendSynchronous extends CustomJavaAction<IMendixObject>
 		for (Header header : this.headers) {
 			producerRecord.headers().add(header.getKey(), header.getValue().getBytes());
 		}
-		
+
 		Future<RecordMetadata> future = kafkaProducer.send(producerRecord);
 		RecordMetadata record = future.get();
 		RecordMetaData result = new RecordMetaData(getContext());
@@ -91,13 +88,6 @@ public class SendSynchronous extends CustomJavaAction<IMendixObject>
 		result.setPartition(record.partition());
 		if (record.hasTimestamp())
 			result.setTimestamp(new Date(record.timestamp()));
-		
-		if (!useCachedProducer) {
-			// if the cache is not used, Producers are created every time we call this JA
-			// and they must be closed; unclosed Producers communicate with the broker every 60s 
-			// to re-authenticate; for more information see sasl.kerberos.min.time.before.relogin
-			kafkaProducer.close();
-		}
 		
 		return result.getMendixObject();
 		// END USER CODE
