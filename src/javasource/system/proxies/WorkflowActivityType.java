@@ -12,10 +12,16 @@ public enum WorkflowActivityType
 	ParallelSplit(new java.lang.String[][] { new java.lang.String[] { "en_US", "Parallel Split" } }),
 	ParallelSplitBranchStopper(new java.lang.String[][] { new java.lang.String[] { "en_US", "End of Parallel Split Branch" } }),
 	ParallelSplitMerge(new java.lang.String[][] { new java.lang.String[] { "en_US", "Merge of Parallel Split" } }),
-	UserTask(new java.lang.String[][] { new java.lang.String[] { "en_US", "User task" } }),
+	UserTask(new java.lang.String[][] { new java.lang.String[] { "en_US", "User Task" } }),
 	CallMicroflow(new java.lang.String[][] { new java.lang.String[] { "en_US", "Call Microflow" } }),
 	CallWorkflow(new java.lang.String[][] { new java.lang.String[] { "en_US", "Call Workflow" } }),
-	JumpTo(new java.lang.String[][] { new java.lang.String[] { "en_US", "Jump" } });
+	JumpTo(new java.lang.String[][] { new java.lang.String[] { "en_US", "Jump" } }),
+	MultiInputUserTask(new java.lang.String[][] { new java.lang.String[] { "en_US", "Multi-User Task" } }),
+	WaitForNotification(new java.lang.String[][] { new java.lang.String[] { "en_US", "Wait for Notification" } }),
+	WaitForTimer(new java.lang.String[][] { new java.lang.String[] { "en_US", "Timer" } }),
+	EndOfBoundaryEventPath(new java.lang.String[][] { new java.lang.String[] { "en_US", "End of Boundary Event Path" } }),
+	NonInterruptingTimerEvent(new java.lang.String[][] { new java.lang.String[] { "en_US", "Non-Interrupting Timer Event" } }),
+	InterruptingTimerEvent(new java.lang.String[][] { new java.lang.String[] { "en_US", "Interrupting Timer Event" } });
 
 	private final java.util.Map<java.lang.String, java.lang.String> captions;
 

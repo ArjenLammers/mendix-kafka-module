@@ -26,31 +26,40 @@ import kafka.impl.KafkaPropertiesFactory;
 import kafka.proxies.Header;
 import kafka.proxies.Message;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
-public class GetMessagesFromOffset extends CustomJavaAction<java.util.List<IMendixObject>>
+public class GetMessagesFromOffset extends UserAction<java.util.List<IMendixObject>>
 {
-	private IMendixObject __consumer;
-	private kafka.proxies.Consumer consumer;
-	private java.lang.String topic;
-	private java.lang.Long partition;
-	private java.lang.Long offset;
-	private java.lang.Long amount;
+	/** @deprecated use consumer.getMendixObject() instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final IMendixObject __consumer;
+	private final kafka.proxies.Consumer consumer;
+	private final java.lang.String topic;
+	private final java.lang.Long partition;
+	private final java.lang.Long offset;
+	private final java.lang.Long amount;
 
-	public GetMessagesFromOffset(IContext context, IMendixObject consumer, java.lang.String topic, java.lang.Long partition, java.lang.Long offset, java.lang.Long amount)
+	public GetMessagesFromOffset(
+		IContext context,
+		IMendixObject _consumer,
+		java.lang.String _topic,
+		java.lang.Long _partition,
+		java.lang.Long _offset,
+		java.lang.Long _amount
+	)
 	{
 		super(context);
-		this.__consumer = consumer;
-		this.topic = topic;
-		this.partition = partition;
-		this.offset = offset;
-		this.amount = amount;
+		this.__consumer = _consumer;
+		this.consumer = _consumer == null ? null : kafka.proxies.Consumer.initialize(getContext(), _consumer);
+		this.topic = _topic;
+		this.partition = _partition;
+		this.offset = _offset;
+		this.amount = _amount;
 	}
 
 	@java.lang.Override
 	public java.util.List<IMendixObject> executeAction() throws Exception
 	{
-		this.consumer = this.__consumer == null ? null : kafka.proxies.Consumer.initialize(getContext(), __consumer);
-
 		// BEGIN USER CODE
 		Properties kafkaProps = KafkaPropertiesFactory.getKafkaProperties(getContext(), consumer);
 		kafkaProps.put("enable.auto.commit", "false");

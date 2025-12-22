@@ -18,17 +18,22 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.webui.CustomJavaAction;
 import librarylogging.impl.MendixLog4jAppender;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
-public class AddLibraryLogListener extends CustomJavaAction<java.lang.Boolean>
+public class AddLibraryLogListener extends UserAction<java.lang.Boolean>
 {
-	private java.lang.String classpath;
-	private java.lang.String logNode;
+	private final java.lang.String classpath;
+	private final java.lang.String logNode;
 
-	public AddLibraryLogListener(IContext context, java.lang.String classpath, java.lang.String logNode)
+	public AddLibraryLogListener(
+		IContext context,
+		java.lang.String _classpath,
+		java.lang.String _logNode
+	)
 	{
 		super(context);
-		this.classpath = classpath;
-		this.logNode = logNode;
+		this.classpath = _classpath;
+		this.logNode = _logNode;
 	}
 
 	@java.lang.Override

@@ -15,6 +15,7 @@ import com.mendix.webui.CustomJavaAction;
 import kafka.impl.KafkaProducerRepository;
 import kafka.impl.KafkaPropertiesFactory;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
  * Starts a Kafka producer.
@@ -23,22 +24,26 @@ import com.mendix.systemwideinterfaces.core.IMendixObject;
  * 
  * This action will always return true.
  */
-public class StartProducer extends CustomJavaAction<java.lang.Boolean>
+public class StartProducer extends UserAction<java.lang.Boolean>
 {
-	private IMendixObject __producer;
-	private kafka.proxies.Producer producer;
+	/** @deprecated use producer.getMendixObject() instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final IMendixObject __producer;
+	private final kafka.proxies.Producer producer;
 
-	public StartProducer(IContext context, IMendixObject producer)
+	public StartProducer(
+		IContext context,
+		IMendixObject _producer
+	)
 	{
 		super(context);
-		this.__producer = producer;
+		this.__producer = _producer;
+		this.producer = _producer == null ? null : kafka.proxies.Producer.initialize(getContext(), _producer);
 	}
 
 	@java.lang.Override
 	public java.lang.Boolean executeAction() throws Exception
 	{
-		this.producer = this.__producer == null ? null : kafka.proxies.Producer.initialize(getContext(), __producer);
-
 		// BEGIN USER CODE
 		KafkaProducer<String, String> kafkaProducer = new KafkaProducer<String, String>(
 					KafkaPropertiesFactory.getKafkaProperties(getContext(), producer));

@@ -18,27 +18,34 @@ import com.mendix.webui.CustomJavaAction;
 import kafka.impl.KafkaModule;
 import kafka.impl.KafkaPropertiesFactory;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
-public class GetPosition extends CustomJavaAction<java.lang.Long>
+public class GetPosition extends UserAction<java.lang.Long>
 {
-	private java.lang.String topic;
-	private java.lang.Long partition;
-	private IMendixObject __consumer;
-	private kafka.proxies.Consumer consumer;
+	private final java.lang.String topic;
+	private final java.lang.Long partition;
+	/** @deprecated use consumer.getMendixObject() instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final IMendixObject __consumer;
+	private final kafka.proxies.Consumer consumer;
 
-	public GetPosition(IContext context, java.lang.String topic, java.lang.Long partition, IMendixObject consumer)
+	public GetPosition(
+		IContext context,
+		java.lang.String _topic,
+		java.lang.Long _partition,
+		IMendixObject _consumer
+	)
 	{
 		super(context);
-		this.topic = topic;
-		this.partition = partition;
-		this.__consumer = consumer;
+		this.topic = _topic;
+		this.partition = _partition;
+		this.__consumer = _consumer;
+		this.consumer = _consumer == null ? null : kafka.proxies.Consumer.initialize(getContext(), _consumer);
 	}
 
 	@java.lang.Override
 	public java.lang.Long executeAction() throws Exception
 	{
-		this.consumer = this.__consumer == null ? null : kafka.proxies.Consumer.initialize(getContext(), __consumer);
-
 		// BEGIN USER CODE
 		Properties kafkaProps = KafkaPropertiesFactory.getKafkaProperties(getContext(), consumer);
 		KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(kafkaProps);

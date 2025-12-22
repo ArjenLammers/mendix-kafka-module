@@ -11,11 +11,11 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Formatter;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import com.mendix.core.Core;
 import com.mendix.core.CoreException;
+import com.mendix.core.objectmanagement.member.MendixDateTime;
 import com.mendix.core.objectmanagement.member.MendixEnum;
 import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.systemwideinterfaces.core.IMendixObjectMember;
@@ -74,16 +74,14 @@ public class DataParser
 			}
 			return getFormattedNumber(context, Double.valueOf((Float) value), 2, 20);
 		}
+		else if ( value instanceof MendixDateTime ) {
+			MendixDateTime mendixDate = (MendixDateTime) value;
+			Date date = mendixDate.getValue(context);
+			boolean shouldLocalize = mendixDate.shouldLocalize();
+			return processDate(context, date, pattern, shouldLocalize);
+		}
 		else if ( value instanceof Date ) {
-			TokenReplacer._logger.trace("Processing value as date, localized");
-			
-			if( pattern != null && !"".equals(pattern) ) {
-				SimpleDateFormat df = new SimpleDateFormat(pattern, Core.getLocale(context) );
-				df.setTimeZone(getSessionTimeZone(context));
-				
-				return df.format( (Date) value );
-			}
-			return processDate(context, (Date) value, true);
+			return processDate(context, (Date) value, pattern, true);
 		}
 		else if ( value instanceof Long ) {
 			TokenReplacer._logger.trace("Processing value as long");
@@ -145,8 +143,14 @@ public class DataParser
 					value = Double.valueOf((Float) value);
 				strValue = getFormattedNumber(context, (Double) value, 2, 20);
 			}
+			else if ( value instanceof MendixDateTime ) {
+				MendixDateTime mendixDate = (MendixDateTime) value;
+				Date date = mendixDate.getValue(context);
+				boolean shouldLocalize = mendixDate.shouldLocalize();
+				return processDate(context, date, null, shouldLocalize);
+			}
 			else if ( value instanceof Date )
-				strValue = processDate(context, (Date) value, true);
+				strValue = processDate(context, (Date) value, null, true);
 			else if ( value != null )
 				strValue = String.valueOf(value);
 		}
@@ -154,16 +158,18 @@ public class DataParser
 		return strValue;
 	}
 
-	private static String processDate( IContext context, Date value, boolean shouldLocalize ) {
-		Date date = (Date) value;
-		Locale userLocale = Core.getLocale(context);
-		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy", userLocale);
+	private static String processDate( IContext context, Date date, String userPattern, boolean shouldLocalize ) {
+		String pattern = userPattern != null && !"".equals(userPattern) ? userPattern : "dd-MMM-yyyy";
+		DateFormat dateFormat = new SimpleDateFormat(pattern, Core.getLocale(context));
 
-		TokenReplacer._logger.trace("Processing date in timezone " + (shouldLocalize ? getSessionTimeZone(context).getDisplayName() : "UTC"));
-		if ( shouldLocalize )
-			dateFormat.setTimeZone(getSessionTimeZone(context));
-		else
+		if ( shouldLocalize ) {
+			TimeZone timezone = getSessionTimeZone(context);
+			TokenReplacer._logger.trace("Processing date in timezone " + timezone.getDisplayName());
+			dateFormat.setTimeZone(timezone);
+		} else {
+			TokenReplacer._logger.trace("Processing date in timezone UTC");
 			dateFormat.setTimeZone(getUTCTimeZone());
+		}
 
 		return dateFormat.format(date);
 	}

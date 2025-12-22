@@ -12,33 +12,38 @@ package mxmodelreflection.actions;
 import mxmodelreflection.TokenReplacer;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
 import com.mendix.systemwideinterfaces.core.IContext;
-import com.mendix.webui.CustomJavaAction;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
  * Validates if all required tokens are present in the message. The action returns a list of all the tokens that are not optional and not present in the text
  */
-public class ValidateTokensInMessage extends CustomJavaAction<java.util.List<IMendixObject>>
+public class ValidateTokensInMessage extends UserAction<java.util.List<IMendixObject>>
 {
-	private java.lang.String Text;
-	private java.util.List<IMendixObject> __TokenList;
-	private java.util.List<mxmodelreflection.proxies.Token> TokenList;
+	private final java.lang.String Text;
+	/** @deprecated use com.mendix.utils.ListUtils.map(TokenList, com.mendix.systemwideinterfaces.core.IEntityProxy::getMendixObject) instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final java.util.List<IMendixObject> __TokenList;
+	private final java.util.List<mxmodelreflection.proxies.Token> TokenList;
 
-	public ValidateTokensInMessage(IContext context, java.lang.String Text, java.util.List<IMendixObject> TokenList)
+	public ValidateTokensInMessage(
+		IContext context,
+		java.lang.String _text,
+		java.util.List<IMendixObject> _tokenList
+	)
 	{
 		super(context);
-		this.Text = Text;
-		this.__TokenList = TokenList;
+		this.Text = _text;
+		this.__TokenList = _tokenList;
+		this.TokenList = java.util.Optional.ofNullable(_tokenList)
+			.orElse(java.util.Collections.emptyList())
+			.stream()
+			.map(tokenListElement -> mxmodelreflection.proxies.Token.initialize(getContext(), tokenListElement))
+			.collect(java.util.stream.Collectors.toList());
 	}
 
 	@java.lang.Override
 	public java.util.List<IMendixObject> executeAction() throws Exception
 	{
-		this.TokenList = java.util.Optional.ofNullable(this.__TokenList)
-			.orElse(java.util.Collections.emptyList())
-			.stream()
-			.map(__TokenListElement -> mxmodelreflection.proxies.Token.initialize(getContext(), __TokenListElement))
-			.collect(java.util.stream.Collectors.toList());
-
 		// BEGIN USER CODE
 		
 		return TokenReplacer.validateTokens(this.getContext(), this.Text, __TokenList);

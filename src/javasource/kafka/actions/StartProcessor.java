@@ -14,36 +14,45 @@ import com.mendix.webui.CustomJavaAction;
 import kafka.impl.KafkaProcessor;
 import kafka.impl.KafkaProcessorRepository;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
  * This action will listen to a topic, and start a microflow for each message in that topic.
  * 
  * This action will always return true.
  */
-public class StartProcessor extends CustomJavaAction<java.lang.Boolean>
+public class StartProcessor extends UserAction<java.lang.Boolean>
 {
-	private java.lang.String name;
-	private IMendixObject __configuration;
-	private kafka.proxies.StreamsConfig configuration;
-	private java.lang.String fromTopic;
-	private java.lang.String toTopic;
-	private java.lang.String onProcess;
+	private final java.lang.String name;
+	/** @deprecated use configuration.getMendixObject() instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final IMendixObject __configuration;
+	private final kafka.proxies.StreamsConfig configuration;
+	private final java.lang.String fromTopic;
+	private final java.lang.String toTopic;
+	private final java.lang.String onProcess;
 
-	public StartProcessor(IContext context, java.lang.String name, IMendixObject configuration, java.lang.String fromTopic, java.lang.String toTopic, java.lang.String onProcess)
+	public StartProcessor(
+		IContext context,
+		java.lang.String _name,
+		IMendixObject _configuration,
+		java.lang.String _fromTopic,
+		java.lang.String _toTopic,
+		java.lang.String _onProcess
+	)
 	{
 		super(context);
-		this.name = name;
-		this.__configuration = configuration;
-		this.fromTopic = fromTopic;
-		this.toTopic = toTopic;
-		this.onProcess = onProcess;
+		this.name = _name;
+		this.__configuration = _configuration;
+		this.configuration = _configuration == null ? null : kafka.proxies.StreamsConfig.initialize(getContext(), _configuration);
+		this.fromTopic = _fromTopic;
+		this.toTopic = _toTopic;
+		this.onProcess = _onProcess;
 	}
 
 	@java.lang.Override
 	public java.lang.Boolean executeAction() throws Exception
 	{
-		this.configuration = this.__configuration == null ? null : kafka.proxies.StreamsConfig.initialize(getContext(), __configuration);
-
 		// BEGIN USER CODE
 		KafkaProcessor processor = new KafkaProcessor(this.configuration.getMendixObject(), 
 				getContext(), fromTopic, toTopic, onProcess); 

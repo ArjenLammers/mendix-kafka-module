@@ -44,7 +44,7 @@ public class MetaObjectBuilder
 	{
 		this.cacheLanguageCodes(context);
 		Map<String, IMendixObject> existingMetaObjects = new HashMap<String, IMendixObject>();
-		for(IMendixObject obj : Core.retrieveXPathQuery(context, "//" + MxObjectType.getType()))
+		for(IMendixObject obj : Core.createXPathQuery("//" + MxObjectType.getType()).execute(context))
 			existingMetaObjects.put((String)obj.getValue(context, MxObjectType.MemberNames.CompleteName.toString()), obj);
 		
 		if(  this.builder.allNewModules ) 
@@ -63,7 +63,7 @@ public class MetaObjectBuilder
 
 
 		Map<String,IMendixObject> existingAssociations = new HashMap<String, IMendixObject>();
-		for(IMendixObject existingAssociation : Core.retrieveXPathQuery(context, "//" + MxObjectReference.getType())) {
+		for(IMendixObject existingAssociation : Core.createXPathQuery("//" + MxObjectReference.getType()).execute(context)) {
 			existingAssociations.put((String)existingAssociation.getValue(context, MxObjectReference.MemberNames.CompleteName.toString()) + "/" + (String)existingAssociation.getValue(context, MxObjectReference.MemberNames.ParentEntity.toString()) , existingAssociation);
 		}
 
@@ -111,7 +111,7 @@ public class MetaObjectBuilder
 
 	private void cacheLanguageCodes(IContext context) throws CoreException
 	{
-		for(IMendixObject language :  Core.retrieveXPathQuery(context, "//" + Language.entityName))
+		for(IMendixObject language :  Core.createXPathQuery("//" + Language.entityName).execute(context))
 			this.languageCodes.add(Language.initialize(context, language).getCode());
 	}
 
@@ -155,7 +155,7 @@ public class MetaObjectBuilder
 	private void handleMembers(IContext context, IMetaObject metaObject, IMendixObject curObject) throws CoreException
 	{
 		Map<String,IMendixObject> membersByName = new HashMap<String, IMendixObject>();
-		List<IMendixObject> existingMembers = Core.retrieveXPathQuery(context, "//" + MxObjectMember.getType() + "[" + MxObjectMember.MemberNames.MxObjectMember_MxObjectType + "='" + curObject.getId().toLong() + "']");
+		List<IMendixObject> existingMembers = Core.createXPathQuery("//" + MxObjectMember.getType() + "[" + MxObjectMember.MemberNames.MxObjectMember_MxObjectType + "='" + curObject.getId().toLong() + "']").execute(context);
 		for(IMendixObject obj : existingMembers)
 			membersByName.put((String)obj.getValue(context, MxObjectMember.MemberNames.AttributeName.toString()), obj);
 

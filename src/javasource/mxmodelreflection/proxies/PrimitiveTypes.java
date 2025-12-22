@@ -8,10 +8,8 @@ public enum PrimitiveTypes
 {
 	AutoNumber(new java.lang.String[][] { new java.lang.String[] { "en_US", "Auto number" }, new java.lang.String[] { "nl_NL", "Autonummer" }, new java.lang.String[] { "en_GB", "Auto number" }, new java.lang.String[] { "en_ZA", "Auto number" } }),
 	BooleanType(new java.lang.String[][] { new java.lang.String[] { "en_US", "Boolean" }, new java.lang.String[] { "nl_NL", "Boolean" }, new java.lang.String[] { "en_GB", "Boolean" }, new java.lang.String[] { "en_ZA", "Boolean" } }),
-	Currency(new java.lang.String[][] { new java.lang.String[] { "en_US", "Currency" }, new java.lang.String[] { "nl_NL", "Currency" }, new java.lang.String[] { "en_GB", "Currency" }, new java.lang.String[] { "en_ZA", "Currency" } }),
 	DateTime(new java.lang.String[][] { new java.lang.String[] { "en_US", "DateTime" }, new java.lang.String[] { "nl_NL", "DateTime" }, new java.lang.String[] { "en_GB", "DateTime" }, new java.lang.String[] { "en_ZA", "DateTime" } }),
 	EnumType(new java.lang.String[][] { new java.lang.String[] { "en_US", "Enum" }, new java.lang.String[] { "nl_NL", "Enum" }, new java.lang.String[] { "en_GB", "Enum" }, new java.lang.String[] { "en_ZA", "Enum" } }),
-	FloatType(new java.lang.String[][] { new java.lang.String[] { "en_US", "Float" }, new java.lang.String[] { "nl_NL", "Float" }, new java.lang.String[] { "en_GB", "Float" }, new java.lang.String[] { "en_ZA", "Float" } }),
 	HashString(new java.lang.String[][] { new java.lang.String[] { "en_US", "Hash string (i.e. passwords)" }, new java.lang.String[] { "nl_NL", "Hash string (bv. wachtwoorden)" }, new java.lang.String[] { "en_GB", "Hash string (i.e. passwords)" }, new java.lang.String[] { "en_ZA", "Hash string (i.e. passwords)" } }),
 	IntegerType(new java.lang.String[][] { new java.lang.String[] { "en_US", "Integer" }, new java.lang.String[] { "nl_NL", "Integer" }, new java.lang.String[] { "en_GB", "Integer" }, new java.lang.String[] { "en_ZA", "Integer" } }),
 	LongType(new java.lang.String[][] { new java.lang.String[] { "en_US", "Long" }, new java.lang.String[] { "nl_NL", "Long" }, new java.lang.String[] { "en_GB", "Long" }, new java.lang.String[] { "en_ZA", "Long" } }),

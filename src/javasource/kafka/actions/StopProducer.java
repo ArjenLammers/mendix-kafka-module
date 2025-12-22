@@ -13,20 +13,24 @@ import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.webui.CustomJavaAction;
 import kafka.impl.KafkaModule;
 import kafka.impl.KafkaProducerRepository;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
  * Stops a certain Kafka producer.
  * 
  * This action will always return true.
  */
-public class StopProducer extends CustomJavaAction<java.lang.Boolean>
+public class StopProducer extends UserAction<java.lang.Boolean>
 {
-	private java.lang.String ProducerName;
+	private final java.lang.String ProducerName;
 
-	public StopProducer(IContext context, java.lang.String ProducerName)
+	public StopProducer(
+		IContext context,
+		java.lang.String _producerName
+	)
 	{
 		super(context);
-		this.ProducerName = ProducerName;
+		this.ProducerName = _producerName;
 	}
 
 	@java.lang.Override

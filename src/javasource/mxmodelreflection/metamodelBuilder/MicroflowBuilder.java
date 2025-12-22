@@ -27,7 +27,7 @@ public class MicroflowBuilder
 	public void buildMicroflows(IContext context) throws CoreException
 	{
 		Map<String,IMendixObject> existingMicroflows = new HashMap<String, IMendixObject>();
-		for(IMendixObject obj : Core.retrieveXPathQuery(context, "//" + Microflows.getType()))
+		for(IMendixObject obj : Core.createXPathQuery("//" + Microflows.getType()).execute(context))
 			existingMicroflows.put((String)obj.getValue(context, Microflows.MemberNames.CompleteName.toString()), obj);
 
 		if(  this.builder.allNewModules ) 
@@ -78,7 +78,7 @@ public class MicroflowBuilder
 	private List<IMendixObject> handleMicroflowParams(IContext context, String microflowName, IMendixObject obj) throws CoreException
 	{
 		Map<String, IMendixObject> existingParams = new HashMap<String, IMendixObject>();
-		List<IMendixObject> params = Core.retrieveXPathQuery(context, "//" + Parameter.getType() + "[" + Microflows.MemberNames.Microflows_InputParameter + "='" + obj.getId().toLong() + "']");
+		List<IMendixObject> params = Core.createXPathQuery("//" + Parameter.getType() + "[" + Microflows.MemberNames.Microflows_InputParameter + "='" + obj.getId().toLong() + "']").execute(context);
 		for(IMendixObject param : params)
 			existingParams.put((String)param.getValue(context, Parameter.MemberNames.Name.toString()), param);
 

@@ -4,208 +4,605 @@
 
 package mxmodelreflection.proxies.microflows;
 
-import java.util.HashMap;
-import java.util.Map;
 import com.mendix.core.Core;
 import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
 
-public class Microflows
+public final class Microflows
 {
 	/**
-	 * @deprecated
-	 * The default constructor of the Microflows class should not be used.
-	 * Use the static microflow invocation methods instead.
+	 * Private constructor to prevent instantiation of this class. 
 	 */
-	@java.lang.Deprecated(since = "9.12", forRemoval = true)
-	public Microflows() {}
+	private Microflows() {}
 
 	// These are the microflows for the MxModelReflection module
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCT_ShowMemberPageBuilder(
+		mxmodelreflection.proxies.MxObjectMember _mxObjectMember
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.ACT_ShowMemberPage");
+		builder = builder.withParam("MxObjectMember", _mxObjectMember);
+		return builder;
+	}
+
+	public static void aCT_ShowMemberPage(
+		IContext context,
+		mxmodelreflection.proxies.MxObjectMember _mxObjectMember
+	)
+	{
+		aCT_ShowMemberPageBuilder(
+				_mxObjectMember
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aSu_CheckMetamodelBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.ASu_CheckMetamodel");
+		return builder;
+	}
+
 	public static boolean aSu_CheckMetamodel(IContext context)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		return (java.lang.Boolean) Core.microflowCall("MxModelReflection.ASu_CheckMetamodel").withParams(params).execute(context);
+		Object result = aSu_CheckMetamodelBuilder().execute(context);
+		return (boolean) result;
 	}
-	public static boolean bCo_MxObjectMember_CreateCompleteMemberName(IContext context, mxmodelreflection.proxies.MxObjectMember _mxObjectMember)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder bCo_MxObjectMember_CreateCompleteMemberNameBuilder(
+		mxmodelreflection.proxies.MxObjectMember _mxObjectMember
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("MxObjectMember", _mxObjectMember == null ? null : _mxObjectMember.getMendixObject());
-		return (java.lang.Boolean) Core.microflowCall("MxModelReflection.BCo_MxObjectMember_CreateCompleteMemberName").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.BCo_MxObjectMember_CreateCompleteMemberName");
+		builder = builder.withParam("MxObjectMember", _mxObjectMember);
+		return builder;
 	}
-	public static boolean bCo_MxObjectReference(IContext context, mxmodelreflection.proxies.MxObjectReference _mxObjectReference)
+
+	public static boolean bCo_MxObjectMember_CreateCompleteMemberName(
+		IContext context,
+		mxmodelreflection.proxies.MxObjectMember _mxObjectMember
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("MxObjectReference", _mxObjectReference == null ? null : _mxObjectReference.getMendixObject());
-		return (java.lang.Boolean) Core.microflowCall("MxModelReflection.BCo_MxObjectReference").withParams(params).execute(context);
+		Object result = bCo_MxObjectMember_CreateCompleteMemberNameBuilder(
+				_mxObjectMember
+			)
+			.execute(context);
+		return (boolean) result;
 	}
-	public static boolean bCo_MxObjectType(IContext context, mxmodelreflection.proxies.MxObjectType _mxObjectType)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder bCo_MxObjectReferenceBuilder(
+		mxmodelreflection.proxies.MxObjectReference _mxObjectReference
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("MxObjectType", _mxObjectType == null ? null : _mxObjectType.getMendixObject());
-		return (java.lang.Boolean) Core.microflowCall("MxModelReflection.BCo_MxObjectType").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.BCo_MxObjectReference");
+		builder = builder.withParam("MxObjectReference", _mxObjectReference);
+		return builder;
 	}
-	public static boolean bCo_Token(IContext context, mxmodelreflection.proxies.Token _token)
+
+	public static boolean bCo_MxObjectReference(
+		IContext context,
+		mxmodelreflection.proxies.MxObjectReference _mxObjectReference
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Token", _token == null ? null : _token.getMendixObject());
-		return (java.lang.Boolean) Core.microflowCall("MxModelReflection.BCo_Token").withParams(params).execute(context);
+		Object result = bCo_MxObjectReferenceBuilder(
+				_mxObjectReference
+			)
+			.execute(context);
+		return (boolean) result;
 	}
-	public static boolean bDe_MxObjectType(IContext context, mxmodelreflection.proxies.MxObjectType _mxObjectType)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder bCo_MxObjectTypeBuilder(
+		mxmodelreflection.proxies.MxObjectType _mxObjectType
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("MxObjectType", _mxObjectType == null ? null : _mxObjectType.getMendixObject());
-		return (java.lang.Boolean) Core.microflowCall("MxModelReflection.BDe_MxObjectType").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.BCo_MxObjectType");
+		builder = builder.withParam("MxObjectType", _mxObjectType);
+		return builder;
 	}
-	public static void ch_FindMember(IContext context, mxmodelreflection.proxies.Token _token)
+
+	public static boolean bCo_MxObjectType(
+		IContext context,
+		mxmodelreflection.proxies.MxObjectType _mxObjectType
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Token", _token == null ? null : _token.getMendixObject());
-		Core.microflowCall("MxModelReflection.Ch_FindMember").withParams(params).execute(context);
+		Object result = bCo_MxObjectTypeBuilder(
+				_mxObjectType
+			)
+			.execute(context);
+		return (boolean) result;
 	}
-	public static void ch_FindMemberReference(IContext context, mxmodelreflection.proxies.Token _token)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder bCo_TokenBuilder(
+		mxmodelreflection.proxies.Token _token
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Token", _token == null ? null : _token.getMendixObject());
-		Core.microflowCall("MxModelReflection.Ch_FindMemberReference").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.BCo_Token");
+		builder = builder.withParam("Token", _token);
+		return builder;
 	}
-	public static void ch_FindObjectTypeReference(IContext context, mxmodelreflection.proxies.Token _token)
+
+	public static boolean bCo_Token(
+		IContext context,
+		mxmodelreflection.proxies.Token _token
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Token", _token == null ? null : _token.getMendixObject());
-		Core.microflowCall("MxModelReflection.Ch_FindObjectTypeReference").withParams(params).execute(context);
+		Object result = bCo_TokenBuilder(
+				_token
+			)
+			.execute(context);
+		return (boolean) result;
 	}
-	public static void ch_FindReference(IContext context, mxmodelreflection.proxies.Token _token)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder bDe_MxObjectTypeBuilder(
+		mxmodelreflection.proxies.MxObjectType _mxObjectType
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Token", _token == null ? null : _token.getMendixObject());
-		Core.microflowCall("MxModelReflection.Ch_FindReference").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.BDe_MxObjectType");
+		builder = builder.withParam("MxObjectType", _mxObjectType);
+		return builder;
 	}
-	public static void ch_Member(IContext context, mxmodelreflection.proxies.Token _token)
+
+	public static boolean bDe_MxObjectType(
+		IContext context,
+		mxmodelreflection.proxies.MxObjectType _mxObjectType
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Token", _token == null ? null : _token.getMendixObject());
-		Core.microflowCall("MxModelReflection.Ch_Member").withParams(params).execute(context);
+		Object result = bDe_MxObjectTypeBuilder(
+				_mxObjectType
+			)
+			.execute(context);
+		return (boolean) result;
 	}
-	public static void ch_ObjecttypeReference(IContext context, mxmodelreflection.proxies.Token _token)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder ch_MemberBuilder(
+		mxmodelreflection.proxies.Token _token
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Token", _token == null ? null : _token.getMendixObject());
-		Core.microflowCall("MxModelReflection.Ch_ObjecttypeReference").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.Ch_Member");
+		builder = builder.withParam("Token", _token);
+		return builder;
 	}
-	public static void ch_ObjectTypeStart(IContext context, mxmodelreflection.proxies.Token _token)
+
+	public static void ch_Member(
+		IContext context,
+		mxmodelreflection.proxies.Token _token
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Token", _token == null ? null : _token.getMendixObject());
-		Core.microflowCall("MxModelReflection.Ch_ObjectTypeStart").withParams(params).execute(context);
+		ch_MemberBuilder(
+				_token
+			)
+			.execute(context);
 	}
-	public static void ch_Reference(IContext context, mxmodelreflection.proxies.Token _token)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder ch_ObjecttypeReferenceBuilder(
+		mxmodelreflection.proxies.Token _token
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Token", _token == null ? null : _token.getMendixObject());
-		Core.microflowCall("MxModelReflection.Ch_Reference").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.Ch_ObjecttypeReference");
+		builder = builder.withParam("Token", _token);
+		return builder;
 	}
+
+	public static void ch_ObjecttypeReference(
+		IContext context,
+		mxmodelreflection.proxies.Token _token
+	)
+	{
+		ch_ObjecttypeReferenceBuilder(
+				_token
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder ch_ObjectTypeStartBuilder(
+		mxmodelreflection.proxies.Token _token
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.Ch_ObjectTypeStart");
+		builder = builder.withParam("Token", _token);
+		return builder;
+	}
+
+	public static void ch_ObjectTypeStart(
+		IContext context,
+		mxmodelreflection.proxies.Token _token
+	)
+	{
+		ch_ObjectTypeStartBuilder(
+				_token
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder ch_ReferenceBuilder(
+		mxmodelreflection.proxies.Token _token
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.Ch_Reference");
+		builder = builder.withParam("Token", _token);
+		return builder;
+	}
+
+	public static void ch_Reference(
+		IContext context,
+		mxmodelreflection.proxies.Token _token
+	)
+	{
+		ch_ReferenceBuilder(
+				_token
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder deleteDbSizeEstimateBuilder(
+		mxmodelreflection.proxies.DbSizeEstimate _dbSizeEstimate
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.DeleteDbSizeEstimate");
+		builder = builder.withParam("DbSizeEstimate", _dbSizeEstimate);
+		return builder;
+	}
+
+	public static void deleteDbSizeEstimate(
+		IContext context,
+		mxmodelreflection.proxies.DbSizeEstimate _dbSizeEstimate
+	)
+	{
+		deleteDbSizeEstimateBuilder(
+				_dbSizeEstimate
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder deleteTokenBuilder(
+		mxmodelreflection.proxies.Token _token
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.DeleteToken");
+		builder = builder.withParam("Token", _token);
+		return builder;
+	}
+
+	public static void deleteToken(
+		IContext context,
+		mxmodelreflection.proxies.Token _token
+	)
+	{
+		deleteTokenBuilder(
+				_token
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder dSL_ModulesBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.DSL_Modules");
+		return builder;
+	}
+
 	public static java.util.List<mxmodelreflection.proxies.Module> dSL_Modules(IContext context)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		java.util.List<IMendixObject> objs = Core.microflowCall("MxModelReflection.DSL_Modules").withParams(params).execute(context);
-		if (objs == null) {
-			return null;
-		} else {
-			return objs.stream()
-				.map(obj -> mxmodelreflection.proxies.Module.initialize(context, obj))
-				.collect(java.util.stream.Collectors.toList());
-		}
+		Object result = dSL_ModulesBuilder().execute(context);
+		return result == null ? null : com.mendix.utils.ListUtils.map((java.util.List<IMendixObject>) result, obj -> mxmodelreflection.proxies.Module.initialize(context, obj));
 	}
-	public static mxmodelreflection.proxies.InheritsFromContainer dSO_InheritsFromContainer(IContext context, mxmodelreflection.proxies.MxObjectType _mxObjectType)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder dSO_InheritsFromContainerBuilder(
+		mxmodelreflection.proxies.MxObjectType _mxObjectType
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("MxObjectType", _mxObjectType == null ? null : _mxObjectType.getMendixObject());
-		IMendixObject result = (IMendixObject)Core.microflowCall("MxModelReflection.DSO_InheritsFromContainer").withParams(params).execute(context);
-		return result == null ? null : mxmodelreflection.proxies.InheritsFromContainer.initialize(context, result);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.DSO_InheritsFromContainer");
+		builder = builder.withParam("MxObjectType", _mxObjectType);
+		return builder;
 	}
-	public static mxmodelreflection.proxies.MxObjectMember findMember(IContext context, java.lang.String _memberSearchString, mxmodelreflection.proxies.MxObjectType _mxObjectType)
+
+	public static mxmodelreflection.proxies.InheritsFromContainer dSO_InheritsFromContainer(
+		IContext context,
+		mxmodelreflection.proxies.MxObjectType _mxObjectType
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("MemberSearchString", _memberSearchString);
-		params.put("MxObjectType", _mxObjectType == null ? null : _mxObjectType.getMendixObject());
-		IMendixObject result = (IMendixObject)Core.microflowCall("MxModelReflection.FindMember").withParams(params).execute(context);
-		return result == null ? null : mxmodelreflection.proxies.MxObjectMember.initialize(context, result);
+		Object result = dSO_InheritsFromContainerBuilder(
+				_mxObjectType
+			)
+			.execute(context);
+		return result == null ? null : mxmodelreflection.proxies.InheritsFromContainer.initialize(context, (IMendixObject) result);
 	}
-	public static mxmodelreflection.proxies.Microflows findMicroflow(IContext context, java.lang.String _microflowSearchString)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder enumValueCaptionsBuilder(
+		mxmodelreflection.proxies.MxObjectEnumValue _mxObjectEnumValue
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("MicroflowSearchString", _microflowSearchString);
-		IMendixObject result = (IMendixObject)Core.microflowCall("MxModelReflection.FindMicroflow").withParams(params).execute(context);
-		return result == null ? null : mxmodelreflection.proxies.Microflows.initialize(context, result);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.EnumValueCaptions");
+		builder = builder.withParam("MxObjectEnumValue", _mxObjectEnumValue);
+		return builder;
 	}
-	public static mxmodelreflection.proxies.MxObjectType findObjectType(IContext context, java.lang.String _objectTypeSearchString, mxmodelreflection.proxies.MxObjectReference _mxObjectReference_optional)
+
+	public static mxmodelreflection.proxies.StringValue enumValueCaptions(
+		IContext context,
+		mxmodelreflection.proxies.MxObjectEnumValue _mxObjectEnumValue
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("ObjectTypeSearchString", _objectTypeSearchString);
-		params.put("MxObjectReference_optional", _mxObjectReference_optional == null ? null : _mxObjectReference_optional.getMendixObject());
-		IMendixObject result = (IMendixObject)Core.microflowCall("MxModelReflection.FindObjectType").withParams(params).execute(context);
-		return result == null ? null : mxmodelreflection.proxies.MxObjectType.initialize(context, result);
+		Object result = enumValueCaptionsBuilder(
+				_mxObjectEnumValue
+			)
+			.execute(context);
+		return result == null ? null : mxmodelreflection.proxies.StringValue.initialize(context, (IMendixObject) result);
 	}
-	public static mxmodelreflection.proxies.MxObjectReference findReference(IContext context, java.lang.String _referenceSearchString, mxmodelreflection.proxies.MxObjectType _mxObjectType_optional)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder enumValueLanguagesBuilder(
+		mxmodelreflection.proxies.MxObjectEnumValue _mxObjectEnumValue
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("ReferenceSearchString", _referenceSearchString);
-		params.put("MxObjectType_optional", _mxObjectType_optional == null ? null : _mxObjectType_optional.getMendixObject());
-		IMendixObject result = (IMendixObject)Core.microflowCall("MxModelReflection.FindReference").withParams(params).execute(context);
-		return result == null ? null : mxmodelreflection.proxies.MxObjectReference.initialize(context, result);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.EnumValueLanguages");
+		builder = builder.withParam("MxObjectEnumValue", _mxObjectEnumValue);
+		return builder;
 	}
-	public static void iVK_MxObjectTypeCommit(IContext context, mxmodelreflection.proxies.MxObjectType _mxObjectType)
+
+	public static mxmodelreflection.proxies.StringValue enumValueLanguages(
+		IContext context,
+		mxmodelreflection.proxies.MxObjectEnumValue _mxObjectEnumValue
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("MxObjectType", _mxObjectType == null ? null : _mxObjectType.getMendixObject());
-		Core.microflowCall("MxModelReflection.IVK_MxObjectTypeCommit").withParams(params).execute(context);
+		Object result = enumValueLanguagesBuilder(
+				_mxObjectEnumValue
+			)
+			.execute(context);
+		return result == null ? null : mxmodelreflection.proxies.StringValue.initialize(context, (IMendixObject) result);
 	}
-	public static void iVK_OpenReferencedMendixObject(IContext context, mxmodelreflection.proxies.MxObjectReference _selection, mxmodelreflection.proxies.MxObjectType _mxObjectType)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder findMemberBuilder(
+		java.lang.String _memberSearchString,
+		mxmodelreflection.proxies.MxObjectType _mxObjectType
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Selection", _selection == null ? null : _selection.getMendixObject());
-		params.put("MxObjectType", _mxObjectType == null ? null : _mxObjectType.getMendixObject());
-		Core.microflowCall("MxModelReflection.IVK_OpenReferencedMendixObject").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.FindMember");
+		builder = builder.withParam("MemberSearchString", _memberSearchString);
+		builder = builder.withParam("MxObjectType", _mxObjectType);
+		return builder;
 	}
+
+	public static mxmodelreflection.proxies.MxObjectMember findMember(
+		IContext context,
+		java.lang.String _memberSearchString,
+		mxmodelreflection.proxies.MxObjectType _mxObjectType
+	)
+	{
+		Object result = findMemberBuilder(
+				_memberSearchString,
+				_mxObjectType
+			)
+			.execute(context);
+		return result == null ? null : mxmodelreflection.proxies.MxObjectMember.initialize(context, (IMendixObject) result);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder findMicroflowBuilder(
+		java.lang.String _microflowSearchString
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.FindMicroflow");
+		builder = builder.withParam("MicroflowSearchString", _microflowSearchString);
+		return builder;
+	}
+
+	public static mxmodelreflection.proxies.Microflows findMicroflow(
+		IContext context,
+		java.lang.String _microflowSearchString
+	)
+	{
+		Object result = findMicroflowBuilder(
+				_microflowSearchString
+			)
+			.execute(context);
+		return result == null ? null : mxmodelreflection.proxies.Microflows.initialize(context, (IMendixObject) result);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder findObjectTypeBuilder(
+		java.lang.String _objectTypeSearchString,
+		mxmodelreflection.proxies.MxObjectReference _mxObjectReference_optional
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.FindObjectType");
+		builder = builder.withParam("ObjectTypeSearchString", _objectTypeSearchString);
+		builder = builder.withParam("MxObjectReference_optional", _mxObjectReference_optional);
+		return builder;
+	}
+
+	public static mxmodelreflection.proxies.MxObjectType findObjectType(
+		IContext context,
+		java.lang.String _objectTypeSearchString,
+		mxmodelreflection.proxies.MxObjectReference _mxObjectReference_optional
+	)
+	{
+		Object result = findObjectTypeBuilder(
+				_objectTypeSearchString,
+				_mxObjectReference_optional
+			)
+			.execute(context);
+		return result == null ? null : mxmodelreflection.proxies.MxObjectType.initialize(context, (IMendixObject) result);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder findReferenceBuilder(
+		java.lang.String _referenceSearchString,
+		mxmodelreflection.proxies.MxObjectType _mxObjectType_optional
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.FindReference");
+		builder = builder.withParam("ReferenceSearchString", _referenceSearchString);
+		builder = builder.withParam("MxObjectType_optional", _mxObjectType_optional);
+		return builder;
+	}
+
+	public static mxmodelreflection.proxies.MxObjectReference findReference(
+		IContext context,
+		java.lang.String _referenceSearchString,
+		mxmodelreflection.proxies.MxObjectType _mxObjectType_optional
+	)
+	{
+		Object result = findReferenceBuilder(
+				_referenceSearchString,
+				_mxObjectType_optional
+			)
+			.execute(context);
+		return result == null ? null : mxmodelreflection.proxies.MxObjectReference.initialize(context, (IMendixObject) result);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder iVK_MxObjectTypeCommitBuilder(
+		mxmodelreflection.proxies.MxObjectType _mxObjectType
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.IVK_MxObjectTypeCommit");
+		builder = builder.withParam("MxObjectType", _mxObjectType);
+		return builder;
+	}
+
+	public static void iVK_MxObjectTypeCommit(
+		IContext context,
+		mxmodelreflection.proxies.MxObjectType _mxObjectType
+	)
+	{
+		iVK_MxObjectTypeCommitBuilder(
+				_mxObjectType
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder iVK_OpenReferencedMendixObjectBuilder(
+		mxmodelreflection.proxies.MxObjectReference _selection,
+		mxmodelreflection.proxies.MxObjectType _mxObjectType
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.IVK_OpenReferencedMendixObject");
+		builder = builder.withParam("Selection", _selection);
+		builder = builder.withParam("MxObjectType", _mxObjectType);
+		return builder;
+	}
+
+	public static void iVK_OpenReferencedMendixObject(
+		IContext context,
+		mxmodelreflection.proxies.MxObjectReference _selection,
+		mxmodelreflection.proxies.MxObjectType _mxObjectType
+	)
+	{
+		iVK_OpenReferencedMendixObjectBuilder(
+				_selection,
+				_mxObjectType
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder iVK_RecalculateSizeBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.IVK_RecalculateSize");
+		return builder;
+	}
+
 	public static void iVK_RecalculateSize(IContext context)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		Core.microflowCall("MxModelReflection.IVK_RecalculateSize").withParams(params).execute(context);
+		iVK_RecalculateSizeBuilder().execute(context);
 	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder iVK_SyncObjectsBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.IVK_SyncObjects");
+		return builder;
+	}
+
 	public static void iVK_SyncObjects(IContext context)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		Core.microflowCall("MxModelReflection.IVK_SyncObjects").withParams(params).execute(context);
+		iVK_SyncObjectsBuilder().execute(context);
 	}
-	public static void iVK_ToggleModule(IContext context, mxmodelreflection.proxies.Module _module)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder iVK_ToggleModuleBuilder(
+		mxmodelreflection.proxies.Module _module
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Module", _module == null ? null : _module.getMendixObject());
-		Core.microflowCall("MxModelReflection.IVK_ToggleModule").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.IVK_ToggleModule");
+		builder = builder.withParam("Module", _module);
+		return builder;
 	}
-	public static java.lang.Long log(IContext context, java.lang.Long _base, java.lang.Long _x)
+
+	public static void iVK_ToggleModule(
+		IContext context,
+		mxmodelreflection.proxies.Module _module
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Base", _base);
-		params.put("x", _x);
-		return (java.lang.Long) Core.microflowCall("MxModelReflection.Log").withParams(params).execute(context);
+		iVK_ToggleModuleBuilder(
+				_module
+			)
+			.execute(context);
 	}
-	public static void mB_TestThePattern(IContext context, mxmodelreflection.proxies.TestPattern _testPattern)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder logBuilder(
+		java.lang.Long _base,
+		java.lang.Long _x
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("TestPattern", _testPattern == null ? null : _testPattern.getMendixObject());
-		Core.microflowCall("MxModelReflection.MB_TestThePattern").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.Log");
+		builder = builder.withParam("Base", _base);
+		builder = builder.withParam("x", _x);
+		return builder;
 	}
-	public static void mB_TestTokenPattern(IContext context, mxmodelreflection.proxies.Token _token)
+
+	public static java.lang.Long log(
+		IContext context,
+		java.lang.Long _base,
+		java.lang.Long _x
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Token", _token == null ? null : _token.getMendixObject());
-		Core.microflowCall("MxModelReflection.MB_TestTokenPattern").withParams(params).execute(context);
+		Object result = logBuilder(
+				_base,
+				_x
+			)
+			.execute(context);
+		return (java.lang.Long) result;
 	}
-	public static void oC_FindObjectType(IContext context, mxmodelreflection.proxies.DbSizeEstimate _dbSizeEstimate)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder mB_TestThePatternBuilder(
+		mxmodelreflection.proxies.TestPattern _testPattern
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("DbSizeEstimate", _dbSizeEstimate == null ? null : _dbSizeEstimate.getMendixObject());
-		Core.microflowCall("MxModelReflection.OC_FindObjectType").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.MB_TestThePattern");
+		builder = builder.withParam("TestPattern", _testPattern);
+		return builder;
+	}
+
+	public static void mB_TestThePattern(
+		IContext context,
+		mxmodelreflection.proxies.TestPattern _testPattern
+	)
+	{
+		mB_TestThePatternBuilder(
+				_testPattern
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder mB_TestTokenPatternBuilder(
+		mxmodelreflection.proxies.Token _token
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.MB_TestTokenPattern");
+		builder = builder.withParam("Token", _token);
+		return builder;
+	}
+
+	public static void mB_TestTokenPattern(
+		IContext context,
+		mxmodelreflection.proxies.Token _token
+	)
+	{
+		mB_TestTokenPatternBuilder(
+				_token
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder oC_FindObjectTypeBuilder(
+		mxmodelreflection.proxies.DbSizeEstimate _dbSizeEstimate
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.OC_FindObjectType");
+		builder = builder.withParam("DbSizeEstimate", _dbSizeEstimate);
+		return builder;
+	}
+
+	public static void oC_FindObjectType(
+		IContext context,
+		mxmodelreflection.proxies.DbSizeEstimate _dbSizeEstimate
+	)
+	{
+		oC_FindObjectTypeBuilder(
+				_dbSizeEstimate
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder referenceObjectsBuilder(
+		mxmodelreflection.proxies.MxObjectReference _mxObjectReference
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("MxModelReflection.ReferenceObjects");
+		builder = builder.withParam("MxObjectReference", _mxObjectReference);
+		return builder;
+	}
+
+	public static mxmodelreflection.proxies.StringValue referenceObjects(
+		IContext context,
+		mxmodelreflection.proxies.MxObjectReference _mxObjectReference
+	)
+	{
+		Object result = referenceObjectsBuilder(
+				_mxObjectReference
+			)
+			.execute(context);
+		return result == null ? null : mxmodelreflection.proxies.StringValue.initialize(context, (IMendixObject) result);
 	}
 }

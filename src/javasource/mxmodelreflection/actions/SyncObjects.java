@@ -17,15 +17,15 @@ import mxmodelreflection.proxies.Module;
 import mxmodelreflection.proxies.MxObjectMember;
 import mxmodelreflection.proxies.MxObjectType;
 import com.mendix.systemwideinterfaces.core.IContext;
-import com.mendix.webui.CustomJavaAction;
 import com.mendix.webui.FeedbackHelper;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
  * Reads all information from the running project and synchronize the full MxModelReflection domain model with the information from the current project
  * 
  * (The return value from this action can be ignored)
  */
-public class SyncObjects extends CustomJavaAction<java.lang.Boolean>
+public class SyncObjects extends UserAction<java.lang.Boolean>
 {
 	public SyncObjects(IContext context)
 	{

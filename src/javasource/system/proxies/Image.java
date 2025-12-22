@@ -20,6 +20,7 @@ public class Image extends system.proxies.FileDocument
 	public enum MemberNames
 	{
 		PublicThumbnailPath("PublicThumbnailPath"),
+		EnableCaching("EnableCaching"),
 		FileID("FileID"),
 		Name("Name"),
 		DeleteAfterDownload("DeleteAfterDownload"),
@@ -52,15 +53,6 @@ public class Image extends system.proxies.FileDocument
 		if (!com.mendix.core.Core.isSubClassOf(entityName, imageMendixObject.getType())) {
 			throw new java.lang.IllegalArgumentException(String.format("The given object is not a %s", entityName));
 		}	
-	}
-
-	/**
-	 * @deprecated Use 'Image.load(IContext, IMendixIdentifier)' instead.
-	 */
-	@java.lang.Deprecated
-	public static system.proxies.Image initialize(com.mendix.systemwideinterfaces.core.IContext context, com.mendix.systemwideinterfaces.core.IMendixIdentifier mendixIdentifier) throws com.mendix.core.CoreException
-	{
-		return system.proxies.Image.load(context, mendixIdentifier);
 	}
 
 	/**
@@ -126,6 +118,42 @@ public class Image extends system.proxies.FileDocument
 		getMendixObject().setValue(context, MemberNames.PublicThumbnailPath.toString(), publicthumbnailpath);
 	}
 
+	/**
+	 * @return value of EnableCaching
+	 */
+	public final java.lang.Boolean getEnableCaching()
+	{
+		return getEnableCaching(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of EnableCaching
+	 */
+	public final java.lang.Boolean getEnableCaching(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.Boolean) getMendixObject().getValue(context, MemberNames.EnableCaching.toString());
+	}
+
+	/**
+	 * Set value of EnableCaching
+	 * @param enablecaching
+	 */
+	public final void setEnableCaching(java.lang.Boolean enablecaching)
+	{
+		setEnableCaching(getContext(), enablecaching);
+	}
+
+	/**
+	 * Set value of EnableCaching
+	 * @param context
+	 * @param enablecaching
+	 */
+	public final void setEnableCaching(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Boolean enablecaching)
+	{
+		getMendixObject().setValue(context, MemberNames.EnableCaching.toString(), enablecaching);
+	}
+
 	@java.lang.Override
 	public boolean equals(Object obj)
 	{
@@ -146,22 +174,13 @@ public class Image extends system.proxies.FileDocument
 		return getMendixObject().hashCode();
 	}
 
-	/**
-	 * @return String name of this class
-	 */
+  /**
+   * Gives full name ("Module.Entity" name) of the type of the entity.
+   *
+   * @return the name
+   */
 	public static java.lang.String getType()
 	{
 		return entityName;
-	}
-
-	/**
-	 * @return String GUID from this object, format: ID_0000000000
-	 * @deprecated Use getMendixObject().getId().toLong() to get a unique identifier for this object.
-	 */
-	@java.lang.Override
-	@java.lang.Deprecated
-	public java.lang.String getGUID()
-	{
-		return "ID_" + getMendixObject().getId().toLong();
 	}
 }

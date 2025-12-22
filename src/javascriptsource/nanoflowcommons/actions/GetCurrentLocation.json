@@ -1,0 +1,5 @@
+{
+  "nativeDependencies": {
+    "@react-native-community/geolocation": "3.4.0"
+  }
+}

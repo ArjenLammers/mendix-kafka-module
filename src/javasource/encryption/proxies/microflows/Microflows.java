@@ -4,114 +4,299 @@
 
 package encryption.proxies.microflows;
 
-import java.util.HashMap;
-import java.util.Map;
 import com.mendix.core.Core;
 import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
 
-public class Microflows
+public final class Microflows
 {
 	/**
-	 * @deprecated
-	 * The default constructor of the Microflows class should not be used.
-	 * Use the static microflow invocation methods instead.
+	 * Private constructor to prevent instantiation of this class. 
 	 */
-	@java.lang.Deprecated(since = "9.12", forRemoval = true)
-	public Microflows() {}
+	private Microflows() {}
 
 	// These are the microflows for the Encryption module
-	public static java.lang.String decrypt(IContext context, java.lang.String _encrypted)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder decryptBuilder(
+		java.lang.String _encrypted
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Encrypted", _encrypted);
-		return (java.lang.String) Core.microflowCall("Encryption.Decrypt").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.Decrypt");
+		builder = builder.withParam("Encrypted", _encrypted);
+		return builder;
 	}
-	public static void decrypt_Document(IContext context, system.proxies.FileDocument _fileDocument_Output, system.proxies.FileDocument _fileDocument_ToDecrypt, encryption.proxies.PGPCertificate _privateKeyForDecryption)
+
+	public static java.lang.String decrypt(
+		IContext context,
+		java.lang.String _encrypted
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("FileDocument_Output", _fileDocument_Output == null ? null : _fileDocument_Output.getMendixObject());
-		params.put("FileDocument_ToDecrypt", _fileDocument_ToDecrypt == null ? null : _fileDocument_ToDecrypt.getMendixObject());
-		params.put("PrivateKeyForDecryption", _privateKeyForDecryption == null ? null : _privateKeyForDecryption.getMendixObject());
-		Core.microflowCall("Encryption.Decrypt_Document").withParams(params).execute(context);
+		Object result = decryptBuilder(
+				_encrypted
+			)
+			.execute(context);
+		return (java.lang.String) result;
 	}
-	public static java.lang.String decryptCommunityCommonsString(IContext context, java.lang.String _value, java.lang.String _key)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder decrypt_DocumentBuilder(
+		system.proxies.FileDocument _fileDocument_Output,
+		system.proxies.FileDocument _fileDocument_ToDecrypt,
+		encryption.proxies.PGPCertificate _privateKeyForDecryption
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Value", _value);
-		params.put("Key", _key);
-		return (java.lang.String) Core.microflowCall("Encryption.DecryptCommunityCommonsString").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.Decrypt_Document");
+		builder = builder.withParam("FileDocument_Output", _fileDocument_Output);
+		builder = builder.withParam("FileDocument_ToDecrypt", _fileDocument_ToDecrypt);
+		builder = builder.withParam("PrivateKeyForDecryption", _privateKeyForDecryption);
+		return builder;
 	}
-	public static encryption.proxies.PGPCertificate dS_GetAssociatedPubKey(IContext context, encryption.proxies.PGPCertificate _certificate)
+
+	public static void decrypt_Document(
+		IContext context,
+		system.proxies.FileDocument _fileDocument_Output,
+		system.proxies.FileDocument _fileDocument_ToDecrypt,
+		encryption.proxies.PGPCertificate _privateKeyForDecryption
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Certificate", _certificate == null ? null : _certificate.getMendixObject());
-		IMendixObject result = (IMendixObject)Core.microflowCall("Encryption.DS_GetAssociatedPubKey").withParams(params).execute(context);
-		return result == null ? null : encryption.proxies.PGPCertificate.initialize(context, result);
+		decrypt_DocumentBuilder(
+				_fileDocument_Output,
+				_fileDocument_ToDecrypt,
+				_privateKeyForDecryption
+			)
+			.execute(context);
 	}
-	public static java.lang.String encrypt(IContext context, java.lang.String _plain)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder decryptCommunityCommonsStringBuilder(
+		java.lang.String _value,
+		java.lang.String _key
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Plain", _plain);
-		return (java.lang.String) Core.microflowCall("Encryption.Encrypt").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.DecryptCommunityCommonsString");
+		builder = builder.withParam("Value", _value);
+		builder = builder.withParam("Key", _key);
+		return builder;
 	}
-	public static void encrypt_Document(IContext context, system.proxies.FileDocument _fileDocument_ToEncrypt, system.proxies.FileDocument _fileDocument_Output, encryption.proxies.PGPCertificate _externalPubKey)
+
+	public static java.lang.String decryptCommunityCommonsString(
+		IContext context,
+		java.lang.String _value,
+		java.lang.String _key
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("FileDocument_ToEncrypt", _fileDocument_ToEncrypt == null ? null : _fileDocument_ToEncrypt.getMendixObject());
-		params.put("FileDocument_Output", _fileDocument_Output == null ? null : _fileDocument_Output.getMendixObject());
-		params.put("ExternalPubKey", _externalPubKey == null ? null : _externalPubKey.getMendixObject());
-		Core.microflowCall("Encryption.Encrypt_Document").withParams(params).execute(context);
+		Object result = decryptCommunityCommonsStringBuilder(
+				_value,
+				_key
+			)
+			.execute(context);
+		return (java.lang.String) result;
 	}
-	public static java.lang.String forceEncrypt(IContext context, java.lang.String _plain)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder dS_GetAssociatedPubKeyBuilder(
+		encryption.proxies.PGPCertificate _certificate
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Plain", _plain);
-		return (java.lang.String) Core.microflowCall("Encryption.ForceEncrypt").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.DS_GetAssociatedPubKey");
+		builder = builder.withParam("Certificate", _certificate);
+		return builder;
 	}
-	public static void mB_ChangePasswordSave(IContext context, encryption.proxies.PasswordData _passwordData)
+
+	public static encryption.proxies.PGPCertificate dS_GetAssociatedPubKey(
+		IContext context,
+		encryption.proxies.PGPCertificate _certificate
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("PasswordData", _passwordData == null ? null : _passwordData.getMendixObject());
-		Core.microflowCall("Encryption.MB_ChangePasswordSave").withParams(params).execute(context);
+		Object result = dS_GetAssociatedPubKeyBuilder(
+				_certificate
+			)
+			.execute(context);
+		return result == null ? null : encryption.proxies.PGPCertificate.initialize(context, (IMendixObject) result);
 	}
-	public static void mB_GenerateCertificate(IContext context, encryption.proxies.PGPCertificate _certificate_PrivateKey)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder encryptBuilder(
+		java.lang.String _plain
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Certificate_PrivateKey", _certificate_PrivateKey == null ? null : _certificate_PrivateKey.getMendixObject());
-		Core.microflowCall("Encryption.MB_GenerateCertificate").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.Encrypt");
+		builder = builder.withParam("Plain", _plain);
+		return builder;
 	}
+
+	public static java.lang.String encrypt(
+		IContext context,
+		java.lang.String _plain
+	)
+	{
+		Object result = encryptBuilder(
+				_plain
+			)
+			.execute(context);
+		return (java.lang.String) result;
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder encrypt_DocumentBuilder(
+		system.proxies.FileDocument _fileDocument_ToEncrypt,
+		system.proxies.FileDocument _fileDocument_Output,
+		encryption.proxies.PGPCertificate _externalPubKey
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.Encrypt_Document");
+		builder = builder.withParam("FileDocument_ToEncrypt", _fileDocument_ToEncrypt);
+		builder = builder.withParam("FileDocument_Output", _fileDocument_Output);
+		builder = builder.withParam("ExternalPubKey", _externalPubKey);
+		return builder;
+	}
+
+	public static void encrypt_Document(
+		IContext context,
+		system.proxies.FileDocument _fileDocument_ToEncrypt,
+		system.proxies.FileDocument _fileDocument_Output,
+		encryption.proxies.PGPCertificate _externalPubKey
+	)
+	{
+		encrypt_DocumentBuilder(
+				_fileDocument_ToEncrypt,
+				_fileDocument_Output,
+				_externalPubKey
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder forceEncryptBuilder(
+		java.lang.String _plain
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.ForceEncrypt");
+		builder = builder.withParam("Plain", _plain);
+		return builder;
+	}
+
+	public static java.lang.String forceEncrypt(
+		IContext context,
+		java.lang.String _plain
+	)
+	{
+		Object result = forceEncryptBuilder(
+				_plain
+			)
+			.execute(context);
+		return (java.lang.String) result;
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder mB_ChangePasswordSaveBuilder(
+		encryption.proxies.PasswordData _passwordData
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.MB_ChangePasswordSave");
+		builder = builder.withParam("PasswordData", _passwordData);
+		return builder;
+	}
+
+	public static void mB_ChangePasswordSave(
+		IContext context,
+		encryption.proxies.PasswordData _passwordData
+	)
+	{
+		mB_ChangePasswordSaveBuilder(
+				_passwordData
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder mB_GenerateCertificateBuilder(
+		encryption.proxies.PGPCertificate _certificate_PrivateKey
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.MB_GenerateCertificate");
+		builder = builder.withParam("Certificate_PrivateKey", _certificate_PrivateKey);
+		return builder;
+	}
+
+	public static void mB_GenerateCertificate(
+		IContext context,
+		encryption.proxies.PGPCertificate _certificate_PrivateKey
+	)
+	{
+		mB_GenerateCertificateBuilder(
+				_certificate_PrivateKey
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder mB_GenerateKeyShowPageBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.MB_GenerateKeyShowPage");
+		return builder;
+	}
+
 	public static void mB_GenerateKeyShowPage(IContext context)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		Core.microflowCall("Encryption.MB_GenerateKeyShowPage").withParams(params).execute(context);
+		mB_GenerateKeyShowPageBuilder().execute(context);
 	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder mB_NewPrivateKeyBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.MB_NewPrivateKey");
+		return builder;
+	}
+
 	public static void mB_NewPrivateKey(IContext context)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		Core.microflowCall("Encryption.MB_NewPrivateKey").withParams(params).execute(context);
+		mB_NewPrivateKeyBuilder().execute(context);
 	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder mB_NewPubKeyBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.MB_NewPubKey");
+		return builder;
+	}
+
 	public static void mB_NewPubKey(IContext context)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		Core.microflowCall("Encryption.MB_NewPubKey").withParams(params).execute(context);
+		mB_NewPubKeyBuilder().execute(context);
 	}
-	public static void mB_OpenCertificateDetails(IContext context, encryption.proxies.PGPCertificate _certificate)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder mB_OpenCertificateDetailsBuilder(
+		encryption.proxies.PGPCertificate _certificate
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Certificate", _certificate == null ? null : _certificate.getMendixObject());
-		Core.microflowCall("Encryption.MB_OpenCertificateDetails").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.MB_OpenCertificateDetails");
+		builder = builder.withParam("Certificate", _certificate);
+		return builder;
 	}
-	public static void mB_SaveCertificate(IContext context, encryption.proxies.PGPCertificate _certificate)
+
+	public static void mB_OpenCertificateDetails(
+		IContext context,
+		encryption.proxies.PGPCertificate _certificate
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Certificate", _certificate == null ? null : _certificate.getMendixObject());
-		Core.microflowCall("Encryption.MB_SaveCertificate").withParams(params).execute(context);
+		mB_OpenCertificateDetailsBuilder(
+				_certificate
+			)
+			.execute(context);
 	}
-	public static void mB_ShowChangePassword(IContext context, encryption.proxies.ExampleConfiguration _exampleConfiguration)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder mB_SaveCertificateBuilder(
+		encryption.proxies.PGPCertificate _certificate
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("ExampleConfiguration", _exampleConfiguration == null ? null : _exampleConfiguration.getMendixObject());
-		Core.microflowCall("Encryption.MB_ShowChangePassword").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.MB_SaveCertificate");
+		builder = builder.withParam("Certificate", _certificate);
+		return builder;
+	}
+
+	public static void mB_SaveCertificate(
+		IContext context,
+		encryption.proxies.PGPCertificate _certificate
+	)
+	{
+		mB_SaveCertificateBuilder(
+				_certificate
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder mB_ShowChangePasswordBuilder(
+		encryption.proxies.ExampleConfiguration _exampleConfiguration
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Encryption.MB_ShowChangePassword");
+		builder = builder.withParam("ExampleConfiguration", _exampleConfiguration);
+		return builder;
+	}
+
+	public static void mB_ShowChangePassword(
+		IContext context,
+		encryption.proxies.ExampleConfiguration _exampleConfiguration
+	)
+	{
+		mB_ShowChangePasswordBuilder(
+				_exampleConfiguration
+			)
+			.execute(context);
 	}
 }

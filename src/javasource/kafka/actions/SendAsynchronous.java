@@ -16,6 +16,7 @@ import kafka.impl.KafkaPropertiesFactory;
 import kafka.proxies.Header;
 import org.apache.kafka.clients.producer.*;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
  * Sends ('produces') a message in a Kafka topic.
@@ -24,39 +25,49 @@ import com.mendix.systemwideinterfaces.core.IMendixObject;
  * 
  * This action will always return true.
  */
-public class SendAsynchronous extends CustomJavaAction<java.lang.Boolean>
+public class SendAsynchronous extends UserAction<java.lang.Boolean>
 {
-	private IMendixObject __producer;
-	private kafka.proxies.Producer producer;
-	private java.lang.String topic;
-	private java.lang.String key;
-	private java.lang.String value;
-	private java.util.List<IMendixObject> __headers;
-	private java.util.List<kafka.proxies.Header> headers;
-	private java.lang.Boolean useCachedProducer;
+	/** @deprecated use producer.getMendixObject() instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final IMendixObject __producer;
+	private final kafka.proxies.Producer producer;
+	private final java.lang.String topic;
+	private final java.lang.String key;
+	private final java.lang.String value;
+	/** @deprecated use com.mendix.utils.ListUtils.map(headers, com.mendix.systemwideinterfaces.core.IEntityProxy::getMendixObject) instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final java.util.List<IMendixObject> __headers;
+	private final java.util.List<kafka.proxies.Header> headers;
+	private final java.lang.Boolean useCachedProducer;
 
-	public SendAsynchronous(IContext context, IMendixObject producer, java.lang.String topic, java.lang.String key, java.lang.String value, java.util.List<IMendixObject> headers, java.lang.Boolean useCachedProducer)
+	public SendAsynchronous(
+		IContext context,
+		IMendixObject _producer,
+		java.lang.String _topic,
+		java.lang.String _key,
+		java.lang.String _value,
+		java.util.List<IMendixObject> _headers,
+		java.lang.Boolean _useCachedProducer
+	)
 	{
 		super(context);
-		this.__producer = producer;
-		this.topic = topic;
-		this.key = key;
-		this.value = value;
-		this.__headers = headers;
-		this.useCachedProducer = useCachedProducer;
+		this.__producer = _producer;
+		this.producer = _producer == null ? null : kafka.proxies.Producer.initialize(getContext(), _producer);
+		this.topic = _topic;
+		this.key = _key;
+		this.value = _value;
+		this.__headers = _headers;
+		this.headers = java.util.Optional.ofNullable(_headers)
+			.orElse(java.util.Collections.emptyList())
+			.stream()
+			.map(headersElement -> kafka.proxies.Header.initialize(getContext(), headersElement))
+			.collect(java.util.stream.Collectors.toList());
+		this.useCachedProducer = _useCachedProducer;
 	}
 
 	@java.lang.Override
 	public java.lang.Boolean executeAction() throws Exception
 	{
-		this.producer = this.__producer == null ? null : kafka.proxies.Producer.initialize(getContext(), __producer);
-
-		this.headers = java.util.Optional.ofNullable(this.__headers)
-			.orElse(java.util.Collections.emptyList())
-			.stream()
-			.map(__headersElement -> kafka.proxies.Header.initialize(getContext(), __headersElement))
-			.collect(java.util.stream.Collectors.toList());
-
 		// BEGIN USER CODE
 		KafkaProducer<String, String>  kafkaProducer;
 		

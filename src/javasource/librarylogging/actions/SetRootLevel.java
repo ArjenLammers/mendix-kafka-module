@@ -17,21 +17,26 @@ import org.apache.logging.log4j.core.config.Configuration;
 import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.webui.CustomJavaAction;
 import librarylogging.impl.MendixLog4jAppender;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
  * FOR DEVELOPMENT PURPOSES ONLY!
  * Logs everything from a certain level to a certain node.
  */
-public class SetRootLevel extends CustomJavaAction<java.lang.Boolean>
+public class SetRootLevel extends UserAction<java.lang.Boolean>
 {
-	private java.lang.String logNode;
-	private librarylogging.proxies.LogLevels logLevel;
+	private final java.lang.String logNode;
+	private final librarylogging.proxies.LogLevels logLevel;
 
-	public SetRootLevel(IContext context, java.lang.String logNode, java.lang.String logLevel)
+	public SetRootLevel(
+		IContext context,
+		java.lang.String _logNode,
+		java.lang.String _logLevel
+	)
 	{
 		super(context);
-		this.logNode = logNode;
-		this.logLevel = logLevel == null ? null : librarylogging.proxies.LogLevels.valueOf(logLevel);
+		this.logNode = _logNode;
+		this.logLevel = _logLevel == null ? null : librarylogging.proxies.LogLevels.valueOf(_logLevel);
 	}
 
 	@java.lang.Override

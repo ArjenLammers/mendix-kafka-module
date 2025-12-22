@@ -15,24 +15,30 @@ import kafka.impl.KafkaConsumerRepository;
 import kafka.impl.KafkaProcessorRepository;
 import kafka.impl.KafkaProducerRepository;
 import kafka.impl.KafkaModule;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
  * Stops all Kafka Consumers, Producers and Processors.
  * 
  * This action will always return true.
  */
-public class StopAll extends CustomJavaAction<java.lang.Boolean>
+public class StopAll extends UserAction<java.lang.Boolean>
 {
-	private java.lang.Boolean producers;
-	private java.lang.Boolean consumers;
-	private java.lang.Boolean processors;
+	private final java.lang.Boolean producers;
+	private final java.lang.Boolean consumers;
+	private final java.lang.Boolean processors;
 
-	public StopAll(IContext context, java.lang.Boolean producers, java.lang.Boolean consumers, java.lang.Boolean processors)
+	public StopAll(
+		IContext context,
+		java.lang.Boolean _producers,
+		java.lang.Boolean _consumers,
+		java.lang.Boolean _processors
+	)
 	{
 		super(context);
-		this.producers = producers;
-		this.consumers = consumers;
-		this.processors = processors;
+		this.producers = _producers;
+		this.consumers = _consumers;
+		this.processors = _processors;
 	}
 
 	@java.lang.Override

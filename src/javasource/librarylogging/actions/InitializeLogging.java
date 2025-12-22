@@ -19,8 +19,9 @@ import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.config.Configuration;
 import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.webui.CustomJavaAction;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
-public class InitializeLogging extends CustomJavaAction<java.lang.Boolean>
+public class InitializeLogging extends UserAction<java.lang.Boolean>
 {
 	public InitializeLogging(IContext context)
 	{

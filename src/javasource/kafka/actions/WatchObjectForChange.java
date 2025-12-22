@@ -19,17 +19,22 @@ import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.systemwideinterfaces.core.IMendixIdentifier;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
 import com.mendix.webui.CustomJavaAction;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
-public class WatchObjectForChange extends CustomJavaAction<java.lang.Void>
+public class WatchObjectForChange extends UserAction<java.lang.Void>
 {
-	private IMendixObject objectToWatch;
-	private java.lang.String onChanged;
+	private final IMendixObject objectToWatch;
+	private final java.lang.String onChanged;
 
-	public WatchObjectForChange(IContext context, IMendixObject objectToWatch, java.lang.String onChanged)
+	public WatchObjectForChange(
+		IContext context,
+		IMendixObject _objectToWatch,
+		java.lang.String _onChanged
+	)
 	{
 		super(context);
-		this.objectToWatch = objectToWatch;
-		this.onChanged = onChanged;
+		this.objectToWatch = _objectToWatch;
+		this.onChanged = _onChanged;
 	}
 
 	@java.lang.Override

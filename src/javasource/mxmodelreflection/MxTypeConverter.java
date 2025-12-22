@@ -5,52 +5,38 @@ import com.mendix.systemwideinterfaces.core.meta.IMetaPrimitive;
 
 import mxmodelreflection.proxies.PrimitiveTypes;
 
-import java.util.Optional;
-
 public class MxTypeConverter {
-  public PrimitiveTypes fromPrimitiveType(IMetaPrimitive.PrimitiveType primitiveType) {
-    PrimitiveTypes type = null;
 
+  public PrimitiveTypes fromPrimitiveType(IMetaPrimitive.PrimitiveType primitiveType) {
     switch (primitiveType) {
       case String:
-        type = PrimitiveTypes.StringType;
-        break;
+        return PrimitiveTypes.StringType;
       case AutoNumber:
-        type = PrimitiveTypes.AutoNumber;
-        break;
+        return PrimitiveTypes.AutoNumber;
       case Boolean:
-        type = PrimitiveTypes.BooleanType;
-        break;
+        return PrimitiveTypes.BooleanType;
       case Decimal:
-        type = PrimitiveTypes.Decimal;
-        break;
+        return PrimitiveTypes.Decimal;
       case DateTime:
-        type = PrimitiveTypes.DateTime;
-        break;
+        return PrimitiveTypes.DateTime;
       case Enum:
-        type = PrimitiveTypes.EnumType;
-        break;
+        return PrimitiveTypes.EnumType;
       case HashString:
-        type = PrimitiveTypes.HashString;
-        break;
+        return PrimitiveTypes.HashString;
       case Integer:
-        type = PrimitiveTypes.IntegerType;
-        break;
+        return PrimitiveTypes.IntegerType;
       case Long:
-        type = PrimitiveTypes.LongType;
-        break;
+        return PrimitiveTypes.LongType;
       case Binary:
-        break;
+        return null;
       default:
-        type = fromDeprecatedType(primitiveType.toString()).orElse(null);
-        break;
+        return null;
     }
-
-    return type;
   }
 
   public PrimitiveTypes fromDatatype(IDataType dataType) {
     PrimitiveTypes type = null;
+
     switch (dataType.getType()) {
       case String:
         type = PrimitiveTypes.StringType;
@@ -83,9 +69,7 @@ public class MxTypeConverter {
       case Binary:
       case Nothing:
       case Unknown:
-        break;
-      default:
-        type = fromDeprecatedType(dataType.toString()).orElse(null);
+      case AnyObject:
         break;
     }
 
@@ -98,24 +82,6 @@ public class MxTypeConverter {
   }
 
   public PrimitiveTypes fromString(String value) {
-    return fromDeprecatedType(value).orElse(PrimitiveTypes.valueOf(value));
-  }
-
-  // Check if {@code primitiveType} is a deprecated type. Done for backward compatibility.
-  private Optional<PrimitiveTypes> fromDeprecatedType(String primitiveType) {
-    if (primitiveType == null) return Optional.empty();
-
-    PrimitiveTypes type = null;
-
-    switch (primitiveType) {
-      case "Float":
-        type = PrimitiveTypes.FloatType;
-        break;
-      case "Currency":
-        type = PrimitiveTypes.Currency;
-        break;
-    }
-
-    return Optional.ofNullable(type);
+    return PrimitiveTypes.valueOf(value);
   }
 }

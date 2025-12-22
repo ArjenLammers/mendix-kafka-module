@@ -15,6 +15,7 @@ import kafka.impl.FilteredKafkaProcessor;
 import kafka.impl.KafkaProcessor;
 import kafka.impl.KafkaProcessorRepository;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
  * This action will listen to a topic, and start a microflow for each JSON message in that topic that passes a filter.
@@ -23,34 +24,44 @@ import com.mendix.systemwideinterfaces.core.IMendixObject;
  * 
  * This action will always return true.
  */
-public class StartFilteredProcessor extends CustomJavaAction<java.lang.Boolean>
+public class StartFilteredProcessor extends UserAction<java.lang.Boolean>
 {
-	private java.lang.String name;
-	private IMendixObject __configuration;
-	private kafka.proxies.StreamsConfig configuration;
-	private java.lang.String fromTopic;
-	private java.lang.String jsonPointer;
-	private java.lang.String filterValue;
-	private java.lang.String toTopic;
-	private java.lang.String onProcess;
+	private final java.lang.String name;
+	/** @deprecated use configuration.getMendixObject() instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final IMendixObject __configuration;
+	private final kafka.proxies.StreamsConfig configuration;
+	private final java.lang.String fromTopic;
+	private final java.lang.String jsonPointer;
+	private final java.lang.String filterValue;
+	private final java.lang.String toTopic;
+	private final java.lang.String onProcess;
 
-	public StartFilteredProcessor(IContext context, java.lang.String name, IMendixObject configuration, java.lang.String fromTopic, java.lang.String jsonPointer, java.lang.String filterValue, java.lang.String toTopic, java.lang.String onProcess)
+	public StartFilteredProcessor(
+		IContext context,
+		java.lang.String _name,
+		IMendixObject _configuration,
+		java.lang.String _fromTopic,
+		java.lang.String _jsonPointer,
+		java.lang.String _filterValue,
+		java.lang.String _toTopic,
+		java.lang.String _onProcess
+	)
 	{
 		super(context);
-		this.name = name;
-		this.__configuration = configuration;
-		this.fromTopic = fromTopic;
-		this.jsonPointer = jsonPointer;
-		this.filterValue = filterValue;
-		this.toTopic = toTopic;
-		this.onProcess = onProcess;
+		this.name = _name;
+		this.__configuration = _configuration;
+		this.configuration = _configuration == null ? null : kafka.proxies.StreamsConfig.initialize(getContext(), _configuration);
+		this.fromTopic = _fromTopic;
+		this.jsonPointer = _jsonPointer;
+		this.filterValue = _filterValue;
+		this.toTopic = _toTopic;
+		this.onProcess = _onProcess;
 	}
 
 	@java.lang.Override
 	public java.lang.Boolean executeAction() throws Exception
 	{
-		this.configuration = this.__configuration == null ? null : kafka.proxies.StreamsConfig.initialize(getContext(), __configuration);
-
 		// BEGIN USER CODE
 		KafkaProcessor processor = new FilteredKafkaProcessor(this.configuration.getMendixObject(), 
 				getContext(), fromTopic, jsonPointer, filterValue, toTopic, onProcess); 

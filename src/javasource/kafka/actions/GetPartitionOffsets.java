@@ -23,32 +23,39 @@ import kafka.impl.KafkaModule;
 import kafka.impl.KafkaPropertiesFactory;
 import kafka.proxies.Partition;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
-public class GetPartitionOffsets extends CustomJavaAction<java.lang.Boolean>
+public class GetPartitionOffsets extends UserAction<java.lang.Boolean>
 {
-	private java.util.List<IMendixObject> __partitions;
-	private java.util.List<kafka.proxies.Partition> partitions;
-	private IMendixObject __consumer;
-	private kafka.proxies.Consumer consumer;
+	/** @deprecated use com.mendix.utils.ListUtils.map(partitions, com.mendix.systemwideinterfaces.core.IEntityProxy::getMendixObject) instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final java.util.List<IMendixObject> __partitions;
+	private final java.util.List<kafka.proxies.Partition> partitions;
+	/** @deprecated use consumer.getMendixObject() instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final IMendixObject __consumer;
+	private final kafka.proxies.Consumer consumer;
 
-	public GetPartitionOffsets(IContext context, java.util.List<IMendixObject> partitions, IMendixObject consumer)
+	public GetPartitionOffsets(
+		IContext context,
+		java.util.List<IMendixObject> _partitions,
+		IMendixObject _consumer
+	)
 	{
 		super(context);
-		this.__partitions = partitions;
-		this.__consumer = consumer;
+		this.__partitions = _partitions;
+		this.partitions = java.util.Optional.ofNullable(_partitions)
+			.orElse(java.util.Collections.emptyList())
+			.stream()
+			.map(partitionsElement -> kafka.proxies.Partition.initialize(getContext(), partitionsElement))
+			.collect(java.util.stream.Collectors.toList());
+		this.__consumer = _consumer;
+		this.consumer = _consumer == null ? null : kafka.proxies.Consumer.initialize(getContext(), _consumer);
 	}
 
 	@java.lang.Override
 	public java.lang.Boolean executeAction() throws Exception
 	{
-		this.partitions = java.util.Optional.ofNullable(this.__partitions)
-			.orElse(java.util.Collections.emptyList())
-			.stream()
-			.map(__partitionsElement -> kafka.proxies.Partition.initialize(getContext(), __partitionsElement))
-			.collect(java.util.stream.Collectors.toList());
-
-		this.consumer = this.__consumer == null ? null : kafka.proxies.Consumer.initialize(getContext(), __consumer);
-
 		// BEGIN USER CODE
 		Properties kafkaProps = KafkaPropertiesFactory.getKafkaProperties(getContext(), consumer);
 		KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(kafkaProps);

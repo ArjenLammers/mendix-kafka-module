@@ -1,0 +1,105 @@
+//
+// DISCLAIMER:
+// Do not change this file because it is core styling.
+// Customizing core files will make updating Atlas much more difficult in the future.
+// To customize any core styling, copy the part you want to customize to styles/web/sass/app/ so the core styling is overwritten.
+//
+/* ==========================================================================
+   Base
+
+   Default settings
+========================================================================== */
+@mixin base() {
+    html {
+        height: 100%;
+    }
+
+    body {
+        min-height: 100%;
+        color: $font-color-default;
+        background-color: $bg-color;
+        font-family: $font-family-base;
+        font-size: $font-size-default;
+        font-weight: $font-weight-normal;
+        line-height: $line-height-base;
+    }
+
+    a {
+        transition: 0.25s;
+        color: $link-color;
+        -webkit-backface-visibility: hidden;
+    }
+
+    a:hover {
+        text-decoration: underline;
+        color: $link-hover-color;
+    }
+
+    // Address `outline` inconsistency between Chrome and other browsers.
+    a:focus {
+        outline: thin dotted;
+    }
+
+    // Improve readability when focused and also mouse hovered in all browsers
+    a:active,
+    a:hover {
+        outline: 0;
+    }
+
+    // Removes large blue border in chrome on focus and active states
+    input:focus,
+    button:focus,
+    .mx-link:focus {
+        outline: 0;
+    }
+
+    // Removes large blue border for tabindexes from widgets
+    div[tabindex] {
+        outline: 0;
+    }
+
+    // Disabled State
+    .disabled,
+    [disabled] {
+        cursor: not-allowed;
+        opacity: 0.65;
+        box-shadow: none;
+    }
+
+    // Accessibility helpers:
+    // .sr-only visually hides elements but keeps them accessible to screen readers.   
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        border: 0;
+    }
+     // .sr-only-focusable makes hidden elements visible when focused (keyboard navigation).
+    .sr-only-focusable:active,
+    .sr-only-focusable:focus {
+        position: static;
+        width: auto;
+        height: auto;
+        margin: 0;
+        overflow: visible;
+        clip-path: none;
+    }
+    // .has-feedback label.sr-only ~ .form-control-feedback positions feedback for screen reader-only labels.
+    .has-feedback label.sr-only ~ .form-control-feedback {
+        top: 0;
+    }
+
+    .mx-underlay {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        opacity: 0.5;
+        background-color: #0a1325;
+    }
+}

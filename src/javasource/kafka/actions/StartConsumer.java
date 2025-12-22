@@ -15,26 +15,31 @@ import kafka.impl.KafkaConsumerRepository;
 import kafka.impl.KafkaConsumerRunner;
 import kafka.impl.KafkaModule;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
  * This action will always return true.
  */
-public class StartConsumer extends CustomJavaAction<java.lang.Boolean>
+public class StartConsumer extends UserAction<java.lang.Boolean>
 {
-	private IMendixObject __consumer;
-	private kafka.proxies.Consumer consumer;
+	/** @deprecated use consumer.getMendixObject() instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final IMendixObject __consumer;
+	private final kafka.proxies.Consumer consumer;
 
-	public StartConsumer(IContext context, IMendixObject consumer)
+	public StartConsumer(
+		IContext context,
+		IMendixObject _consumer
+	)
 	{
 		super(context);
-		this.__consumer = consumer;
+		this.__consumer = _consumer;
+		this.consumer = _consumer == null ? null : kafka.proxies.Consumer.initialize(getContext(), _consumer);
 	}
 
 	@java.lang.Override
 	public java.lang.Boolean executeAction() throws Exception
 	{
-		this.consumer = this.__consumer == null ? null : kafka.proxies.Consumer.initialize(getContext(), __consumer);
-
 		// BEGIN USER CODE
 		for (int i = 0; i < consumer.getConsumersPerInstance(); i++) {
 			KafkaConsumerRunner consumerRunner = new KafkaConsumerRunner(consumer, getContext()); 

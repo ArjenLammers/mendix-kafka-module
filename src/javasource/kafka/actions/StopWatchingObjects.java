@@ -12,8 +12,9 @@ package kafka.actions;
 import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.webui.CustomJavaAction;
 import kafka.actions.WatchObjectForChange.CheckForChangesThread;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
-public class StopWatchingObjects extends CustomJavaAction<java.lang.Void>
+public class StopWatchingObjects extends UserAction<java.lang.Void>
 {
 	public StopWatchingObjects(IContext context)
 	{

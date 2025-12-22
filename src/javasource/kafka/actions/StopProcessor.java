@@ -13,20 +13,24 @@ import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.webui.CustomJavaAction;
 import kafka.impl.KafkaModule;
 import kafka.impl.KafkaProcessorRepository;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
  * Stops a certain Kafka processor
  * 
  * This action will always return true.
  */
-public class StopProcessor extends CustomJavaAction<java.lang.Boolean>
+public class StopProcessor extends UserAction<java.lang.Boolean>
 {
-	private java.lang.String ProcessorName;
+	private final java.lang.String ProcessorName;
 
-	public StopProcessor(IContext context, java.lang.String ProcessorName)
+	public StopProcessor(
+		IContext context,
+		java.lang.String _processorName
+	)
 	{
 		super(context);
-		this.ProcessorName = ProcessorName;
+		this.ProcessorName = _processorName;
 	}
 
 	@java.lang.Override

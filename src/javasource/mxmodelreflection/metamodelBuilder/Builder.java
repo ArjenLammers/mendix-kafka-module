@@ -39,7 +39,7 @@ public class Builder {
 		else if (dataType.isMendixObject())
 			valueTypeName = "Object of type: " + dataType.getObjectType();
 
-		List<IMendixObject> result = Core.retrieveXPathQuery(context, "//" + ValueType.getType() + "[" + ValueType.MemberNames.Name + "='" + valueTypeName + "']");
+		List<IMendixObject> result = Core.createXPathQuery("//" + ValueType.getType() + "[" + ValueType.MemberNames.Name + "='" + valueTypeName + "']").execute(context);
 		if (result.size() > 0)
 			return result.get(0).getId();
 
@@ -64,12 +64,12 @@ public class Builder {
 	
 	protected IMendixIdentifier getObjectTypeId(IContext context, IDataType dataType) throws CoreException {
 		if (dataType.isMendixObject()) {
-			List<IMendixObject> result = Core.retrieveXPathQuery(context, "//" + MxObjectType.getType() + "[" + MxObjectType.MemberNames.CompleteName + "='" + dataType.getObjectType() + "']");
+			List<IMendixObject> result = Core.createXPathQuery("//" + MxObjectType.getType() + "[" + MxObjectType.MemberNames.CompleteName + "='" + dataType.getObjectType() + "']").execute(context);
 			if (result.size() > 0)
 				return result.get(0).getId();
 		}
 		else if (dataType.isList()) {
-			List<IMendixObject> result = Core.retrieveXPathQuery(context, "//" + MxObjectType.getType() + "[" + MxObjectType.MemberNames.CompleteName + "='" + dataType.getObjectType() + "']");
+			List<IMendixObject> result = Core.createXPathQuery("//" + MxObjectType.getType() + "[" + MxObjectType.MemberNames.CompleteName + "='" + dataType.getObjectType() + "']").execute(context);
 			if (result.size() > 0)
 				return result.get(0).getId();
 		}
@@ -93,7 +93,7 @@ public class Builder {
 	}
 
 	public void cacheModules(IContext context) throws CoreException {
-		List<IMendixObject> result = Core.retrieveXPathQuery(context, "//" + Module.getType());
+		List<IMendixObject> result = Core.createXPathQuery("//" + Module.getType()).execute(context);
 		if (result.size() == 0)
 			this.allNewModules = true;
 		else {
@@ -114,7 +114,7 @@ public class Builder {
 				if (entry.getValue() != null)
 					Core.delete(context, entry.getValue());
 				else
-					Core.delete(context, Core.retrieveXPathQuery(context, "//" + Module.getType() + "[" + Module.MemberNames.ModuleName + "='" + entry.getKey() + "']").get(0));
+					Core.delete(context, Core.createXPathQuery("//" + Module.getType() + "[" + Module.MemberNames.ModuleName + "='" + entry.getKey() + "']").execute(context).get(0));
 			}
 		}
 

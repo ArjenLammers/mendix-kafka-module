@@ -4,7 +4,7 @@
 
 package system.proxies;
 
-public class Workflow
+public class Workflow implements com.mendix.systemwideinterfaces.core.IEntityProxy
 {
 	private final com.mendix.systemwideinterfaces.core.IMendixObject workflowMendixObject;
 
@@ -27,9 +27,11 @@ public class Workflow
 		DueDate("DueDate"),
 		CanBeRestarted("CanBeRestarted"),
 		CanBeContinued("CanBeContinued"),
+		CanApplyJumpTo("CanApplyJumpTo"),
 		State("State"),
 		Reason("Reason"),
-		Workflow_WorkflowDefinition("System.Workflow_WorkflowDefinition");
+		Workflow_WorkflowDefinition("System.Workflow_WorkflowDefinition"),
+		Workflow_ParentWorkflow("System.Workflow_ParentWorkflow");
 
 		private final java.lang.String metaName;
 
@@ -64,15 +66,6 @@ public class Workflow
 	}
 
 	/**
-	 * @deprecated Use 'Workflow.load(IContext, IMendixIdentifier)' instead.
-	 */
-	@java.lang.Deprecated
-	public static system.proxies.Workflow initialize(com.mendix.systemwideinterfaces.core.IContext context, com.mendix.systemwideinterfaces.core.IMendixIdentifier mendixIdentifier) throws com.mendix.core.CoreException
-	{
-		return system.proxies.Workflow.load(context, mendixIdentifier);
-	}
-
-	/**
 	 * Initialize a proxy using context (recommended). This context will be used for security checking when the get- and set-methods without context parameters are called.
 	 * The get- and set-methods with context parameter should be used when for instance sudo access is necessary (IContext.createSudoClone() can be used to obtain sudo access).
 	 * @param context The context to be used
@@ -99,39 +92,6 @@ public class Workflow
 			.collect(java.util.stream.Collectors.toList());
 	}
 
-	/**
-	 * Commit the changes made on this proxy object.
-	 * @throws com.mendix.core.CoreException
-	 */
-	public final void commit() throws com.mendix.core.CoreException
-	{
-		com.mendix.core.Core.commit(context, getMendixObject());
-	}
-
-	/**
-	 * Commit the changes made on this proxy object using the specified context.
-	 * @throws com.mendix.core.CoreException
-	 */
-	public final void commit(com.mendix.systemwideinterfaces.core.IContext context) throws com.mendix.core.CoreException
-	{
-		com.mendix.core.Core.commit(context, getMendixObject());
-	}
-
-	/**
-	 * Delete the object.
-	 */
-	public final void delete()
-	{
-		com.mendix.core.Core.delete(context, getMendixObject());
-	}
-
-	/**
-	 * Delete the object using the specified context.
-	 */
-	public final void delete(com.mendix.systemwideinterfaces.core.IContext context)
-	{
-		com.mendix.core.Core.delete(context, getMendixObject());
-	}
 	/**
 	 * @return value of Name
 	 */
@@ -385,7 +345,43 @@ public class Workflow
 	}
 
 	/**
-	 * Set value of State
+	 * @return value of CanApplyJumpTo
+	 */
+	public final java.lang.Boolean getCanApplyJumpTo()
+	{
+		return getCanApplyJumpTo(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of CanApplyJumpTo
+	 */
+	public final java.lang.Boolean getCanApplyJumpTo(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.Boolean) getMendixObject().getValue(context, MemberNames.CanApplyJumpTo.toString());
+	}
+
+	/**
+	 * Set value of CanApplyJumpTo
+	 * @param canapplyjumpto
+	 */
+	public final void setCanApplyJumpTo(java.lang.Boolean canapplyjumpto)
+	{
+		setCanApplyJumpTo(getContext(), canapplyjumpto);
+	}
+
+	/**
+	 * Set value of CanApplyJumpTo
+	 * @param context
+	 * @param canapplyjumpto
+	 */
+	public final void setCanApplyJumpTo(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Boolean canapplyjumpto)
+	{
+		getMendixObject().setValue(context, MemberNames.CanApplyJumpTo.toString(), canapplyjumpto);
+	}
+
+	/**
+	 * Get value of State
 	 * @param state
 	 */
 	public final system.proxies.WorkflowState getState()
@@ -513,16 +509,59 @@ public class Workflow
 	}
 
 	/**
-	 * @return the IMendixObject instance of this proxy for use in the Core interface.
+	 * @throws com.mendix.core.CoreException
+	 * @return value of Workflow_ParentWorkflow
 	 */
+	public final system.proxies.Workflow getWorkflow_ParentWorkflow() throws com.mendix.core.CoreException
+	{
+		return getWorkflow_ParentWorkflow(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of Workflow_ParentWorkflow
+	 * @throws com.mendix.core.CoreException
+	 */
+	public final system.proxies.Workflow getWorkflow_ParentWorkflow(com.mendix.systemwideinterfaces.core.IContext context) throws com.mendix.core.CoreException
+	{
+		system.proxies.Workflow result = null;
+		com.mendix.systemwideinterfaces.core.IMendixIdentifier identifier = getMendixObject().getValue(context, MemberNames.Workflow_ParentWorkflow.toString());
+		if (identifier != null) {
+			result = system.proxies.Workflow.load(context, identifier);
+		}
+		return result;
+	}
+
+	/**
+	 * Set value of Workflow_ParentWorkflow
+	 * @param workflow_parentworkflow
+	 */
+	public final void setWorkflow_ParentWorkflow(system.proxies.Workflow workflow_parentworkflow)
+	{
+		setWorkflow_ParentWorkflow(getContext(), workflow_parentworkflow);
+	}
+
+	/**
+	 * Set value of Workflow_ParentWorkflow
+	 * @param context
+	 * @param workflow_parentworkflow
+	 */
+	public final void setWorkflow_ParentWorkflow(com.mendix.systemwideinterfaces.core.IContext context, system.proxies.Workflow workflow_parentworkflow)
+	{
+		if (workflow_parentworkflow == null) {
+			getMendixObject().setValue(context, MemberNames.Workflow_ParentWorkflow.toString(), null);
+		} else {
+			getMendixObject().setValue(context, MemberNames.Workflow_ParentWorkflow.toString(), workflow_parentworkflow.getMendixObject().getId());
+		}
+	}
+
+	@java.lang.Override
 	public final com.mendix.systemwideinterfaces.core.IMendixObject getMendixObject()
 	{
 		return workflowMendixObject;
 	}
 
-	/**
-	 * @return the IContext instance of this proxy, or null if no IContext instance was specified at initialization.
-	 */
+	@java.lang.Override
 	public final com.mendix.systemwideinterfaces.core.IContext getContext()
 	{
 		return context;
@@ -548,21 +587,13 @@ public class Workflow
 		return getMendixObject().hashCode();
 	}
 
-	/**
-	 * @return String name of this class
-	 */
+  /**
+   * Gives full name ("Module.Entity" name) of the type of the entity.
+   *
+   * @return the name
+   */
 	public static java.lang.String getType()
 	{
 		return entityName;
-	}
-
-	/**
-	 * @return String GUID from this object, format: ID_0000000000
-	 * @deprecated Use getMendixObject().getId().toLong() to get a unique identifier for this object.
-	 */
-	@java.lang.Deprecated
-	public java.lang.String getGUID()
-	{
-		return "ID_" + getMendixObject().getId().toLong();
 	}
 }

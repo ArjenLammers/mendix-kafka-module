@@ -6,7 +6,6 @@ public class UserActionsRegistrar
 {
   public void registerActions(IActionRegistrator registrator)
   {
-    registrator.bundleComponentLoaded();
     registrator.registerUserAction(encryption.actions.DecryptString.class);
     registrator.registerUserAction(encryption.actions.EncryptString.class);
     registrator.registerUserAction(encryption.actions.GeneratePGPKeyRing.class);
@@ -31,6 +30,9 @@ public class UserActionsRegistrar
     registrator.registerUserAction(librarylogging.actions.AddLibraryLogListener.class);
     registrator.registerUserAction(librarylogging.actions.InitializeLogging.class);
     registrator.registerUserAction(librarylogging.actions.SetRootLevel.class);
+    registrator.registerUserAction(mxmodelreflection.actions.JA_EnumValueCaptions.class);
+    registrator.registerUserAction(mxmodelreflection.actions.JA_EnumValueLanguages.class);
+    registrator.registerUserAction(mxmodelreflection.actions.JA_ReferenceObjects.class);
     registrator.registerUserAction(mxmodelreflection.actions.ReplaceToken.class);
     registrator.registerUserAction(mxmodelreflection.actions.SyncObjects.class);
     registrator.registerUserAction(mxmodelreflection.actions.TestThePattern.class);

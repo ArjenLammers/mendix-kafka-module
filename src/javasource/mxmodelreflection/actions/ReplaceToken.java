@@ -12,31 +12,37 @@ package mxmodelreflection.actions;
 import mxmodelreflection.TokenReplacer;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
 import com.mendix.systemwideinterfaces.core.IContext;
-import com.mendix.webui.CustomJavaAction;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
  * Search the parameter text for the token from the parameter TokenObject, replace the value with a value from the parameter ValueObject.
  */
-public class ReplaceToken extends CustomJavaAction<java.lang.String>
+public class ReplaceToken extends UserAction<java.lang.String>
 {
-	private IMendixObject __TokenObject;
-	private mxmodelreflection.proxies.Token TokenObject;
-	private IMendixObject ValueObject;
-	private java.lang.String TextToReplace;
+	/** @deprecated use TokenObject.getMendixObject() instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final IMendixObject __TokenObject;
+	private final mxmodelreflection.proxies.Token TokenObject;
+	private final IMendixObject ValueObject;
+	private final java.lang.String TextToReplace;
 
-	public ReplaceToken(IContext context, IMendixObject TokenObject, IMendixObject ValueObject, java.lang.String TextToReplace)
+	public ReplaceToken(
+		IContext context,
+		IMendixObject _tokenObject,
+		IMendixObject _valueObject,
+		java.lang.String _textToReplace
+	)
 	{
 		super(context);
-		this.__TokenObject = TokenObject;
-		this.ValueObject = ValueObject;
-		this.TextToReplace = TextToReplace;
+		this.__TokenObject = _tokenObject;
+		this.TokenObject = _tokenObject == null ? null : mxmodelreflection.proxies.Token.initialize(getContext(), _tokenObject);
+		this.ValueObject = _valueObject;
+		this.TextToReplace = _textToReplace;
 	}
 
 	@java.lang.Override
 	public java.lang.String executeAction() throws Exception
 	{
-		this.TokenObject = this.__TokenObject == null ? null : mxmodelreflection.proxies.Token.initialize(getContext(), __TokenObject);
-
 		// BEGIN USER CODE
 		return TokenReplacer.replaceToken(this.getContext(), this.TextToReplace, this.__TokenObject, this.ValueObject);
 		// END USER CODE

@@ -4,195 +4,540 @@
 
 package kafka.proxies.microflows;
 
-import java.util.HashMap;
-import java.util.Map;
 import com.mendix.core.Core;
 import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
 
-public class Microflows
+public final class Microflows
 {
 	/**
-	 * @deprecated
-	 * The default constructor of the Microflows class should not be used.
-	 * Use the static microflow invocation methods instead.
+	 * Private constructor to prevent instantiation of this class. 
 	 */
-	@java.lang.Deprecated(since = "9.12", forRemoval = true)
-	public Microflows() {}
+	private Microflows() {}
 
 	// These are the microflows for the Kafka module
-	public static void aCr_KafkaConsumer(IContext context, kafka.proxies.Consumer _kafkaConsumer)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCr_KafkaConsumerBuilder(
+		kafka.proxies.Consumer _kafkaConsumer
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("KafkaConsumer", _kafkaConsumer == null ? null : _kafkaConsumer.getMendixObject());
-		Core.microflowCall("Kafka.ACr_KafkaConsumer").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.ACr_KafkaConsumer");
+		builder = builder.withParam("KafkaConsumer", _kafkaConsumer);
+		return builder;
 	}
-	public static void aCr_KafkaProducer(IContext context, kafka.proxies.Producer _kafkaProducer)
+
+	public static void aCr_KafkaConsumer(
+		IContext context,
+		kafka.proxies.Consumer _kafkaConsumer
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("KafkaProducer", _kafkaProducer == null ? null : _kafkaProducer.getMendixObject());
-		Core.microflowCall("Kafka.ACr_KafkaProducer").withParams(params).execute(context);
+		aCr_KafkaConsumerBuilder(
+				_kafkaConsumer
+			)
+			.execute(context);
 	}
-	public static void aCr_KafkaServer(IContext context, kafka.proxies.Server _kafkaServer)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCr_KafkaProducerBuilder(
+		kafka.proxies.Producer _kafkaProducer
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("KafkaServer", _kafkaServer == null ? null : _kafkaServer.getMendixObject());
-		Core.microflowCall("Kafka.ACr_KafkaServer").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.ACr_KafkaProducer");
+		builder = builder.withParam("KafkaProducer", _kafkaProducer);
+		return builder;
 	}
+
+	public static void aCr_KafkaProducer(
+		IContext context,
+		kafka.proxies.Producer _kafkaProducer
+	)
+	{
+		aCr_KafkaProducerBuilder(
+				_kafkaProducer
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCr_KafkaServerBuilder(
+		kafka.proxies.Server _kafkaServer
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.ACr_KafkaServer");
+		builder = builder.withParam("KafkaServer", _kafkaServer);
+		return builder;
+	}
+
+	public static void aCr_KafkaServer(
+		IContext context,
+		kafka.proxies.Server _kafkaServer
+	)
+	{
+		aCr_KafkaServerBuilder(
+				_kafkaServer
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCT_ConfigObjectChangedBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.ACT_ConfigObjectChanged");
+		return builder;
+	}
+
 	public static void aCT_ConfigObjectChanged(IContext context)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		Core.microflowCall("Kafka.ACT_ConfigObjectChanged").withParams(params).execute(context);
+		aCT_ConfigObjectChangedBuilder().execute(context);
 	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder afterStartupBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.AfterStartup");
+		return builder;
+	}
+
 	public static boolean afterStartup(IContext context)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		return (java.lang.Boolean) Core.microflowCall("Kafka.AfterStartup").withParams(params).execute(context);
+		Object result = afterStartupBuilder().execute(context);
+		return (boolean) result;
 	}
-	public static boolean bCo_Consumer(IContext context, kafka.proxies.Consumer _consumer)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder bCo_ConsumerBuilder(
+		kafka.proxies.Consumer _consumer
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Consumer", _consumer == null ? null : _consumer.getMendixObject());
-		return (java.lang.Boolean) Core.microflowCall("Kafka.BCo_Consumer").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.BCo_Consumer");
+		builder = builder.withParam("Consumer", _consumer);
+		return builder;
 	}
-	public static boolean bCo_KeyStore(IContext context, kafka.proxies.KeyStore _keyStore)
+
+	public static boolean bCo_Consumer(
+		IContext context,
+		kafka.proxies.Consumer _consumer
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("KeyStore", _keyStore == null ? null : _keyStore.getMendixObject());
-		return (java.lang.Boolean) Core.microflowCall("Kafka.BCo_KeyStore").withParams(params).execute(context);
+		Object result = bCo_ConsumerBuilder(
+				_consumer
+			)
+			.execute(context);
+		return (boolean) result;
 	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder bCo_KeyStoreBuilder(
+		kafka.proxies.KeyStore _keyStore
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.BCo_KeyStore");
+		builder = builder.withParam("KeyStore", _keyStore);
+		return builder;
+	}
+
+	public static boolean bCo_KeyStore(
+		IContext context,
+		kafka.proxies.KeyStore _keyStore
+	)
+	{
+		Object result = bCo_KeyStoreBuilder(
+				_keyStore
+			)
+			.execute(context);
+		return (boolean) result;
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder beforeShutdownBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.BeforeShutdown");
+		return builder;
+	}
+
 	public static void beforeShutdown(IContext context)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		Core.microflowCall("Kafka.BeforeShutdown").withParams(params).execute(context);
+		beforeShutdownBuilder().execute(context);
 	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder dS_GetConfigChangesBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.DS_GetConfigChanges");
+		return builder;
+	}
+
 	public static kafka.proxies.ConfigChanges dS_GetConfigChanges(IContext context)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		IMendixObject result = (IMendixObject)Core.microflowCall("Kafka.DS_GetConfigChanges").withParams(params).execute(context);
-		return result == null ? null : kafka.proxies.ConfigChanges.initialize(context, result);
+		Object result = dS_GetConfigChangesBuilder().execute(context);
+		return result == null ? null : kafka.proxies.ConfigChanges.initialize(context, (IMendixObject) result);
 	}
-	public static java.util.List<kafka.proxies.Partition> dS_GetDetailedPartitions(IContext context, kafka.proxies.Topic _topic, kafka.proxies.Explorer _explorer)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder dS_GetDetailedPartitionsBuilder(
+		kafka.proxies.Topic _topic,
+		kafka.proxies.Explorer _explorer
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Topic", _topic == null ? null : _topic.getMendixObject());
-		params.put("Explorer", _explorer == null ? null : _explorer.getMendixObject());
-		java.util.List<IMendixObject> objs = Core.microflowCall("Kafka.DS_GetDetailedPartitions").withParams(params).execute(context);
-		if (objs == null) {
-			return null;
-		} else {
-			return objs.stream()
-				.map(obj -> kafka.proxies.Partition.initialize(context, obj))
-				.collect(java.util.stream.Collectors.toList());
-		}
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.DS_GetDetailedPartitions");
+		builder = builder.withParam("Topic", _topic);
+		builder = builder.withParam("Explorer", _explorer);
+		return builder;
 	}
-	public static kafka.proxies.Explorer dS_GetExplorer(IContext context, kafka.proxies.Server _server)
+
+	public static java.util.List<kafka.proxies.Partition> dS_GetDetailedPartitions(
+		IContext context,
+		kafka.proxies.Topic _topic,
+		kafka.proxies.Explorer _explorer
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Server", _server == null ? null : _server.getMendixObject());
-		IMendixObject result = (IMendixObject)Core.microflowCall("Kafka.DS_GetExplorer").withParams(params).execute(context);
-		return result == null ? null : kafka.proxies.Explorer.initialize(context, result);
+		Object result = dS_GetDetailedPartitionsBuilder(
+				_topic,
+				_explorer
+			)
+			.execute(context);
+		return result == null ? null : com.mendix.utils.ListUtils.map((java.util.List<IMendixObject>) result, obj -> kafka.proxies.Partition.initialize(context, obj));
 	}
-	public static kafka.proxies.MessageOverview dS_GetNewMessageOverview(IContext context, kafka.proxies.Partition _partition)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder dS_GetExplorerBuilder(
+		kafka.proxies.Server _server
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Partition", _partition == null ? null : _partition.getMendixObject());
-		IMendixObject result = (IMendixObject)Core.microflowCall("Kafka.DS_GetNewMessageOverview").withParams(params).execute(context);
-		return result == null ? null : kafka.proxies.MessageOverview.initialize(context, result);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.DS_GetExplorer");
+		builder = builder.withParam("Server", _server);
+		return builder;
 	}
-	public static kafka.proxies.Publisher dS_GetPublisher(IContext context, kafka.proxies.Server _server)
+
+	public static kafka.proxies.Explorer dS_GetExplorer(
+		IContext context,
+		kafka.proxies.Server _server
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Server", _server == null ? null : _server.getMendixObject());
-		IMendixObject result = (IMendixObject)Core.microflowCall("Kafka.DS_GetPublisher").withParams(params).execute(context);
-		return result == null ? null : kafka.proxies.Publisher.initialize(context, result);
+		Object result = dS_GetExplorerBuilder(
+				_server
+			)
+			.execute(context);
+		return result == null ? null : kafka.proxies.Explorer.initialize(context, (IMendixObject) result);
 	}
-	public static java.util.List<kafka.proxies.Consumer> dS_GetSelectableConsumers(IContext context, kafka.proxies.Server _server)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder dS_GetNewMessageOverviewBuilder(
+		kafka.proxies.Partition _partition
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Server", _server == null ? null : _server.getMendixObject());
-		java.util.List<IMendixObject> objs = Core.microflowCall("Kafka.DS_GetSelectableConsumers").withParams(params).execute(context);
-		if (objs == null) {
-			return null;
-		} else {
-			return objs.stream()
-				.map(obj -> kafka.proxies.Consumer.initialize(context, obj))
-				.collect(java.util.stream.Collectors.toList());
-		}
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.DS_GetNewMessageOverview");
+		builder = builder.withParam("Partition", _partition);
+		return builder;
 	}
-	public static void example_OnReceiveMicroflow(IContext context, java.lang.Long _offset, java.lang.String _key, java.lang.String _value, java.lang.String _messageType, java.lang.Long _partition)
+
+	public static kafka.proxies.MessageOverview dS_GetNewMessageOverview(
+		IContext context,
+		kafka.proxies.Partition _partition
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Offset", _offset);
-		params.put("Key", _key);
-		params.put("Value", _value);
-		params.put("MessageType", _messageType);
-		params.put("Partition", _partition);
-		Core.microflowCall("Kafka.Example_OnReceiveMicroflow").withParams(params).execute(context);
+		Object result = dS_GetNewMessageOverviewBuilder(
+				_partition
+			)
+			.execute(context);
+		return result == null ? null : kafka.proxies.MessageOverview.initialize(context, (IMendixObject) result);
 	}
-	public static void iVK_CreateNewHeader(IContext context, kafka.proxies.Publisher _publisher)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder dS_GetPublisherBuilder(
+		kafka.proxies.Server _server
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Publisher", _publisher == null ? null : _publisher.getMendixObject());
-		Core.microflowCall("Kafka.IVK_CreateNewHeader").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.DS_GetPublisher");
+		builder = builder.withParam("Server", _server);
+		return builder;
 	}
-	public static void iVK_PublishMessage(IContext context, kafka.proxies.Publisher _publisher)
+
+	public static kafka.proxies.Publisher dS_GetPublisher(
+		IContext context,
+		kafka.proxies.Server _server
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Publisher", _publisher == null ? null : _publisher.getMendixObject());
-		Core.microflowCall("Kafka.IVK_PublishMessage").withParams(params).execute(context);
+		Object result = dS_GetPublisherBuilder(
+				_server
+			)
+			.execute(context);
+		return result == null ? null : kafka.proxies.Publisher.initialize(context, (IMendixObject) result);
 	}
-	public static void iVK_RetrieveMessages(IContext context, kafka.proxies.MessageOverview _messageOverview, kafka.proxies.Partition _partition)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder dS_GetSelectableConsumersBuilder(
+		kafka.proxies.Server _server
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("MessageOverview", _messageOverview == null ? null : _messageOverview.getMendixObject());
-		params.put("Partition", _partition == null ? null : _partition.getMendixObject());
-		Core.microflowCall("Kafka.IVK_RetrieveMessages").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.DS_GetSelectableConsumers");
+		builder = builder.withParam("Server", _server);
+		return builder;
 	}
-	public static void iVK_RetrieveTopics(IContext context, kafka.proxies.Explorer _explorer)
+
+	public static java.util.List<kafka.proxies.Consumer> dS_GetSelectableConsumers(
+		IContext context,
+		kafka.proxies.Server _server
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Explorer", _explorer == null ? null : _explorer.getMendixObject());
-		Core.microflowCall("Kafka.IVK_RetrieveTopics").withParams(params).execute(context);
+		Object result = dS_GetSelectableConsumersBuilder(
+				_server
+			)
+			.execute(context);
+		return result == null ? null : com.mendix.utils.ListUtils.map((java.util.List<IMendixObject>) result, obj -> kafka.proxies.Consumer.initialize(context, obj));
 	}
-	public static void iVK_SaveKafkaConsumer(IContext context, kafka.proxies.Consumer _kafkaConsumer)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder example_OnReceiveMicroflow_FileBuilder(
+		java.lang.Long _offset,
+		java.lang.String _key,
+		system.proxies.FileDocument _value,
+		java.lang.String _messageType,
+		java.lang.Long _partition,
+		kafka.proxies.Consumer _consumer,
+		java.lang.String _topic
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("KafkaConsumer", _kafkaConsumer == null ? null : _kafkaConsumer.getMendixObject());
-		Core.microflowCall("Kafka.IVK_SaveKafkaConsumer").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.Example_OnReceiveMicroflow_File");
+		builder = builder.withParam("Offset", _offset);
+		builder = builder.withParam("Key", _key);
+		builder = builder.withParam("Value", _value);
+		builder = builder.withParam("MessageType", _messageType);
+		builder = builder.withParam("Partition", _partition);
+		builder = builder.withParam("Consumer", _consumer);
+		builder = builder.withParam("Topic", _topic);
+		return builder;
 	}
-	public static void iVK_SaveKafkaProducer(IContext context, kafka.proxies.Producer _kafkaProducer)
+
+	public static void example_OnReceiveMicroflow_File(
+		IContext context,
+		java.lang.Long _offset,
+		java.lang.String _key,
+		system.proxies.FileDocument _value,
+		java.lang.String _messageType,
+		java.lang.Long _partition,
+		kafka.proxies.Consumer _consumer,
+		java.lang.String _topic
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("KafkaProducer", _kafkaProducer == null ? null : _kafkaProducer.getMendixObject());
-		Core.microflowCall("Kafka.IVK_SaveKafkaProducer").withParams(params).execute(context);
+		example_OnReceiveMicroflow_FileBuilder(
+				_offset,
+				_key,
+				_value,
+				_messageType,
+				_partition,
+				_consumer,
+				_topic
+			)
+			.execute(context);
 	}
-	public static void iVK_SaveKafkaServer(IContext context, kafka.proxies.Server _kafkaServer)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder example_OnReceiveMicroflow_StringBuilder(
+		java.lang.Long _offset,
+		java.lang.String _key,
+		java.lang.String _value,
+		java.lang.String _messageType,
+		java.lang.Long _partition,
+		kafka.proxies.Consumer _consumer,
+		java.lang.String _topic
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("KafkaServer", _kafkaServer == null ? null : _kafkaServer.getMendixObject());
-		Core.microflowCall("Kafka.IVK_SaveKafkaServer").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.Example_OnReceiveMicroflow_String");
+		builder = builder.withParam("Offset", _offset);
+		builder = builder.withParam("Key", _key);
+		builder = builder.withParam("Value", _value);
+		builder = builder.withParam("MessageType", _messageType);
+		builder = builder.withParam("Partition", _partition);
+		builder = builder.withParam("Consumer", _consumer);
+		builder = builder.withParam("Topic", _topic);
+		return builder;
 	}
+
+	public static void example_OnReceiveMicroflow_String(
+		IContext context,
+		java.lang.Long _offset,
+		java.lang.String _key,
+		java.lang.String _value,
+		java.lang.String _messageType,
+		java.lang.Long _partition,
+		kafka.proxies.Consumer _consumer,
+		java.lang.String _topic
+	)
+	{
+		example_OnReceiveMicroflow_StringBuilder(
+				_offset,
+				_key,
+				_value,
+				_messageType,
+				_partition,
+				_consumer,
+				_topic
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder iVK_CreateNewHeaderBuilder(
+		kafka.proxies.Publisher _publisher
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.IVK_CreateNewHeader");
+		builder = builder.withParam("Publisher", _publisher);
+		return builder;
+	}
+
+	public static void iVK_CreateNewHeader(
+		IContext context,
+		kafka.proxies.Publisher _publisher
+	)
+	{
+		iVK_CreateNewHeaderBuilder(
+				_publisher
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder iVK_PublishMessageBuilder(
+		kafka.proxies.Publisher _publisher
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.IVK_PublishMessage");
+		builder = builder.withParam("Publisher", _publisher);
+		return builder;
+	}
+
+	public static void iVK_PublishMessage(
+		IContext context,
+		kafka.proxies.Publisher _publisher
+	)
+	{
+		iVK_PublishMessageBuilder(
+				_publisher
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder iVK_RetrieveMessagesBuilder(
+		kafka.proxies.MessageOverview _messageOverview,
+		kafka.proxies.Partition _partition
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.IVK_RetrieveMessages");
+		builder = builder.withParam("MessageOverview", _messageOverview);
+		builder = builder.withParam("Partition", _partition);
+		return builder;
+	}
+
+	public static void iVK_RetrieveMessages(
+		IContext context,
+		kafka.proxies.MessageOverview _messageOverview,
+		kafka.proxies.Partition _partition
+	)
+	{
+		iVK_RetrieveMessagesBuilder(
+				_messageOverview,
+				_partition
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder iVK_RetrieveTopicsBuilder(
+		kafka.proxies.Explorer _explorer
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.IVK_RetrieveTopics");
+		builder = builder.withParam("Explorer", _explorer);
+		return builder;
+	}
+
+	public static void iVK_RetrieveTopics(
+		IContext context,
+		kafka.proxies.Explorer _explorer
+	)
+	{
+		iVK_RetrieveTopicsBuilder(
+				_explorer
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder iVK_SaveKafkaConsumerBuilder(
+		kafka.proxies.Consumer _kafkaConsumer
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.IVK_SaveKafkaConsumer");
+		builder = builder.withParam("KafkaConsumer", _kafkaConsumer);
+		return builder;
+	}
+
+	public static void iVK_SaveKafkaConsumer(
+		IContext context,
+		kafka.proxies.Consumer _kafkaConsumer
+	)
+	{
+		iVK_SaveKafkaConsumerBuilder(
+				_kafkaConsumer
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder iVK_SaveKafkaProducerBuilder(
+		kafka.proxies.Producer _kafkaProducer
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.IVK_SaveKafkaProducer");
+		builder = builder.withParam("KafkaProducer", _kafkaProducer);
+		return builder;
+	}
+
+	public static void iVK_SaveKafkaProducer(
+		IContext context,
+		kafka.proxies.Producer _kafkaProducer
+	)
+	{
+		iVK_SaveKafkaProducerBuilder(
+				_kafkaProducer
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder iVK_SaveKafkaServerBuilder(
+		kafka.proxies.Server _kafkaServer
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.IVK_SaveKafkaServer");
+		builder = builder.withParam("KafkaServer", _kafkaServer);
+		return builder;
+	}
+
+	public static void iVK_SaveKafkaServer(
+		IContext context,
+		kafka.proxies.Server _kafkaServer
+	)
+	{
+		iVK_SaveKafkaServerBuilder(
+				_kafkaServer
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder onCh_ConfigChangeBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.OnCh_ConfigChange");
+		return builder;
+	}
+
 	public static void onCh_ConfigChange(IContext context)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		Core.microflowCall("Kafka.OnCh_ConfigChange").withParams(params).execute(context);
+		onCh_ConfigChangeBuilder().execute(context);
 	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder sub_RestartBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.Sub_Restart");
+		return builder;
+	}
+
 	public static void sub_Restart(IContext context)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		Core.microflowCall("Kafka.Sub_Restart").withParams(params).execute(context);
+		sub_RestartBuilder().execute(context);
 	}
-	public static void sub_StartConsumer(IContext context, kafka.proxies.Consumer _consumer)
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder sub_StartConsumerBuilder(
+		kafka.proxies.Consumer _consumer
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Consumer", _consumer == null ? null : _consumer.getMendixObject());
-		Core.microflowCall("Kafka.Sub_StartConsumer").withParams(params).execute(context);
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.Sub_StartConsumer");
+		builder = builder.withParam("Consumer", _consumer);
+		return builder;
 	}
-	public static void sub_StartProducer(IContext context, kafka.proxies.Producer _producer)
+
+	public static void sub_StartConsumer(
+		IContext context,
+		kafka.proxies.Consumer _consumer
+	)
 	{
-		Map<java.lang.String, Object> params = new HashMap<>();
-		params.put("Producer", _producer == null ? null : _producer.getMendixObject());
-		Core.microflowCall("Kafka.Sub_StartProducer").withParams(params).execute(context);
+		sub_StartConsumerBuilder(
+				_consumer
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder sub_StartProducerBuilder(
+		kafka.proxies.Producer _producer
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.Sub_StartProducer");
+		builder = builder.withParam("Producer", _producer);
+		return builder;
+	}
+
+	public static void sub_StartProducer(
+		IContext context,
+		kafka.proxies.Producer _producer
+	)
+	{
+		sub_StartProducerBuilder(
+				_producer
+			)
+			.execute(context);
 	}
 }

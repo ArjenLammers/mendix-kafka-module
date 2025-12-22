@@ -25,23 +25,28 @@ import kafka.impl.KafkaPropertiesFactory;
 import kafka.proxies.Partition;
 import kafka.proxies.Topic;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
+import com.mendix.systemwideinterfaces.core.UserAction;
 
-public class ListTopics extends CustomJavaAction<java.util.List<IMendixObject>>
+public class ListTopics extends UserAction<java.util.List<IMendixObject>>
 {
-	private IMendixObject __consumer;
-	private kafka.proxies.Consumer consumer;
+	/** @deprecated use consumer.getMendixObject() instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final IMendixObject __consumer;
+	private final kafka.proxies.Consumer consumer;
 
-	public ListTopics(IContext context, IMendixObject consumer)
+	public ListTopics(
+		IContext context,
+		IMendixObject _consumer
+	)
 	{
 		super(context);
-		this.__consumer = consumer;
+		this.__consumer = _consumer;
+		this.consumer = _consumer == null ? null : kafka.proxies.Consumer.initialize(getContext(), _consumer);
 	}
 
 	@java.lang.Override
 	public java.util.List<IMendixObject> executeAction() throws Exception
 	{
-		this.consumer = this.__consumer == null ? null : kafka.proxies.Consumer.initialize(getContext(), __consumer);
-
 		// BEGIN USER CODE
 		Properties kafkaProps = KafkaPropertiesFactory.getKafkaProperties(getContext(), consumer);
 		KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(kafkaProps);
