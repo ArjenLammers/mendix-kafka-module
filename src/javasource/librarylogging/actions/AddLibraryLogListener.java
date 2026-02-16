@@ -46,11 +46,11 @@ public class AddLibraryLogListener extends UserAction<java.lang.Boolean>
 		
 		AppenderRef ref = AppenderRef.createAppenderRef(logNode + "-" + System.currentTimeMillis(), null, null);
 		AppenderRef[] refs = new AppenderRef[] { ref };
-		LoggerConfig orgApacheKafka = LoggerConfig.createLogger(true, Level.ALL, 
+		LoggerConfig org = LoggerConfig.createLogger(true, Level.ALL, 
 				classpath, null, refs, null, config, null);
-		orgApacheKafka.setLevel(Level.ALL);
-		orgApacheKafka.addAppender(mendixAppender, Level.ALL, null);
-		config.addLogger(classpath, orgApacheKafka);
+		org.setLevel(Level.ALL);
+		org.addAppender(mendixAppender, Level.ALL, null);
+		config.addLogger(classpath, org);
 		ctx.updateLoggers();
 		return true;
 		// END USER CODE

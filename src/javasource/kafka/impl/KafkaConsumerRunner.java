@@ -112,7 +112,7 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 					for (Header header : record.headers()) {
 						try {
 							if (this.onReceiveInputParameters.containsKey(header.key())) {
-								microflowParams.put(header.key(), header.value());
+								microflowParams.put(header.key(), new String(header.value(), "UTF-8"));
 							}
 						} catch (Exception e) {
 							LOGGER.warn("Ignoring header " + header.key() + " for offset " + record.offset()
@@ -125,7 +125,7 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 						while (context.isInTransaction())
 							context.endTransaction();
 					} catch (Throwable e) {
-						LOGGER.error("An error occurred while executing the microflow for consumer " + name);
+						LOGGER.error("An error occurred while executing the microflow for consumer " + name, e);
 						try {
 							while (context.isInTransaction())
 								context.endTransaction();
