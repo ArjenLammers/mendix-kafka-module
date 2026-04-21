@@ -22,6 +22,7 @@ public class Server implements com.mendix.systemwideinterfaces.core.IEntityProxy
 	{
 		Reference("Reference"),
 		Name("Name"),
+		UseRuntimeCertificates("UseRuntimeCertificates"),
 		Server_Config("Kafka.Server_Config"),
 		Server_TrustStore("Kafka.Server_TrustStore"),
 		Server_KeyStore("Kafka.Server_KeyStore");
@@ -155,6 +156,42 @@ public class Server implements com.mendix.systemwideinterfaces.core.IEntityProxy
 	public final void setName(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String name)
 	{
 		getMendixObject().setValue(context, MemberNames.Name.toString(), name);
+	}
+
+	/**
+	 * @return value of UseRuntimeCertificates
+	 */
+	public final java.lang.Boolean getUseRuntimeCertificates()
+	{
+		return getUseRuntimeCertificates(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of UseRuntimeCertificates
+	 */
+	public final java.lang.Boolean getUseRuntimeCertificates(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.Boolean) getMendixObject().getValue(context, MemberNames.UseRuntimeCertificates.toString());
+	}
+
+	/**
+	 * Set value of UseRuntimeCertificates
+	 * @param useruntimecertificates
+	 */
+	public final void setUseRuntimeCertificates(java.lang.Boolean useruntimecertificates)
+	{
+		setUseRuntimeCertificates(getContext(), useruntimecertificates);
+	}
+
+	/**
+	 * Set value of UseRuntimeCertificates
+	 * @param context
+	 * @param useruntimecertificates
+	 */
+	public final void setUseRuntimeCertificates(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Boolean useruntimecertificates)
+	{
+		getMendixObject().setValue(context, MemberNames.UseRuntimeCertificates.toString(), useruntimecertificates);
 	}
 
 	/**

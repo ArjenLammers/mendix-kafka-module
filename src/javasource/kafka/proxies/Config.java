@@ -56,6 +56,8 @@ public class Config implements com.mendix.systemwideinterfaces.core.IEntityProxy
 		ssl_keymanager_algorithm("ssl_keymanager_algorithm"),
 		ssl_secure_random_implementation("ssl_secure_random_implementation"),
 		ssl_trustmanager_algorithm("ssl_trustmanager_algorithm"),
+		sasl_login_callback_handler_class("sasl_login_callback_handler_class"),
+		sasl_oauthbearer_token_endpoint_url("sasl_oauthbearer_token_endpoint_url"),
 		Server_Config("Kafka.Server_Config");
 
 		private final java.lang.String metaName;
@@ -1306,6 +1308,78 @@ public class Config implements com.mendix.systemwideinterfaces.core.IEntityProxy
 	public final void setssl_trustmanager_algorithm(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String ssl_trustmanager_algorithm)
 	{
 		getMendixObject().setValue(context, MemberNames.ssl_trustmanager_algorithm.toString(), ssl_trustmanager_algorithm);
+	}
+
+	/**
+	 * @return value of sasl_login_callback_handler_class
+	 */
+	public final java.lang.String getsasl_login_callback_handler_class()
+	{
+		return getsasl_login_callback_handler_class(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of sasl_login_callback_handler_class
+	 */
+	public final java.lang.String getsasl_login_callback_handler_class(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.String) getMendixObject().getValue(context, MemberNames.sasl_login_callback_handler_class.toString());
+	}
+
+	/**
+	 * Set value of sasl_login_callback_handler_class
+	 * @param sasl_login_callback_handler_class
+	 */
+	public final void setsasl_login_callback_handler_class(java.lang.String sasl_login_callback_handler_class)
+	{
+		setsasl_login_callback_handler_class(getContext(), sasl_login_callback_handler_class);
+	}
+
+	/**
+	 * Set value of sasl_login_callback_handler_class
+	 * @param context
+	 * @param sasl_login_callback_handler_class
+	 */
+	public final void setsasl_login_callback_handler_class(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String sasl_login_callback_handler_class)
+	{
+		getMendixObject().setValue(context, MemberNames.sasl_login_callback_handler_class.toString(), sasl_login_callback_handler_class);
+	}
+
+	/**
+	 * @return value of sasl_oauthbearer_token_endpoint_url
+	 */
+	public final java.lang.String getsasl_oauthbearer_token_endpoint_url()
+	{
+		return getsasl_oauthbearer_token_endpoint_url(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of sasl_oauthbearer_token_endpoint_url
+	 */
+	public final java.lang.String getsasl_oauthbearer_token_endpoint_url(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.String) getMendixObject().getValue(context, MemberNames.sasl_oauthbearer_token_endpoint_url.toString());
+	}
+
+	/**
+	 * Set value of sasl_oauthbearer_token_endpoint_url
+	 * @param sasl_oauthbearer_token_endpoint_url
+	 */
+	public final void setsasl_oauthbearer_token_endpoint_url(java.lang.String sasl_oauthbearer_token_endpoint_url)
+	{
+		setsasl_oauthbearer_token_endpoint_url(getContext(), sasl_oauthbearer_token_endpoint_url);
+	}
+
+	/**
+	 * Set value of sasl_oauthbearer_token_endpoint_url
+	 * @param context
+	 * @param sasl_oauthbearer_token_endpoint_url
+	 */
+	public final void setsasl_oauthbearer_token_endpoint_url(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String sasl_oauthbearer_token_endpoint_url)
+	{
+		getMendixObject().setValue(context, MemberNames.sasl_oauthbearer_token_endpoint_url.toString(), sasl_oauthbearer_token_endpoint_url);
 	}
 
 	/**

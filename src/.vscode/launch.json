@@ -6,6 +6,35 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Mendix Runtime",
+            "request": "launch",
+            "preLaunchTask": "Start MendixConsoleLog",
+            "mainClass": "com.mendix.container.boot.Main",
+            "projectName": "src",
+            "javaExec": "C:/Program Files/Eclipse Adoptium/jdk-21.0.5.11-hotspot/bin/java.exe",
+            "cwd": "${workspaceFolder}/deployment",
+            "args": "\"${workspaceFolder}/deployment\"",
+            "classPaths": [
+                "C:/Program Files/Mendix/10.21.0.64362/runtime/launcher/runtimelauncher.jar"
+            ],
+            "runtimeVersion": "21",
+            "vmArgs": "-DMX_LOG_LEVEL=INFO -Djava.library.path=\"C:/Program Files/Mendix/10.21.0.64362/runtime/lib/x64;${workspaceFolder}/deployment/model/lib/userlib\" -Dfile.encoding=UTF-8 -Djava.io.tmpdir=\"${workspaceFolder}/deployment/data/tmp\"",
+            "env": {
+                "M2EE_ADMIN_PASS": "1",
+                "M2EE_ADMIN_PORT": "8090",
+                "M2EE_CONSOLE_PATH": "C:/Program Files/Mendix/10.21.0.64362/modeler/MendixConsoleLog.exe",
+                "MX_INSTALL_PATH": "C:/Program Files/Mendix/10.21.0.64362",
+                "MXCONSOLE_BASE_PATH": "${workspaceFolder}/deployment",
+                "MXCONSOLE_RUNTIME_PATH": "C:/Program Files/Mendix/10.21.0.64362/runtime",
+                "MXCONSOLE_RUNTIME_PORT": "8080",
+                "MXCONSOLE_RUNTIME_LISTEN_ADDRESSES": "*",
+                "MXCONSOLE_SERVER_URL": "http://127.0.0.1:8090/"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "type": "java",
             "name": "Remote Mendix",
             "request": "attach",
             "hostName": "localhost",

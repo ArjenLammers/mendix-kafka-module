@@ -68,6 +68,8 @@ public class StreamsConfig extends kafka.proxies.Config
 		ssl_keymanager_algorithm("ssl_keymanager_algorithm"),
 		ssl_secure_random_implementation("ssl_secure_random_implementation"),
 		ssl_trustmanager_algorithm("ssl_trustmanager_algorithm"),
+		sasl_login_callback_handler_class("sasl_login_callback_handler_class"),
+		sasl_oauthbearer_token_endpoint_url("sasl_oauthbearer_token_endpoint_url"),
 		Server_Config("Kafka.Server_Config");
 
 		private final java.lang.String metaName;
