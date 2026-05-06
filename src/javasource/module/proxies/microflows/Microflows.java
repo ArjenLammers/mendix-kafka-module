@@ -15,6 +15,17 @@ public final class Microflows
 	private Microflows() {}
 
 	// These are the microflows for the Module module
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder afterStartupBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Module.AfterStartup");
+		return builder;
+	}
+
+	public static boolean afterStartup(IContext context)
+	{
+		Object result = afterStartupBuilder().execute(context);
+		return (boolean) result;
+	}
 	public static com.mendix.core.actionmanagement.MicroflowCallBuilder kafka_TESTBuilder()
 	{
 		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Module.Kafka_TEST");

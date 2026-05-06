@@ -50,6 +50,7 @@ public class AddLibraryLogListener extends UserAction<java.lang.Boolean>
 				classpath, null, refs, null, config, null);
 		org.setLevel(Level.ALL);
 		org.addAppender(mendixAppender, Level.ALL, null);
+		mendixAppender.start();
 		config.addLogger(classpath, org);
 		ctx.updateLoggers();
 		return true;
