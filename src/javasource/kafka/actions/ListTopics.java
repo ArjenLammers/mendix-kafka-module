@@ -87,7 +87,7 @@ public class ListTopics extends UserAction<java.util.List<IMendixObject>>
 			}
 			
 		} catch (Exception e) {
-			KafkaModule.LOGGER.error("Error while obtaining list of topics from server " + consumer.getName() + ": " + e.getMessage(), e);
+			KafkaModule.LOGGER.error("Error while obtaining list of topics from server " + server.getName() + ": " + e.getMessage(), e);
 			throw e;
 		} finally {
 			kafkaConsumer.close();
