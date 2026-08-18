@@ -6,24 +6,24 @@ import java.util.Map;
 import org.apache.kafka.clients.producer.KafkaProducer;
 
 public class KafkaProducerRepository {
-	private static Map<String, KafkaProducer<String, String>> producers = new HashMap<>(); 	
-	
-	public static void put(String name, KafkaProducer<String, String> producer) {
-		producers.put(name, producer);
+	private static final Map<Long, KafkaProducer<String, String>> producers = new HashMap<>();
+
+	public static void put(Long id, KafkaProducer<String, String> producer) {
+		producers.put(id, producer);
 	}
-	
-	public static KafkaProducer<String, String> get(String name)
+
+	public static KafkaProducer<String, String> get(Long id)
 	{
-		return producers.get(name);
+		return producers.get(id);
 	}
-	
-	public static void close(String name) {
-		KafkaProducer<String, String> producer = producers.get(name);
+
+	public static void close(Long id) {
+		KafkaProducer<String, String> producer = producers.remove(id);
 		if (producer != null) {
 			producer.close();
-		}	
+		}
 	}
-	
+
 	public static void closeAll()
 	{
 		for (KafkaProducer<String, String> producer : producers.values()) {

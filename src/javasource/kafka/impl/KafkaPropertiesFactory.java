@@ -39,6 +39,14 @@ public class KafkaPropertiesFactory {
 		return result;
 	}
 
+	public static Properties getKafkaProperties(IContext context, Server server) throws CoreException {
+		Properties result = new Properties();
+		Config config = server.getServer_Config();
+		appendProperties(result, config.getMendixObject(), context);
+		setSSLParameters(result, server, context);
+		return result;
+	}
+
 	public static Properties getKafkaProperties(IContext context, Producer producer) throws CoreException {
 		Properties result = new Properties();
 		Server server = producer.getProducer_Server();

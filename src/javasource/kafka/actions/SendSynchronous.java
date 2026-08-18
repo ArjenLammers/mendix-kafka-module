@@ -77,7 +77,12 @@ public class SendSynchronous extends UserAction<IMendixObject>
 		KafkaProducer<String, String>  kafkaProducer;
 		
 		if (useCachedProducer) {
-			kafkaProducer = KafkaProducerRepository.get(producer.getName());
+			kafkaProducer = KafkaProducerRepository.get(producer.getMendixObject().getId().toLong());
+			if (kafkaProducer == null) {
+				kafkaProducer = new KafkaProducer<String, String>(
+						KafkaPropertiesFactory.getKafkaProperties(getContext(), producer));
+				KafkaProducerRepository.put(producer.getMendixObject().getId().toLong(), kafkaProducer);
+			}
 		} else {
 			kafkaProducer = new KafkaProducer<String, String>(
 					KafkaPropertiesFactory.getKafkaProperties(getContext(), producer));

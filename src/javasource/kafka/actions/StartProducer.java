@@ -47,7 +47,7 @@ public class StartProducer extends UserAction<java.lang.Boolean>
 		// BEGIN USER CODE
 		KafkaProducer<String, String> kafkaProducer = new KafkaProducer<String, String>(
 					KafkaPropertiesFactory.getKafkaProperties(getContext(), producer));
-		KafkaProducerRepository.put(producer.getName(), kafkaProducer);
+		KafkaProducerRepository.put(producer.getMendixObject().getId().toLong(), kafkaProducer);
 		
 		return true;
 		// END USER CODE

@@ -23,7 +23,6 @@ public class Partition implements com.mendix.systemwideinterfaces.core.IEntityPr
 		Identifier("Identifier"),
 		BeginOffset("BeginOffset"),
 		EndOffset("EndOffset"),
-		Position("Position"),
 		Partition_Topic("Kafka.Partition_Topic");
 
 		private final java.lang.String metaName;
@@ -182,42 +181,6 @@ public class Partition implements com.mendix.systemwideinterfaces.core.IEntityPr
 	public final void setEndOffset(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Long endoffset)
 	{
 		getMendixObject().setValue(context, MemberNames.EndOffset.toString(), endoffset);
-	}
-
-	/**
-	 * @return value of Position
-	 */
-	public final java.lang.Long getPosition()
-	{
-		return getPosition(getContext());
-	}
-
-	/**
-	 * @param context
-	 * @return value of Position
-	 */
-	public final java.lang.Long getPosition(com.mendix.systemwideinterfaces.core.IContext context)
-	{
-		return (java.lang.Long) getMendixObject().getValue(context, MemberNames.Position.toString());
-	}
-
-	/**
-	 * Set value of Position
-	 * @param position
-	 */
-	public final void setPosition(java.lang.Long position)
-	{
-		setPosition(getContext(), position);
-	}
-
-	/**
-	 * Set value of Position
-	 * @param context
-	 * @param position
-	 */
-	public final void setPosition(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Long position)
-	{
-		getMendixObject().setValue(context, MemberNames.Position.toString(), position);
 	}
 
 	/**

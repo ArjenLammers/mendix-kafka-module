@@ -29,26 +29,26 @@ import com.mendix.systemwideinterfaces.core.UserAction;
 
 public class ListTopics extends UserAction<java.util.List<IMendixObject>>
 {
-	/** @deprecated use consumer.getMendixObject() instead. */
+	/** @deprecated use server.getMendixObject() instead. */
 	@java.lang.Deprecated(forRemoval = true)
-	private final IMendixObject __consumer;
-	private final kafka.proxies.Consumer consumer;
+	private final IMendixObject __server;
+	private final kafka.proxies.Server server;
 
 	public ListTopics(
 		IContext context,
-		IMendixObject _consumer
+		IMendixObject _server
 	)
 	{
 		super(context);
-		this.__consumer = _consumer;
-		this.consumer = _consumer == null ? null : kafka.proxies.Consumer.initialize(getContext(), _consumer);
+		this.__server = _server;
+		this.server = _server == null ? null : kafka.proxies.Server.initialize(getContext(), _server);
 	}
 
 	@java.lang.Override
 	public java.util.List<IMendixObject> executeAction() throws Exception
 	{
 		// BEGIN USER CODE
-		Properties kafkaProps = KafkaPropertiesFactory.getKafkaProperties(getContext(), consumer);
+		Properties kafkaProps = KafkaPropertiesFactory.getKafkaProperties(getContext(), server);
 		KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(kafkaProps);
 		List<IMendixObject> result = new LinkedList<>();
 		
