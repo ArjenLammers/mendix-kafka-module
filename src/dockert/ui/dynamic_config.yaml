@@ -1,0 +1,12 @@
+kafka:
+  clusters:
+    - name: ind
+      bootstrap-servers: kafka:8092
+      properties:
+        security.protocol: SSL
+        ssl.truststore.location: /etc/kafkaui/secrets/ca.jks
+        ssl.truststore.password: ca
+        ssl.keystore.location: /etc/kafkaui/secrets/kafka01.jks
+        ssl.keystore.password: kafka01
+        ssl.key.password: kafka01
+        ssl.endpoint.identification.algorithm: ""

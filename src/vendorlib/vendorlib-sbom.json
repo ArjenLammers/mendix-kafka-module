@@ -84,43 +84,43 @@
     },
     {
       "type" : "library",
-      "bom-ref" : "pkg:maven/com.fasterxml.jackson.core/jackson-annotations@2.16.2?type=jar",
+      "bom-ref" : "pkg:maven/com.fasterxml.jackson.core/jackson-annotations@2.21?type=jar",
       "group" : "com.fasterxml.jackson.core",
       "name" : "jackson-annotations",
-      "version" : "2.16.2",
+      "version" : "2.21",
       "description" : "Core annotations used for value types, used by Jackson data binding package.",
       "hashes" : [
         {
           "alg" : "MD5",
-          "content" : "ecd24b22f8b55a6374e1bfe8ab261da7"
+          "content" : "e0d0c3e7300954f73e43c67d933aaea4"
         },
         {
           "alg" : "SHA-1",
-          "content" : "dfcd11c847ea7276aa073c25f5fe8ee361748d7f"
+          "content" : "b1bc1868bf02dc0bd6c7836257a036a331005309"
         },
         {
           "alg" : "SHA-256",
-          "content" : "d1cdd269ebaa753d1842933194e17d61958f058952d63e03dbfb3d1d78a6926e"
+          "content" : "53ca085f4a150f703f49e1aabd935bd03b43e1ea3d55d135438292af22cef56b"
         },
         {
           "alg" : "SHA-512",
-          "content" : "b6e738aed5fd4fa9b3040ffa652593ab29133c8bd603dde9adf8897b52e9c3746cae4df778df6d25ef9fb5aa8ab01832985edccc0213d5e6d7aae63bf9a322ca"
+          "content" : "d832a99867acc2d5afb2596da760c50e6a6b54c1bbc8e6c4186f267a16e1d55c7a916ef8b034ad6b277c41e3342b91dcdc2e3dcea8bdccfe89e7c147894591be"
         },
         {
           "alg" : "SHA-384",
-          "content" : "7c8c1f2269a17de92afa173ffd36b36214dd3de83408492d81a9655eb840bc697cf005509585f9ca7216c5ca75aa2448"
+          "content" : "30b15d68f8da6f6c26aa9f6c95d09152b6c1a8092cd976cf600d63d1751509a73865f937e0ad97d8d55bf20f6a749b44"
         },
         {
           "alg" : "SHA3-384",
-          "content" : "14fee3dacfd8b6a7f9f5e2efe159662b70e089d7a88f945360141590589ef064f70b83832c2ff9a5ee5731b9349ebc8a"
+          "content" : "5205b51f6ed689cf31b58b98a61ca9e17a439c15d669dcb408ec4d430e77ac9ac57d39d5ca1f9973e8d184f6dd57ec4f"
         },
         {
           "alg" : "SHA3-256",
-          "content" : "2518d7651119a8e193c2226993d9fc75d5c7103771a92bea5747cc88da3e8149"
+          "content" : "d6782d188a72b2bb96e4b595343e783012b3f98c30f7b9950244c21739334509"
         },
         {
           "alg" : "SHA3-512",
-          "content" : "1f0ebe81f84e6766d25ab11e1c875666150f63d8f2b380c23bef0edbdb3c6acb0bcac4a697c5e7665e1208025c2dcdd5ba1790b32f4f1d80e6aa3e8f4ec10584"
+          "content" : "b648f1e9ffe818227d53fbde409e61858ac22d3f78705eaf08065587ed512c9b33b0f5e2222356bfb33fb2973bb5a3184e31d2a7099f8fc8d2fd23eb4612a4bf"
         }
       ],
       "licenses" : [
@@ -130,7 +130,7 @@
           }
         }
       ],
-      "purl" : "pkg:maven/com.fasterxml.jackson.core/jackson-annotations@2.16.2?type=jar",
+      "purl" : "pkg:maven/com.fasterxml.jackson.core/jackson-annotations@2.21?type=jar",
       "modified" : false,
       "externalReferences" : [
         {
@@ -141,53 +141,66 @@
     },
     {
       "type" : "library",
-      "bom-ref" : "pkg:maven/org.apache.kafka/kafka-streams@3.9.2?type=jar",
-      "group" : "org.apache.kafka",
-      "name" : "kafka-streams",
-      "version" : "3.9.2",
+      "bom-ref" : "pkg:maven/org.xerial.snappy/snappy-java@1.1.10.7?type=jar",
+      "publisher" : "xerial.org",
+      "group" : "org.xerial.snappy",
+      "name" : "snappy-java",
+      "version" : "1.1.10.7",
+      "description" : "snappy-java: A fast compression/decompression library",
       "hashes" : [
         {
           "alg" : "MD5",
-          "content" : "0d367167d584545b1a1ffe28995962cb"
+          "content" : "d74bb2e2857f965683c9de931b71fc86"
         },
         {
           "alg" : "SHA-1",
-          "content" : "3253bfc2c12441a54be3c2c77ce5b1d2dec7be72"
+          "content" : "3049f95640f4625a945cfab85715f603fa4c8f80"
         },
         {
           "alg" : "SHA-256",
-          "content" : "ef10953cf390fa2a71762f4a4913a3f884ef14ef078aa3b4f36356621cbd5b25"
+          "content" : "4c766cb3f855415ee734b2392949a0b6f12a60879334a74518deaf6270d32e36"
         },
         {
           "alg" : "SHA-512",
-          "content" : "4ce15fa1df6ddef9c10b4005f4cd79c48dcb639e51912619028acd7088b5ea681d74b7d4f88c51691102bd25bab93bf1560567ba033f8f5d288a9b9c9f038344"
+          "content" : "22a6ebb8e8ad4d8a149b0c67d8658ac1535d7014857064c4f7ed4999e29c6186de8a80b50dd9b59f631fa1c24970524fdbbb84083c80c59eb0c72d4efb041fef"
         },
         {
           "alg" : "SHA-384",
-          "content" : "f5c96c49ff11cc21feccfcaa965bf149f673d44e91cb0b02e23336545ad07514d329ae31a3b165a37f7671a1b0fda614"
+          "content" : "b7ea971de5e286b4bdb8b96063f0ffe611ef82f5887fa6845fc2721bf0e71a88b0c754ba010816596f0b6c178160c0c5"
         },
         {
           "alg" : "SHA3-384",
-          "content" : "4aca2fd9418c2d3ccb5f6caac4ec3eb438b0dcff19ebcc03da9dfd1be7c91808909f6a87c4c3272def68c81feea2211e"
+          "content" : "9ef6c5ad194027c8b4be0f756dfeb958ae3daa5ad942b34c4e9e570ce7516ba91fad298929e4d716f6a091d0b274bbc9"
         },
         {
           "alg" : "SHA3-256",
-          "content" : "997cdc6b3016969bd84dd9d770607ea16831dd22b51f5ef1fde15e892ab85dff"
+          "content" : "83f4ede80f49271566745463652e3cdebbe4e2112174400ddf082bf9b39d09cd"
         },
         {
           "alg" : "SHA3-512",
-          "content" : "8726dec406d3e7f74de56385d0c62beaec8b14f811cd81ad0966116514f68f584e437a895c99d30532946d6555cd584b8bf4e4896cdadbffaa1240853110e2d7"
+          "content" : "3c1ffb884ac57e812f997357f9501afbffec3aaac2aa2bb87b0dd8ec2e7e43d922c250dfc658920ade2014aa138440d2d9cdfce8e453812d089898d10390a6db"
         }
       ],
       "licenses" : [
         {
           "license" : {
-            "id" : "Apache-2.0"
+            "id" : "Apache-2.0",
+            "url" : "https://www.apache.org/licenses/LICENSE-2.0"
           }
         }
       ],
-      "purl" : "pkg:maven/org.apache.kafka/kafka-streams@3.9.2?type=jar",
-      "modified" : false
+      "purl" : "pkg:maven/org.xerial.snappy/snappy-java@1.1.10.7?type=jar",
+      "modified" : false,
+      "externalReferences" : [
+        {
+          "type" : "website",
+          "url" : "https://github.com/xerial/snappy-java"
+        },
+        {
+          "type" : "vcs",
+          "url" : "https://github.com/xerial/snappy-java"
+        }
+      ]
     },
     {
       "type" : "library",
@@ -243,44 +256,223 @@
     },
     {
       "type" : "library",
-      "bom-ref" : "pkg:maven/org.xerial.snappy/snappy-java@1.1.10.5?type=jar",
-      "publisher" : "xerial.org",
-      "group" : "org.xerial.snappy",
-      "name" : "snappy-java",
-      "version" : "1.1.10.5",
-      "description" : "snappy-java: A fast compression/decompression library",
+      "bom-ref" : "pkg:maven/org.apache.kafka/kafka-streams@4.3.1?type=jar",
+      "group" : "org.apache.kafka",
+      "name" : "kafka-streams",
+      "version" : "4.3.1",
       "hashes" : [
         {
           "alg" : "MD5",
-          "content" : "a52ffcdbbe525b486237a7098e5c5ff7"
+          "content" : "cc5c39098fd7b307ef22c2d7746f733a"
         },
         {
           "alg" : "SHA-1",
-          "content" : "ac605269f3598506196e469f1fb0d7ed5c55059e"
+          "content" : "76cef4ff46a4355bac231cba87ef74a79a27aaf2"
         },
         {
           "alg" : "SHA-256",
-          "content" : "0f3f1857ed33116583f480b4df5c0218836c47bfbc9c6221c0d73f356decf37b"
+          "content" : "bd73f3805e116f711e8456ee89a8a5b43ff5dcf5a5bb865afae29deae89e7c4b"
         },
         {
           "alg" : "SHA-512",
-          "content" : "36c288aa84017b52362a49a20d1702151a16b9f58518b6877f11122941a549d94fab8d515f7f1ad6384fb94be569328abf862edaf970c10a16832498dfda853b"
+          "content" : "bd45f9bd4ec9232daf4d96334af5655f35c04de8baa569b86ac7c9d12266e0dc8cf82d0979fc9b5b8d069a6a9a98dcb3a7074b1ec05083af8fde7df91ae4ef3e"
         },
         {
           "alg" : "SHA-384",
-          "content" : "693a542ca2471dec4da5fe582563aff1bf5238e1a8d1a1f79cd8138334f94f1112094fbd270b1637d983c9290084a6e1"
+          "content" : "22fd46c713fdfb6edaf371a60aaa24c5399c9751217a74e109f512935f214dfd1b66e8aeb5f1a76cb251b827642c1a76"
         },
         {
           "alg" : "SHA3-384",
-          "content" : "41cbbb20b4bc0bd9a80521904568335fb131602a6931783f5bf6a1c8287b8ccd92c8169b8bb2399d27208fc067ef2321"
+          "content" : "dfd2f764545df05b9710c1fe581fdf45e89156ab318b7b246f88e55e100f9cb85ca35b08994ed7c251568f7a40edf812"
         },
         {
           "alg" : "SHA3-256",
-          "content" : "38dc41c5a0d827c58e1409a63e902d0568a03d67cdb99708ccc63921000ddc55"
+          "content" : "ce8baa99603079de29dd9b9e87fc5cc39ef557ba1e038b56f598a284e739681e"
         },
         {
           "alg" : "SHA3-512",
-          "content" : "b07d178cc94f6385d5f09d7730d2dd161c6f7d6815ae779e742421c0c1fb92043c8ec8ce5ee67660760f5287bd959eba1028924257a6ff36fb5439d8f81bd049"
+          "content" : "e08d1265089fd1cbc1f982a48e9fbd0c2d4355330ab0495f02a3ef7040de386f14f8499365af44b873981fd0df4fc226e743f8d9e079af24c9a12bfb2a9bdfe4"
+        }
+      ],
+      "licenses" : [
+        {
+          "license" : {
+            "id" : "Apache-2.0"
+          }
+        }
+      ],
+      "purl" : "pkg:maven/org.apache.kafka/kafka-streams@4.3.1?type=jar",
+      "modified" : false
+    },
+    {
+      "type" : "library",
+      "bom-ref" : "pkg:maven/org.rocksdb/rocksdbjni@10.1.3?type=jar",
+      "publisher" : "Facebook",
+      "group" : "org.rocksdb",
+      "name" : "rocksdbjni",
+      "version" : "10.1.3",
+      "description" : "RocksDB fat jar that contains .so files for linux32 and linux64 (glibc and musl-libc), jnilib files for Mac OSX, and a .dll for Windows x64.",
+      "hashes" : [
+        {
+          "alg" : "MD5",
+          "content" : "f13f54e4f9189e4ef9f7570b2d8d892e"
+        },
+        {
+          "alg" : "SHA-1",
+          "content" : "46a1e0a0f175508717976971fc6a9e189f5dc0b1"
+        },
+        {
+          "alg" : "SHA-256",
+          "content" : "e7f925287d9fe2574fb7c7a86f7facaa9b8ab602a2eed0e598bf633528121498"
+        },
+        {
+          "alg" : "SHA-512",
+          "content" : "e30d5072fa69e9c50fd1c2a907ee6c9213e1b07d0e96d431385d0a4bc5ea11140ecc9dd4e5754b5259c8e9aae4d896a85ee9df5bc335e6fea8e2f63226afde98"
+        },
+        {
+          "alg" : "SHA-384",
+          "content" : "5c17a9e48e715497f267bad2f1b012bf145ec306a7c6c13822e4744c6a8bdcc741b8049670876ba4b889eee9a4451bd0"
+        },
+        {
+          "alg" : "SHA3-384",
+          "content" : "3a7be884b13b7de0adea33e5de7ee7010f7c12b05b0a76add33323fd16fe5adbc02220ef451a7051e55bea7cdd106e8b"
+        },
+        {
+          "alg" : "SHA3-256",
+          "content" : "e7adf06686f84f1a9f67410962798dd006910ff312ba2515420dccf478b0c443"
+        },
+        {
+          "alg" : "SHA3-512",
+          "content" : "364f1026f10cb677416df4d7446f2ed94ca0ec50f684130a3d8cf832e295ec0a7a2c4e162b3b413e40b4d80d8920bd6390959a50905f9e7a7dc8bc00ab2e20c3"
+        }
+      ],
+      "licenses" : [
+        {
+          "license" : {
+            "id" : "Apache-2.0",
+            "url" : "https://www.apache.org/licenses/LICENSE-2.0"
+          }
+        },
+        {
+          "license" : {
+            "name" : "GNU General Public License, version 2",
+            "url" : "http://www.gnu.org/licenses/gpl-2.0.html"
+          }
+        }
+      ],
+      "purl" : "pkg:maven/org.rocksdb/rocksdbjni@10.1.3?type=jar",
+      "modified" : false,
+      "externalReferences" : [
+        {
+          "type" : "website",
+          "url" : "https://www.facebook.com"
+        },
+        {
+          "type" : "mailing-list",
+          "url" : "https://groups.google.com/forum/#!forum/rocksdb"
+        },
+        {
+          "type" : "vcs",
+          "url" : "scm:git:https://github.com/facebook/rocksdb.git"
+        }
+      ]
+    },
+    {
+      "type" : "library",
+      "bom-ref" : "pkg:maven/at.yawk.lz4/lz4-java@1.10.2?type=jar",
+      "group" : "at.yawk.lz4",
+      "name" : "lz4-java",
+      "version" : "1.10.2",
+      "description" : "Java bindings and pure Java implementations of LZ4 and XXHash",
+      "hashes" : [
+        {
+          "alg" : "MD5",
+          "content" : "f9fe6db582e61989316715dca1c79f6d"
+        },
+        {
+          "alg" : "SHA-1",
+          "content" : "1df182cf1b030e347c81ca8768c24dab414a04d8"
+        },
+        {
+          "alg" : "SHA-256",
+          "content" : "252dabd586d22149a31661a8afc1a50747714eb1a298bd4a6e780c8c91a13866"
+        },
+        {
+          "alg" : "SHA-512",
+          "content" : "2634adf408910c3a1cff41f5bbde0f0643d6aa89b9c10c84ee5982628ceaf092015acaa0ed90eb56cdb0cc1c72b6667bc51b4312c8674662d5150a821c512f88"
+        },
+        {
+          "alg" : "SHA-384",
+          "content" : "0583dafa52d9c28aa84204fb3996528fd3fac71ed7c452b904bcc8f3f8fc07ca36da13fea1bd7a5eec34f9e6480925f5"
+        },
+        {
+          "alg" : "SHA3-384",
+          "content" : "70753f41fb3eba873d96c9a2dc79bc92bf1bfd9e71c1153841338b01c986f95f47c264e651e16a359b2abc0d61339dc6"
+        },
+        {
+          "alg" : "SHA3-256",
+          "content" : "bd18f6b4f05872ec9baf1fae2fa743a102d076f9ae1856c0b38ad03aeaa02e2e"
+        },
+        {
+          "alg" : "SHA3-512",
+          "content" : "82edfdade65175934695df09016a2b6af81d89250afb905a31453e991ac92e5952b274410344f2aca7c3458c77b1d5e38a8f37ddbf77e11caf03d04bc1591832"
+        }
+      ],
+      "licenses" : [
+        {
+          "license" : {
+            "id" : "Apache-2.0"
+          }
+        }
+      ],
+      "purl" : "pkg:maven/at.yawk.lz4/lz4-java@1.10.2?type=jar",
+      "modified" : false,
+      "externalReferences" : [
+        {
+          "type" : "vcs",
+          "url" : "https://github.com/yawkat/lz4-java"
+        }
+      ]
+    },
+    {
+      "type" : "library",
+      "bom-ref" : "pkg:maven/org.apache.logging.log4j/log4j-slf4j-impl@2.25.3?type=jar",
+      "group" : "org.apache.logging.log4j",
+      "name" : "log4j-slf4j-impl",
+      "version" : "2.25.3",
+      "description" : "SLF4J 1 binding (provider) for the Log4j API. It forwards SLF4J 1 calls to the Log4j API. (Refer to the `log4j-to-slf4j` artifact for forwarding the Log4j API to SLF4J.)",
+      "hashes" : [
+        {
+          "alg" : "MD5",
+          "content" : "02717cf6dcad4868af01039d5ea0335b"
+        },
+        {
+          "alg" : "SHA-1",
+          "content" : "4a173925524d8f6c3f39ae8954ee348e8244afd7"
+        },
+        {
+          "alg" : "SHA-256",
+          "content" : "f835ac2bf1a895d5e687b4ebf238bff05316dd672e572dff235024b6e320bcc9"
+        },
+        {
+          "alg" : "SHA-512",
+          "content" : "2efa2867b50d8b6ce34de30d784f1866e94008f4bff6122f1433b8ac4cb8fdbce0249e743e68e2e369344c37e6440ee8421b2a9ea08991551801227c94c5d657"
+        },
+        {
+          "alg" : "SHA-384",
+          "content" : "b55c8d90c5c8cdad64f6d7fdeabcbfc73bb2d616b306ccdbdfbf34379164c7847ec7d5a909218d1afb0925d736f31891"
+        },
+        {
+          "alg" : "SHA3-384",
+          "content" : "71c669910faff21cf2c6c51c311070f1d11238bd6100e52b12071ccf35a38c788e821e7ab0e13b218f481aa3172d7a74"
+        },
+        {
+          "alg" : "SHA3-256",
+          "content" : "6df391c4308ece8edf3f9c414aa7fe025aea2bff5d1d87acdf15333215f9bbff"
+        },
+        {
+          "alg" : "SHA3-512",
+          "content" : "3524849afdf3037c7308828349585d0cdb247f5f0e686c245cd0ce05270dee6fa3b763102bdb5ca0401f7b24a62e46a640c3aa02f8b1936dbcbbed0df9716c0b"
         }
       ],
       "licenses" : [
@@ -291,18 +483,110 @@
           }
         }
       ],
-      "purl" : "pkg:maven/org.xerial.snappy/snappy-java@1.1.10.5?type=jar",
-      "modified" : false,
-      "externalReferences" : [
+      "purl" : "pkg:maven/org.apache.logging.log4j/log4j-slf4j-impl@2.25.3?type=jar",
+      "modified" : false
+    },
+    {
+      "type" : "library",
+      "bom-ref" : "pkg:maven/org.apache.kafka/kafka-clients@4.3.1?type=jar",
+      "group" : "org.apache.kafka",
+      "name" : "kafka-clients",
+      "version" : "4.3.1",
+      "hashes" : [
         {
-          "type" : "website",
-          "url" : "https://github.com/xerial/snappy-java"
+          "alg" : "MD5",
+          "content" : "5fe1478c9371fd445f6e730f1dc26744"
         },
         {
-          "type" : "vcs",
-          "url" : "https://github.com/xerial/snappy-java"
+          "alg" : "SHA-1",
+          "content" : "74209a28d36f819b2f7a9b599e468b5654cad514"
+        },
+        {
+          "alg" : "SHA-256",
+          "content" : "52501b7b47510c66f898871adaf6d2968ab7246561d44ced43643a8a587f0b36"
+        },
+        {
+          "alg" : "SHA-512",
+          "content" : "f3b76117e349b2875509cbf0d55fdb687dcf2d0d554c87273739bbda6226232a81679901613d3f1c1e49f777fd18780104390509637ba06552b868473b54b950"
+        },
+        {
+          "alg" : "SHA-384",
+          "content" : "38f8796f4c4883f6f50cf4304882f1fee08b2c18d0323b9990365078766c6b85e7c0f42d6a427d128eca3f2bbd4b99b9"
+        },
+        {
+          "alg" : "SHA3-384",
+          "content" : "96cf0303b7faa70a9e01ae6f3a0a6ee31b499e72cd507259248104369d0cf9cfb8a7a669d58517f5c784b8d81fe09f34"
+        },
+        {
+          "alg" : "SHA3-256",
+          "content" : "0997d620a357a166e4bda0c823c71b301299793d376a79b7ad2f17f824061d33"
+        },
+        {
+          "alg" : "SHA3-512",
+          "content" : "bb98536bb8b6a1504812c1e0d1971a455a5aaa79a96f516ac4a4fd4c905d2391c725e47a5b9296b8a453e8e10f0957b3762a51e913014a5bd44e085286d7428e"
         }
-      ]
+      ],
+      "licenses" : [
+        {
+          "license" : {
+            "id" : "Apache-2.0"
+          }
+        }
+      ],
+      "purl" : "pkg:maven/org.apache.kafka/kafka-clients@4.3.1?type=jar",
+      "modified" : false
+    },
+    {
+      "type" : "library",
+      "bom-ref" : "pkg:maven/com.github.luben/zstd-jni@1.5.6-10?type=jar",
+      "publisher" : "com.github.luben",
+      "group" : "com.github.luben",
+      "name" : "zstd-jni",
+      "version" : "1.5.6-10",
+      "description" : "JNI bindings for Zstd native library that provides fast and high compression lossless algorithm for Java and all JVM languages.",
+      "hashes" : [
+        {
+          "alg" : "MD5",
+          "content" : "93299f5422c91c08b9e4b7c5e401dd56"
+        },
+        {
+          "alg" : "SHA-1",
+          "content" : "7e146ecb598af55d1f64d1c118af27569a848558"
+        },
+        {
+          "alg" : "SHA-256",
+          "content" : "b6c3237e24b8252a5a9c3a0e1ae30ef8f323412e74bd358548b7a9e527d676df"
+        },
+        {
+          "alg" : "SHA-512",
+          "content" : "fdc73c64ba40b3a89c14b3cd2313c19e2867b9e202ed0dadcf33de37fb904bd1b6ba73abd754794acad3a81c6e43852cdc0f850b6b090d414ba65598eda6f47e"
+        },
+        {
+          "alg" : "SHA-384",
+          "content" : "1faf411461ce2faf634b16e43ece8998abbe5aaec1727c03a7debb6e2d6a7c8d47a12e208a7bd20d308e82f7f0821002"
+        },
+        {
+          "alg" : "SHA3-384",
+          "content" : "b49963bf539e44c97c3850cc50f4e27e3b5e84a3da43be366f2a6b1e24875d64d7503fab9499268c004362d05a7eef14"
+        },
+        {
+          "alg" : "SHA3-256",
+          "content" : "54f687bd0d7bbf8591320422bdd19965a271334a9cc84abc62d85db82cddd99e"
+        },
+        {
+          "alg" : "SHA3-512",
+          "content" : "df813ddd37a46911723bb79736ff68e70a561ce6bf7553430ef6f2eda3aa350f038c1b98d3ba5494a4d0db52ce6a05271e278c3a6d8ab13683bccf149644a277"
+        }
+      ],
+      "licenses" : [
+        {
+          "license" : {
+            "id" : "BSD-2-Clause"
+          }
+        }
+      ],
+      "purl" : "pkg:maven/com.github.luben/zstd-jni@1.5.6-10?type=jar",
+      "modified" : false
     },
     {
       "type" : "library",
@@ -355,6 +639,63 @@
       ],
       "purl" : "pkg:maven/org.apache.logging.log4j/log4j-slf4j2-impl@2.25.3?type=jar",
       "modified" : false
+    },
+    {
+      "type" : "library",
+      "bom-ref" : "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.21.2?type=jar",
+      "group" : "com.fasterxml.jackson.core",
+      "name" : "jackson-core",
+      "version" : "2.21.2",
+      "description" : "Core Jackson processing abstractions (aka Streaming API), implementation for JSON",
+      "hashes" : [
+        {
+          "alg" : "MD5",
+          "content" : "b62c1031b5f38fc58158fc0c559980cb"
+        },
+        {
+          "alg" : "SHA-1",
+          "content" : "7d11eac823392f28d8ee7bda77eaadfccbab83e5"
+        },
+        {
+          "alg" : "SHA-256",
+          "content" : "12e8655b100267b44d0f14d01b1f5082a5105e616174dc4307be1a761e92407b"
+        },
+        {
+          "alg" : "SHA-512",
+          "content" : "31a16a40b2e1a1a9467a66c93884c034527fb5af641a79bd6a563d4c3aaa0cfc8d8250f930d13c7fd70c18db579940ec54a49538c5a2e0fb9780c575808000ff"
+        },
+        {
+          "alg" : "SHA-384",
+          "content" : "cff72535be10b86fac89af4fd8eb0a7d89b0385712bff36cca6b94ad014acd9c2480bc3bc87b25b8621ccdf17cf8ae1f"
+        },
+        {
+          "alg" : "SHA3-384",
+          "content" : "1a7cd7206198350f0810989bc1448bb262099b14f3fc746d70651a3cf20a35948cc545326c07852dec25871605c862a3"
+        },
+        {
+          "alg" : "SHA3-256",
+          "content" : "7550f1f3812a13530bcb61db040d8b57415447395a62503dad6664e7dc62acc7"
+        },
+        {
+          "alg" : "SHA3-512",
+          "content" : "94e8097f45134c4e30e84cba9a4bd10dcec3e69ac3a9e289278be8f4005befe6efe33dec7bf4c349c3cd65928c8a1aaa0ffdfa689e60ca240393634eb384ed6e"
+        }
+      ],
+      "licenses" : [
+        {
+          "license" : {
+            "id" : "Apache-2.0"
+          }
+        }
+      ],
+      "purl" : "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.21.2?type=jar",
+      "modified" : false,
+      "externalReferences" : [
+        {
+          "type" : "vcs",
+          "url" : "https://github.com/FasterXML/jackson-core"
+        }
+      ]
     },
     {
       "type" : "library",
@@ -462,55 +803,60 @@
     },
     {
       "type" : "library",
-      "bom-ref" : "pkg:maven/com.github.luben/zstd-jni@1.5.6-4?type=jar",
-      "publisher" : "com.github.luben",
-      "group" : "com.github.luben",
-      "name" : "zstd-jni",
-      "version" : "1.5.6-4",
-      "description" : "JNI bindings for Zstd native library that provides fast and high compression lossless algorithm for Java and all JVM languages.",
+      "bom-ref" : "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.2?type=jar",
+      "group" : "com.fasterxml.jackson.core",
+      "name" : "jackson-databind",
+      "version" : "2.21.2",
+      "description" : "General data-binding functionality for Jackson: works on core streaming API",
       "hashes" : [
         {
           "alg" : "MD5",
-          "content" : "808e96f7bc2d4a3c5f68e95786f74cc9"
+          "content" : "add2fbe739574bfd1877c2cca25f46d1"
         },
         {
           "alg" : "SHA-1",
-          "content" : "ba9e303e0b5e94cdd0017390d7d8c06f47fd61f7"
+          "content" : "71ab8ff75b4fd74afdee0004173fdd15de1d6a28"
         },
         {
           "alg" : "SHA-256",
-          "content" : "793ca8734aa15687e7e64564eab8b6ae9ee2720eae27aa663074682144b1c386"
+          "content" : "8c982f01f148d805f0aaac2339011244757e0df7c6ff8951f2fa3f433b8ed849"
         },
         {
           "alg" : "SHA-512",
-          "content" : "91ae51e05bfe322e18875cd158f311a0aaef62059fd391b83c4d06447f31518863654fc218891eb99f72def102964c01d8122c73890498fef7288f060cb29e88"
+          "content" : "1a47b012447bc8c3d0bc603b95fce1640d7fe7ead08bc33c106c0de811f061a1eda871863e4e1411e9c0c9c716d47c69960f7e492f54e8610f3e40c99f5c3962"
         },
         {
           "alg" : "SHA-384",
-          "content" : "0c56933ba08e88187767e688325fdc8e281e8cb2838d6125819da484df8ecf07bfe0b88c9a5b12049efb24f8711f6f76"
+          "content" : "933e7dd454a933ff1fa451ff63d870708b9ca8cdf68b849594a08d9859468cc19b15836cef741f6c9ffb8cde31cc5c76"
         },
         {
           "alg" : "SHA3-384",
-          "content" : "257b31ed4be57edd59c93a7b379c29c04ebba03397a528fc87bd2faa512ad4d95f7d3d6207e840b359fe8697dc66365b"
+          "content" : "f2ef8662730bd798307c483f18f1bd54fc4fd5c9cacf4eba0715222cb4a3e46ea60dde95994764604f0621a05a1ce0c1"
         },
         {
           "alg" : "SHA3-256",
-          "content" : "9548d91de11376d8c4af0a3400078473e77225ae4ec1c8956d41b2af2e81810b"
+          "content" : "0bcf55950a1f2eb63569142af0d863b2496791cf9da864ff9b8b73796250c5f0"
         },
         {
           "alg" : "SHA3-512",
-          "content" : "3db8c2f18fad2bcd1bc9486309228374d33e6f15d39ed8324da58a8d7d17175fb278f20004f549095333a76ce2637441e74da49fd32637e5cca640e82a2b36c7"
+          "content" : "58132245b550d327faf1c8a2a0bccc85188a2abbab806ea646ce3b83340a750df534ed51db3de2a2fa167e4612371ea1ab84ab8d1badab5509f44d9c73958396"
         }
       ],
       "licenses" : [
         {
           "license" : {
-            "id" : "BSD-2-Clause"
+            "id" : "Apache-2.0"
           }
         }
       ],
-      "purl" : "pkg:maven/com.github.luben/zstd-jni@1.5.6-4?type=jar",
-      "modified" : false
+      "purl" : "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.2?type=jar",
+      "modified" : false,
+      "externalReferences" : [
+        {
+          "type" : "vcs",
+          "url" : "https://github.com/FasterXML/jackson-databind"
+        }
+      ]
     },
     {
       "type" : "library",
@@ -563,310 +909,37 @@
       ],
       "purl" : "pkg:maven/org.slf4j/slf4j-api@2.0.17?type=jar",
       "modified" : false
-    },
-    {
-      "type" : "library",
-      "bom-ref" : "pkg:maven/org.apache.kafka/kafka-clients@3.9.2?type=jar",
-      "group" : "org.apache.kafka",
-      "name" : "kafka-clients",
-      "version" : "3.9.2",
-      "hashes" : [
-        {
-          "alg" : "MD5",
-          "content" : "403ae287b6dff42f84e473938a904519"
-        },
-        {
-          "alg" : "SHA-1",
-          "content" : "a06edbaa01458ed2e8cf1be69a18c2f231fda6e0"
-        },
-        {
-          "alg" : "SHA-256",
-          "content" : "014b4ef36884478a932641818b080c36a8f8e2e92dc771e800c9d2694f4f83d8"
-        },
-        {
-          "alg" : "SHA-512",
-          "content" : "dd824c9a31f38a5a6d2b2c7ac03e9f31d8c5a7f1d8a6baefbe7d55552f4ab961ec831f040bb87a3c52dab6d464ee0954c31d256c1ea323140139465697806369"
-        },
-        {
-          "alg" : "SHA-384",
-          "content" : "b3713f3e89d1650fb14d78b64b0d990253180d1c043879b0d08d1f5e5a9cea8e6028f69a3dce288bf16babd8b025fcee"
-        },
-        {
-          "alg" : "SHA3-384",
-          "content" : "e78f30fcebb79f35964139f3956e93aad741b98a45657324f2800210896c4083e308239ed6983761a8e16972552a8f12"
-        },
-        {
-          "alg" : "SHA3-256",
-          "content" : "b831f2ea3ca0ed6a44bbd56d1a2cf4af7c2ef9f46ea404cf7c975cbaa8a034e0"
-        },
-        {
-          "alg" : "SHA3-512",
-          "content" : "e9fb4576a52cb8949e6f52aa18478c28928b8c613cfe2e6482ffa824667fb99a6291cb0551fd5f63a44b72dbb71ff00d28c1db8b23777fb4f4bf450f06db806f"
-        }
-      ],
-      "licenses" : [
-        {
-          "license" : {
-            "id" : "Apache-2.0"
-          }
-        }
-      ],
-      "purl" : "pkg:maven/org.apache.kafka/kafka-clients@3.9.2?type=jar",
-      "modified" : false
-    },
-    {
-      "type" : "library",
-      "bom-ref" : "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.16.2?type=jar",
-      "group" : "com.fasterxml.jackson.core",
-      "name" : "jackson-core",
-      "version" : "2.16.2",
-      "description" : "Core Jackson processing abstractions (aka Streaming API), implementation for JSON",
-      "hashes" : [
-        {
-          "alg" : "MD5",
-          "content" : "64594fea116c698c9612ffba8e94d7b4"
-        },
-        {
-          "alg" : "SHA-1",
-          "content" : "b4f588bf070f77b604c645a7d60b71eae2e6ea09"
-        },
-        {
-          "alg" : "SHA-256",
-          "content" : "4f43e2f1430b2d2413e8e5a3d79138e57e891d6a961b18c28ac90859639d8664"
-        },
-        {
-          "alg" : "SHA-512",
-          "content" : "0af7b5ae2cc984363b240c52f4c9b0a4c6faf4523f04d9c19c05a5a76a0c2c79375abcb696f0439fe757fceff7c62b0db26250bc96535cfae7fa00be1754a9f9"
-        },
-        {
-          "alg" : "SHA-384",
-          "content" : "c7b9081029b1130ca773b91118fdeb02787bac56d21019e90d23183ef5f540225d98ca87cc6090c658cd9b6c45129e3a"
-        },
-        {
-          "alg" : "SHA3-384",
-          "content" : "b7c4b956350b88ed4f4311ff9b10f302c614d56b630f34ae857243c9212caa9c7b440d20a89988f048c528bdd3d37ec9"
-        },
-        {
-          "alg" : "SHA3-256",
-          "content" : "e778137212674b5754a860c517062fe5513f2a5c3184e66fed1866fea4a2f893"
-        },
-        {
-          "alg" : "SHA3-512",
-          "content" : "8b2cb25acfe75318f712b4e8bbf8ea8a492ba43d88f64ec9833097c7a5840f138301d83e837ba587935cf547630278a5471fe3dd22a6ae2e05da6f8b01474248"
-        }
-      ],
-      "licenses" : [
-        {
-          "license" : {
-            "id" : "Apache-2.0"
-          }
-        }
-      ],
-      "purl" : "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.16.2?type=jar",
-      "modified" : false,
-      "externalReferences" : [
-        {
-          "type" : "vcs",
-          "url" : "https://github.com/FasterXML/jackson-core"
-        }
-      ]
-    },
-    {
-      "type" : "library",
-      "bom-ref" : "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.16.2?type=jar",
-      "group" : "com.fasterxml.jackson.core",
-      "name" : "jackson-databind",
-      "version" : "2.16.2",
-      "description" : "General data-binding functionality for Jackson: works on core streaming API",
-      "hashes" : [
-        {
-          "alg" : "MD5",
-          "content" : "d568de5ecd0dbe050ef3d386a6a48039"
-        },
-        {
-          "alg" : "SHA-1",
-          "content" : "7fda67535b54d74eebf6157682b835c847410932"
-        },
-        {
-          "alg" : "SHA-256",
-          "content" : "53b6025d98c357068296e4b134242443a248c2c582800879f1c4ea93b54bafa6"
-        },
-        {
-          "alg" : "SHA-512",
-          "content" : "600775da71f9900e2de9fad3a8925dc1d70ae6c25d7f38123ca5b6e394ed52d813fceb15d6593dbeaab17c95640854268f7d09b1e7194d876125da6897af3b40"
-        },
-        {
-          "alg" : "SHA-384",
-          "content" : "836c997ffa9fe32d2b761d3e7e182b705bb6e05b39467fe72708c738b2d90ccd59f54744bb7791f5552299b5dd699d17"
-        },
-        {
-          "alg" : "SHA3-384",
-          "content" : "bb966db599ae40f7fe1250a21fcd51a485d15634b0ce8182316016532182ed3874df1f28472358b22e890c053fb1c9dc"
-        },
-        {
-          "alg" : "SHA3-256",
-          "content" : "fdf02488bb56acbc12ae1f7e78f971b3cbc962255a2a1177ea5e9e9860477205"
-        },
-        {
-          "alg" : "SHA3-512",
-          "content" : "ab5fc87396417a24d9d7954ff16757a531957bb38a8f0e8c9d327c23ebda7eb10936d8a39da6b950cfb2142726944d172512a18debb6936d745772a4c6f942a3"
-        }
-      ],
-      "licenses" : [
-        {
-          "license" : {
-            "id" : "Apache-2.0"
-          }
-        }
-      ],
-      "purl" : "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.16.2?type=jar",
-      "modified" : false,
-      "externalReferences" : [
-        {
-          "type" : "vcs",
-          "url" : "https://github.com/FasterXML/jackson-databind"
-        }
-      ]
-    },
-    {
-      "type" : "library",
-      "bom-ref" : "pkg:maven/org.apache.logging.log4j/log4j-slf4j-impl@2.25.3?type=jar",
-      "group" : "org.apache.logging.log4j",
-      "name" : "log4j-slf4j-impl",
-      "version" : "2.25.3",
-      "description" : "SLF4J 1 binding (provider) for the Log4j API. It forwards SLF4J 1 calls to the Log4j API. (Refer to the `log4j-to-slf4j` artifact for forwarding the Log4j API to SLF4J.)",
-      "hashes" : [
-        {
-          "alg" : "MD5",
-          "content" : "02717cf6dcad4868af01039d5ea0335b"
-        },
-        {
-          "alg" : "SHA-1",
-          "content" : "4a173925524d8f6c3f39ae8954ee348e8244afd7"
-        },
-        {
-          "alg" : "SHA-256",
-          "content" : "f835ac2bf1a895d5e687b4ebf238bff05316dd672e572dff235024b6e320bcc9"
-        },
-        {
-          "alg" : "SHA-512",
-          "content" : "2efa2867b50d8b6ce34de30d784f1866e94008f4bff6122f1433b8ac4cb8fdbce0249e743e68e2e369344c37e6440ee8421b2a9ea08991551801227c94c5d657"
-        },
-        {
-          "alg" : "SHA-384",
-          "content" : "b55c8d90c5c8cdad64f6d7fdeabcbfc73bb2d616b306ccdbdfbf34379164c7847ec7d5a909218d1afb0925d736f31891"
-        },
-        {
-          "alg" : "SHA3-384",
-          "content" : "71c669910faff21cf2c6c51c311070f1d11238bd6100e52b12071ccf35a38c788e821e7ab0e13b218f481aa3172d7a74"
-        },
-        {
-          "alg" : "SHA3-256",
-          "content" : "6df391c4308ece8edf3f9c414aa7fe025aea2bff5d1d87acdf15333215f9bbff"
-        },
-        {
-          "alg" : "SHA3-512",
-          "content" : "3524849afdf3037c7308828349585d0cdb247f5f0e686c245cd0ce05270dee6fa3b763102bdb5ca0401f7b24a62e46a640c3aa02f8b1936dbcbbed0df9716c0b"
-        }
-      ],
-      "licenses" : [
-        {
-          "license" : {
-            "id" : "Apache-2.0",
-            "url" : "https://www.apache.org/licenses/LICENSE-2.0"
-          }
-        }
-      ],
-      "purl" : "pkg:maven/org.apache.logging.log4j/log4j-slf4j-impl@2.25.3?type=jar",
-      "modified" : false
-    },
-    {
-      "type" : "library",
-      "bom-ref" : "pkg:maven/at.yawk.lz4/lz4-java@1.10.1?type=jar",
-      "group" : "at.yawk.lz4",
-      "name" : "lz4-java",
-      "version" : "1.10.1",
-      "description" : "Java bindings and pure Java implementations of LZ4 and XXHash",
-      "hashes" : [
-        {
-          "alg" : "MD5",
-          "content" : "8ea4d77e6a652da0162a69b6aea6e4a9"
-        },
-        {
-          "alg" : "SHA-1",
-          "content" : "f541d7f910fe3d76f38f799c507c48cc81b12ecb"
-        },
-        {
-          "alg" : "SHA-256",
-          "content" : "a58a84c4271e50df4c96ed916ccb7e48a869f8ed9cdcda1ad5d3d4c33b0214a3"
-        },
-        {
-          "alg" : "SHA-512",
-          "content" : "6930598c1c27a247de88a0db74aa14e90d7837832b61042edde7f954f55c8382b505aa35a21d3e69a3dc333b013866a98a7c3570c34aeea3ab1c1ef1c05d0048"
-        },
-        {
-          "alg" : "SHA-384",
-          "content" : "f266dbead14988f5b05d11628bb55b5266c6e1d10578356f9a25967310c301d20fab78d46d6dfe8a31b641c2844ba2f9"
-        },
-        {
-          "alg" : "SHA3-384",
-          "content" : "a35fd2201de77821293560ca5dcbbc4f831ee0a1ae056b0511847370091402c1433fd7e0ff18d4fc26f217b613d6f0e9"
-        },
-        {
-          "alg" : "SHA3-256",
-          "content" : "cd5bc0d64595fc34b50d830be6d61a5e537389368a9c50136d76100ff17c9727"
-        },
-        {
-          "alg" : "SHA3-512",
-          "content" : "d3da038eca828202ecccc8ccb0ba3355839723369ebf9e42ab0ed9d564671bad25b3559decf20673381a30c43da7b70af0a440d155021932cd6b1dc39bb43da5"
-        }
-      ],
-      "licenses" : [
-        {
-          "license" : {
-            "id" : "Apache-2.0"
-          }
-        }
-      ],
-      "purl" : "pkg:maven/at.yawk.lz4/lz4-java@1.10.1?type=jar",
-      "modified" : false,
-      "externalReferences" : [
-        {
-          "type" : "vcs",
-          "url" : "https://github.com/yawkat/lz4-java"
-        }
-      ]
     }
   ],
   "dependencies" : [
     {
-      "ref" : "pkg:maven/at.yawk.lz4/lz4-java@1.10.1?type=jar",
+      "ref" : "pkg:maven/at.yawk.lz4/lz4-java@1.10.2?type=jar",
       "dependsOn" : [ ]
     },
     {
-      "ref" : "pkg:maven/com.fasterxml.jackson.core/jackson-annotations@2.16.2?type=jar",
+      "ref" : "pkg:maven/com.fasterxml.jackson.core/jackson-annotations@2.21?type=jar",
       "dependsOn" : [ ]
     },
     {
-      "ref" : "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.16.2?type=jar",
+      "ref" : "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.21.2?type=jar",
       "dependsOn" : [ ]
     },
     {
-      "ref" : "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.16.2?type=jar",
+      "ref" : "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.2?type=jar",
       "dependsOn" : [
-        "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.16.2?type=jar",
-        "pkg:maven/com.fasterxml.jackson.core/jackson-annotations@2.16.2?type=jar"
+        "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.21.2?type=jar",
+        "pkg:maven/com.fasterxml.jackson.core/jackson-annotations@2.21?type=jar"
       ]
     },
     {
-      "ref" : "pkg:maven/com.github.luben/zstd-jni@1.5.6-4?type=jar",
+      "ref" : "pkg:maven/com.github.luben/zstd-jni@1.5.6-10?type=jar",
       "dependsOn" : [ ]
     },
     {
       "ref" : "pkg:maven/com.mendix/temp@1.0.0?type=jar",
       "dependsOn" : [
-        "pkg:maven/org.apache.kafka/kafka-clients@3.9.2?type=jar",
-        "pkg:maven/org.apache.kafka/kafka-streams@3.9.2?type=jar",
+        "pkg:maven/org.apache.kafka/kafka-clients@4.3.1?type=jar",
+        "pkg:maven/org.apache.kafka/kafka-streams@4.3.1?type=jar",
         "pkg:maven/org.apache.logging.log4j/log4j-core@2.25.3?type=jar",
         "pkg:maven/org.apache.logging.log4j/log4j-jcl@2.25.3?type=jar",
         "pkg:maven/org.apache.logging.log4j/log4j-slf4j-impl@2.25.3?type=jar",
@@ -878,21 +951,22 @@
       "dependsOn" : [ ]
     },
     {
-      "ref" : "pkg:maven/org.apache.kafka/kafka-clients@3.9.2?type=jar",
+      "ref" : "pkg:maven/org.apache.kafka/kafka-clients@4.3.1?type=jar",
       "dependsOn" : [
-        "pkg:maven/com.github.luben/zstd-jni@1.5.6-4?type=jar",
-        "pkg:maven/at.yawk.lz4/lz4-java@1.10.1?type=jar",
-        "pkg:maven/org.xerial.snappy/snappy-java@1.1.10.5?type=jar",
+        "pkg:maven/com.github.luben/zstd-jni@1.5.6-10?type=jar",
+        "pkg:maven/at.yawk.lz4/lz4-java@1.10.2?type=jar",
+        "pkg:maven/org.xerial.snappy/snappy-java@1.1.10.7?type=jar",
         "pkg:maven/org.slf4j/slf4j-api@2.0.17?type=jar"
       ]
     },
     {
-      "ref" : "pkg:maven/org.apache.kafka/kafka-streams@3.9.2?type=jar",
+      "ref" : "pkg:maven/org.apache.kafka/kafka-streams@4.3.1?type=jar",
       "dependsOn" : [
-        "pkg:maven/org.apache.kafka/kafka-clients@3.9.2?type=jar",
+        "pkg:maven/org.apache.kafka/kafka-clients@4.3.1?type=jar",
         "pkg:maven/org.slf4j/slf4j-api@2.0.17?type=jar",
-        "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.16.2?type=jar",
-        "pkg:maven/com.fasterxml.jackson.core/jackson-annotations@2.16.2?type=jar"
+        "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.2?type=jar",
+        "pkg:maven/com.fasterxml.jackson.core/jackson-annotations@2.21?type=jar",
+        "pkg:maven/org.rocksdb/rocksdbjni@10.1.3?type=jar"
       ]
     },
     {
@@ -929,11 +1003,15 @@
       ]
     },
     {
+      "ref" : "pkg:maven/org.rocksdb/rocksdbjni@10.1.3?type=jar",
+      "dependsOn" : [ ]
+    },
+    {
       "ref" : "pkg:maven/org.slf4j/slf4j-api@2.0.17?type=jar",
       "dependsOn" : [ ]
     },
     {
-      "ref" : "pkg:maven/org.xerial.snappy/snappy-java@1.1.10.5?type=jar",
+      "ref" : "pkg:maven/org.xerial.snappy/snappy-java@1.1.10.7?type=jar",
       "dependsOn" : [ ]
     }
   ]

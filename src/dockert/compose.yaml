@@ -1,0 +1,48 @@
+services:
+  kafka:
+    image: "apache/kafka:3.9.1"
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: SSL://kafka:9092,SSL-INTERNAL://kafka:8092,CONTROLLER://kafka:9093
+      KAFKA_ADVERTISED_LISTENERS: SSL://localhost:9092,SSL-INTERNAL://kafka:8092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: SSL:SSL,CONTROLLER:PLAINTEXT,SSL-INTERNAL:SSL
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_INTER_BROKER_LISTENER_NAME: SSL-INTERNAL
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_LOG4J_ROOT_LOGLEVEL: TRACE
+      KAFKA_SSL_KEYSTORE_FILENAME: 'localhost.jks'
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: 'localhost_creds'
+      KAFKA_SSL_KEY_CREDENTIALS: 'localhost_creds'
+      KAFKA_SSL_TRUSTSTORE_FILENAME: 'ca.jks'
+      KAFKA_SSL_TRUSTSTORE_CREDENTIALS: 'ca_creds'
+      KAFKA_SSL_CLIENT_AUTH: 'required'
+      KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: ""
+    volumes:
+      - kafka-data:/tmp/kafka-logs
+      - ./secrets:/etc/kafka/secrets
+
+  ui:
+    image: "provectuslabs/kafka-ui:latest"
+    container_name: kafka-ui
+    ports:
+      - "9094:8080"
+    environment:
+      DYNAMIC_CONFIG_ENABLED: "true"
+    depends_on:
+      - kafka
+    volumes:
+      - ./ui:/etc/kafkaui
+      - ./secrets:/etc/kafkaui/secrets
+
+volumes:
+  kafka-data:

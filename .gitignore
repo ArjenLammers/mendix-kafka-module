@@ -4,3 +4,4 @@
 src/deployment
 .settings
 *.mpr.lock
+/src/dockert/kafka-data
