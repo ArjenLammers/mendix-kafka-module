@@ -39,11 +39,25 @@ public class KafkaPropertiesFactory {
 		return result;
 	}
 
+	/**
+	 * Creates kafka properties so they can be used for initiating a Consumer with default values.
+	 * This is particularly useful for listing topics, as the default values are sufficient for that.
+	 * 
+	 * @param context
+	 * @param server
+	 * @return
+	 * @throws CoreException
+	 */
 	public static Properties getKafkaProperties(IContext context, Server server) throws CoreException {
 		Properties result = new Properties();
 		Config config = server.getServer_Config();
+		ConsumerConfig defaultConsumerConfig = new ConsumerConfig(context);
+
 		appendProperties(result, config.getMendixObject(), context);
+		appendProperties(result, defaultConsumerConfig.getMendixObject(), context);
 		setSSLParameters(result, server, context);
+
+		defaultConsumerConfig.delete();
 		return result;
 	}
 
