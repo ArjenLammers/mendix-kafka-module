@@ -1,0 +1,51 @@
+@import '../../../theme/web/custom-variables';
+
+.mx-unit-test-tree-node {
+    margin-top: calc(-1 * var(--spacing-small));
+    margin-bottom: 0;
+
+    &.widget-tree-node .widget-tree-node-branch-header {
+        padding: var(--spacing-smallest) 0;
+
+        .widget-tree-node-branch-header-value {
+            font-size: var(--font-size-default);
+            overflow: hidden;
+        }
+    }
+
+    .mx-unit-test-tree-node-item {
+        padding: var(--spacing-small) var(--spacing-smaller);
+        cursor: pointer;
+
+        &::before {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: -16px; // Based on icon width in tree node widget
+            height: 100%;
+            width: 0;
+            border-left: 1px var(--border-color-default) solid;
+        }
+
+        .mx-text {
+            white-space: nowrap;
+        }
+    }
+
+    .mx-unit-test-tree-node-spacer {
+        min-width: var(--unit-test-icon-size);
+    }
+
+    .mx-unit-test-tree-node-item-selected {
+        background-color: var(--grid-bg-selected);
+    }
+
+    .mx-unit-test-tree-node-listview > ul {
+        margin: 0;
+
+        > li {
+            padding-bottom: var(--spacing-smallest);
+        }
+    }
+}

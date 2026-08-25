@@ -27,6 +27,7 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 		ConsumersPerInstance("ConsumersPerInstance"),
 		Topics("Topics"),
 		OnReceiveMicroflow("OnReceiveMicroflow"),
+		ContentType("ContentType"),
 		Consumer_ConsumerConfig("Kafka.Consumer_ConsumerConfig"),
 		Consumer_Server("Kafka.Consumer_Server"),
 		Consumer_Microflows("Kafka.Consumer_Microflows");
@@ -349,6 +350,51 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 	public final void setOnReceiveMicroflow(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String onreceivemicroflow)
 	{
 		getMendixObject().setValue(context, MemberNames.OnReceiveMicroflow.toString(), onreceivemicroflow);
+	}
+
+	/**
+	 * Get value of ContentType
+	 * @param contenttype
+	 */
+	public final kafka.proxies.ContentType getContentType()
+	{
+		return getContentType(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of ContentType
+	 */
+	public final kafka.proxies.ContentType getContentType(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		Object obj = getMendixObject().getValue(context, MemberNames.ContentType.toString());
+		if (obj == null) {
+			return null;
+		}
+		return kafka.proxies.ContentType.valueOf((java.lang.String) obj);
+	}
+
+	/**
+	 * Set value of ContentType
+	 * @param contenttype
+	 */
+	public final void setContentType(kafka.proxies.ContentType contenttype)
+	{
+		setContentType(getContext(), contenttype);
+	}
+
+	/**
+	 * Set value of ContentType
+	 * @param context
+	 * @param contenttype
+	 */
+	public final void setContentType(com.mendix.systemwideinterfaces.core.IContext context, kafka.proxies.ContentType contenttype)
+	{
+		if (contenttype != null) {
+			getMendixObject().setValue(context, MemberNames.ContentType.toString(), contenttype.toString());
+		} else {
+			getMendixObject().setValue(context, MemberNames.ContentType.toString(), null);
+		}
 	}
 
 	/**

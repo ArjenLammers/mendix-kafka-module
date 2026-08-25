@@ -1,0 +1,34 @@
+@import '../../../theme/web/custom-variables';
+
+.mx-unit-test-icon {
+    min-width: var(--unit-test-icon-size);
+    width: var(--unit-test-icon-size);
+}
+
+.mx-unit-test-icon-medium {
+    min-width: var(--unit-test-icon-size-medium);
+    width: var(--unit-test-icon-size-medium);
+}
+
+.mx-unit-test-icon-large {
+    min-width: var(--unit-test-icon-size-large);
+    width: var(--unit-test-icon-size-large);
+}
+
+.mx-unit-test-align-right {
+    margin-left: auto;
+}
+
+.mx-unit-test-single-line {
+    max-height: calc(var(--font-size-default) * var(--line-height-base));
+    overflow: hidden;
+}
+
+.mx-unit-test-sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
+    background-color: var(--bg-color);
+    padding-bottom: var(--spacing-medium);
+}

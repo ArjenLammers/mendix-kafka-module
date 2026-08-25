@@ -2,8 +2,10 @@ package kafka.impl;
 
 import java.io.ByteArrayInputStream;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -101,7 +103,8 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 
 					if (this.onReceiveInputParameters.containsKey("Value")) {
 						if (record.value() instanceof byte[]) {
-							microflowParams.put("Value", createFileDocumentFromByteArray(context, record.key(), (byte[]) record.value()));
+							String entityType = this.onReceiveInputParameters.get("Value").getObjectType();
+							microflowParams.put("Value", createFileDocumentFromByteArray(context, record.key(), (byte[]) record.value(), entityType));
 						} else if (record.value() instanceof String) {
 							microflowParams.put("Value", (String) record.value());
 						} else {
@@ -117,6 +120,25 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 						} catch (Exception e) {
 							LOGGER.warn("Ignoring header " + header.key() + " for offset " + record.offset()
 									+ " because it has an invalid value.");
+						}
+					}
+
+					if (this.onReceiveInputParameters.containsKey("Headers")) {
+						IDataType dataType = this.onReceiveInputParameters.get("Headers");
+						if (dataType.isList() && kafka.proxies.Header.entityName.equals(dataType.getObjectType())) {
+							List<IMendixObject> headerObjects = new ArrayList<>();
+							for (Header header : record.headers()) {
+								try {
+									kafka.proxies.Header headerProxy = new kafka.proxies.Header(context);
+									headerProxy.setKey(context, header.key());
+									headerProxy.setValue(context, new String(header.value(), "UTF-8"));
+									headerObjects.add(headerProxy.getMendixObject());
+								} catch (Exception e) {
+									LOGGER.warn("Ignoring header " + header.key() + " for offset " + record.offset()
+											+ " because it has an invalid value.");
+								}
+							}
+							microflowParams.put("Headers", headerObjects);
 						}
 					}
 					
@@ -158,13 +180,13 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 		consumer.wakeup();
 	}
 	
-	private IMendixObject createFileDocumentFromByteArray(IContext context, String preferredName, byte[] payload) 
+	private IMendixObject createFileDocumentFromByteArray(IContext context, String preferredName, byte[] payload, String entityType) 
 		throws CoreException {
 
-		FileDocument fileDocument = new FileDocument(context);
+		IMendixObject mendixObject = Core.instantiate(context, entityType);
+		FileDocument fileDocument = FileDocument.initialize(context, mendixObject);
 		fileDocument.setName(preferredName != null ? preferredName : "kafka_message_" + System.currentTimeMillis());
-		ByteArrayInputStream fileContent = new ByteArrayInputStream(payload);
-		Core.storeFileDocumentContent(context, fileDocument.getMendixObject(), fileContent);
-		return fileDocument.getMendixObject();
+		Core.storeFileDocumentContent(context, mendixObject, new ByteArrayInputStream(payload));
+		return mendixObject;
 	}
 }

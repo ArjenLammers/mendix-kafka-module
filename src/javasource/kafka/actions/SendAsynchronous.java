@@ -10,11 +10,9 @@
 package kafka.actions;
 
 import com.mendix.systemwideinterfaces.core.IContext;
-import com.mendix.webui.CustomJavaAction;
-import kafka.impl.KafkaProducerRepository;
-import kafka.impl.KafkaPropertiesFactory;
-import kafka.proxies.Header;
-import org.apache.kafka.clients.producer.*;
+import kafka.impl.KafkaSendHelper;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
 import com.mendix.systemwideinterfaces.core.UserAction;
 
@@ -34,6 +32,10 @@ public class SendAsynchronous extends UserAction<java.lang.Boolean>
 	private final java.lang.String topic;
 	private final java.lang.String key;
 	private final java.lang.String value;
+	/** @deprecated use binaryValue.getMendixObject() instead. */
+	@java.lang.Deprecated(forRemoval = true)
+	private final IMendixObject __binaryValue;
+	private final system.proxies.FileDocument binaryValue;
 	/** @deprecated use com.mendix.utils.ListUtils.map(headers, com.mendix.systemwideinterfaces.core.IEntityProxy::getMendixObject) instead. */
 	@java.lang.Deprecated(forRemoval = true)
 	private final java.util.List<IMendixObject> __headers;
@@ -46,6 +48,7 @@ public class SendAsynchronous extends UserAction<java.lang.Boolean>
 		java.lang.String _topic,
 		java.lang.String _key,
 		java.lang.String _value,
+		IMendixObject _binaryValue,
 		java.util.List<IMendixObject> _headers,
 		java.lang.Boolean _useCachedProducer
 	)
@@ -56,6 +59,8 @@ public class SendAsynchronous extends UserAction<java.lang.Boolean>
 		this.topic = _topic;
 		this.key = _key;
 		this.value = _value;
+		this.__binaryValue = _binaryValue;
+		this.binaryValue = _binaryValue == null ? null : system.proxies.FileDocument.initialize(getContext(), _binaryValue);
 		this.__headers = _headers;
 		this.headers = java.util.Optional.ofNullable(_headers)
 			.orElse(java.util.Collections.emptyList())
@@ -69,40 +74,16 @@ public class SendAsynchronous extends UserAction<java.lang.Boolean>
 	public java.lang.Boolean executeAction() throws Exception
 	{
 		// BEGIN USER CODE
-		KafkaProducer<String, String>  kafkaProducer;
-		
-		if (useCachedProducer) {
-			kafkaProducer = KafkaProducerRepository.get(producer.getMendixObject().getId().toLong());
-			if (kafkaProducer == null) {
-				kafkaProducer = new KafkaProducer<String, String>(
-						KafkaPropertiesFactory.getKafkaProperties(getContext(), producer));
-				KafkaProducerRepository.put(producer.getMendixObject().getId().toLong(), kafkaProducer);
-			}
+		KafkaSendHelper.validateValue(value, binaryValue);
+		if (binaryValue != null) {
+			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
+			binaryProducer.send(KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, binaryValue, this.headers));
+			KafkaSendHelper.closeIfUncached(binaryProducer, useCachedProducer);
 		} else {
-			kafkaProducer = new KafkaProducer<String, String>(
-					KafkaPropertiesFactory.getKafkaProperties(getContext(), producer));
+			KafkaProducer<String, String> kafkaProducer = KafkaSendHelper.getOrCreateStringProducer(getContext(), producer, useCachedProducer);
+			kafkaProducer.send(KafkaSendHelper.buildStringRecord(topic, key, value, this.headers));
+			KafkaSendHelper.closeIfUncached(kafkaProducer, useCachedProducer);
 		}
-
-		ProducerRecord<String, String> record;
-		if (key == null || key.isEmpty()) {
-			record = new ProducerRecord<String, String>(topic, value);
-		} else {
-			record = new ProducerRecord<String, String>(topic, key, value);
-		}
-		
-		for (Header header : this.headers) {
-			record.headers().add(header.getKey(), header.getValue().getBytes());
-		}
-		
-		kafkaProducer.send(record);
-		
-		if (!useCachedProducer) {
-			// if the cache is not used, Producers are created every time we call this JA
-			// and they must be closed; unclosed Producers communicate with the broker every 60s 
-			// to re-authenticate; for more information see sasl.kerberos.min.time.before.relogin
-			kafkaProducer.close();
-		}
-		
 		return true;
 		// END USER CODE
 	}

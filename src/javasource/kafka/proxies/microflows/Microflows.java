@@ -309,7 +309,8 @@ public final class Microflows
 		java.lang.String _messageType,
 		java.lang.Long _partition,
 		kafka.proxies.Consumer _consumer,
-		java.lang.String _topic
+		java.lang.String _topic,
+		java.util.List<kafka.proxies.Header> _headers
 	)
 	{
 		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.Example_OnReceiveMicroflow_String");
@@ -320,6 +321,7 @@ public final class Microflows
 		builder = builder.withParam("Partition", _partition);
 		builder = builder.withParam("Consumer", _consumer);
 		builder = builder.withParam("Topic", _topic);
+		builder = builder.withParam("Headers", _headers);
 		return builder;
 	}
 
@@ -331,7 +333,8 @@ public final class Microflows
 		java.lang.String _messageType,
 		java.lang.Long _partition,
 		kafka.proxies.Consumer _consumer,
-		java.lang.String _topic
+		java.lang.String _topic,
+		java.util.List<kafka.proxies.Header> _headers
 	)
 	{
 		example_OnReceiveMicroflow_StringBuilder(
@@ -341,7 +344,8 @@ public final class Microflows
 				_messageType,
 				_partition,
 				_consumer,
-				_topic
+				_topic,
+				_headers
 			)
 			.execute(context);
 	}
@@ -479,6 +483,29 @@ public final class Microflows
 	{
 		iVK_SaveKafkaServerBuilder(
 				_kafkaServer
+			)
+			.execute(context);
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder oCh_ContentTypeConsumerBuilder(
+		kafka.proxies.ConsumerConfig _consumerConfig,
+		kafka.proxies.Consumer _consumer
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.OCh_ContentTypeConsumer");
+		builder = builder.withParam("ConsumerConfig", _consumerConfig);
+		builder = builder.withParam("Consumer", _consumer);
+		return builder;
+	}
+
+	public static void oCh_ContentTypeConsumer(
+		IContext context,
+		kafka.proxies.ConsumerConfig _consumerConfig,
+		kafka.proxies.Consumer _consumer
+	)
+	{
+		oCh_ContentTypeConsumerBuilder(
+				_consumerConfig,
+				_consumer
 			)
 			.execute(context);
 	}
