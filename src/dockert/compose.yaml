@@ -31,6 +31,39 @@ services:
       - kafka-data:/tmp/kafka-logs
       - ./secrets:/etc/kafka/secrets
 
+  kafka-init:
+    image: "apache/kafka:3.9.1"
+    container_name: kafka-init
+    depends_on:
+      - kafka
+    volumes:
+      - ./secrets:/etc/kafka/secrets
+    restart: "no"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo 'security.protocol=SSL
+        ssl.keystore.location=/etc/kafka/secrets/localhost.jks
+        ssl.keystore.password=localhost
+        ssl.key.password=localhost
+        ssl.truststore.location=/etc/kafka/secrets/ca.jks
+        ssl.truststore.password=ca
+        ssl.endpoint.identification.algorithm=' > /tmp/client.properties
+
+        until /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:8092 --command-config /tmp/client.properties --list 2>/dev/null; do
+          echo "Waiting for Kafka to be ready..."
+          sleep 2
+        done
+
+        /opt/kafka/bin/kafka-topics.sh \
+          --bootstrap-server kafka:8092 \
+          --command-config /tmp/client.properties \
+          --create --if-not-exists \
+          --topic test \
+          --partitions 3 \
+          --replication-factor 1
+        echo "Topic 'test' created."
+
   ui:
     image: "provectuslabs/kafka-ui:latest"
     container_name: kafka-ui

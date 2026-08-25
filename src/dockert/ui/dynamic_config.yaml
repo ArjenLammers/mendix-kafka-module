@@ -1,6 +1,6 @@
 kafka:
   clusters:
-    - name: ind
+    - name: test
       bootstrap-servers: kafka:8092
       properties:
         security.protocol: SSL
