@@ -69,7 +69,7 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 		this.getAvroSchemaMicroflow = consumer.getGetAvroSchemaMicroflow();
 		this.getAvroSchemaInputParameters = Core.getInputParameters(this.getAvroSchemaMicroflow);
 		
-		if (isByteArray) {
+		if (isByteArray && !consumerDom.getUseAvro()) {
 			if (this.onReceiveInputParameters.containsKey("Value")) {
 				IDataType dataType = this.onReceiveInputParameters.get("Value");
 				if (!Core.getMetaObject(dataType.getObjectType()).isFileDocument()) {
@@ -82,7 +82,7 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	}
 
 	public void run() {
-		
+		LOGGER.debug("Started consumer "+consumerDom.getName());
 		consumer.subscribe(Arrays.asList(this.consumerDom.getTopics().split(";")));
 		while (!stopped.get()) {
 			try {
@@ -90,6 +90,8 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 				for (ConsumerRecord<String, ?> record : records) {
 					IContext context = Core.createSystemContext();
 					Map<String, Object> microflowParams = new HashMap<>();
+					LOGGER.debug(consumerDom.getName()+" received message for partition "+record.partition()+
+							", offset "+record.offset()+", topic "+record.topic());
 					if (this.onReceiveInputParameters.containsKey("Offset")) {
 						microflowParams.put("Offset", record.offset());
 					}
