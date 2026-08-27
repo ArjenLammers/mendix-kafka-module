@@ -102,7 +102,7 @@ public class SendSynchronousAvroWithSchema extends UserAction<IMendixObject>
 			metadata = binaryProducer.send(producerRecord).get();
 			KafkaSendHelper.closeIfUncached(binaryProducer, useCachedProducer);
 		} else {
-			KafkaProducer<String, String> kafkaProducer = (KafkaProducer<String, String>) KafkaSendHelper.getOrCreateStringProducer(getContext(), producer, useCachedProducer);
+			KafkaProducer<String, String> kafkaProducer = KafkaSendHelper.getOrCreateStringProducer(getContext(), producer, useCachedProducer);
 			ProducerRecord<String, String> producerRecord = KafkaSendHelper.buildStringRecord(topic, key, value, this.headers);
 			metadata = kafkaProducer.send(producerRecord).get();
 			KafkaSendHelper.closeIfUncached(kafkaProducer, useCachedProducer);

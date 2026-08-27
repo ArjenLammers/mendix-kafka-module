@@ -87,7 +87,7 @@ public class SendAsynchronous extends UserAction<java.lang.Boolean>
 			binaryProducer.send(KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, binaryValue, this.headers));
 			KafkaSendHelper.closeIfUncached(binaryProducer, useCachedProducer);
 		} else {
-			KafkaProducer<String, String> kafkaProducer = (KafkaProducer<String, String>) KafkaSendHelper.getOrCreateStringProducer(getContext(), producer, useCachedProducer);
+			KafkaProducer<String, String> kafkaProducer = KafkaSendHelper.getOrCreateStringProducer(getContext(), producer, useCachedProducer);
 			kafkaProducer.send(KafkaSendHelper.buildStringRecord(topic, key, value, this.headers));
 			KafkaSendHelper.closeIfUncached(kafkaProducer, useCachedProducer);
 		}
