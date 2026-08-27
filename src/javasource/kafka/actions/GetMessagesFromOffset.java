@@ -68,14 +68,14 @@ public class GetMessagesFromOffset extends UserAction<java.util.List<IMendixObje
 		kafkaProps.put("max.poll.records", amount.intValue());
 		kafkaProps.remove("group.id");
 		
-		KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(kafkaProps);
+		KafkaConsumer<String, ?> kafkaConsumer = new KafkaConsumer<>(kafkaProps);
 		List<IMendixObject> result = new LinkedList<>();
 		
 		try {
 			TopicPartition tp = new TopicPartition(topic, partition.intValue());
 			kafkaConsumer.assign(Arrays.asList(tp));
 			kafkaConsumer.seek(tp, offset);
-			ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(5000));
+			ConsumerRecords<String, ?> records = kafkaConsumer.poll(Duration.ofMillis(5000));
 			for (ConsumerRecord<String, ?> record : records) {
 				Message newMessage = new Message(getContext());
 				newMessage.setOffset(record.offset());
