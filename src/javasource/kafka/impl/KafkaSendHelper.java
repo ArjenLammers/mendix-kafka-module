@@ -20,9 +20,10 @@ public class KafkaSendHelper {
 		}
 	}
 
-	public static KafkaProducer<String, ?> getOrCreateStringProducer(IContext context, Producer producer, boolean useCachedProducer) throws Exception {
+	@SuppressWarnings("unchecked")
+	public static KafkaProducer<String, String> getOrCreateStringProducer(IContext context, Producer producer, boolean useCachedProducer) throws Exception {
 		if (useCachedProducer) {
-			KafkaProducer<String, ?> kafkaProducer = KafkaProducerRepository.get(producer.getMendixObject().getId().toLong());
+			KafkaProducer<String, String> kafkaProducer = (KafkaProducer<String, String>) KafkaProducerRepository.get(producer.getMendixObject().getId().toLong());
 			if (kafkaProducer == null) {
 				kafkaProducer = new KafkaProducer<>(KafkaPropertiesFactory.getKafkaProperties(context, producer));
 				KafkaProducerRepository.put(producer.getMendixObject().getId().toLong(), kafkaProducer);
@@ -36,10 +37,10 @@ public class KafkaSendHelper {
 	@SuppressWarnings("unchecked")
 	public static KafkaProducer<String, byte[]> getOrCreateBinaryProducer(IContext context, Producer producer, boolean useCachedProducer) throws Exception {
 		if (useCachedProducer) {
-			KafkaProducer<String, byte[]> kafkaProducer = (KafkaProducer<String, byte[]>) (Object) KafkaProducerRepository.get(producer.getMendixObject().getId().toLong());
+			KafkaProducer<String, byte[]> kafkaProducer = (KafkaProducer<String, byte[]>) KafkaProducerRepository.get(producer.getMendixObject().getId().toLong());
 			if (kafkaProducer == null) {
 				kafkaProducer = new KafkaProducer<>(KafkaPropertiesFactory.getKafkaProperties(context, producer));
-				KafkaProducerRepository.put(producer.getMendixObject().getId().toLong(), (KafkaProducer<String, String>) (Object) kafkaProducer);
+				KafkaProducerRepository.put(producer.getMendixObject().getId().toLong(), kafkaProducer);
 			}
 			return kafkaProducer;
 		} else {
@@ -60,6 +61,10 @@ public class KafkaSendHelper {
 		try (java.io.InputStream stream = Core.getFileDocumentContent(context, binaryValue.getMendixObject())) {
 			bytes = stream.readAllBytes();
 		}
+		return buildBinaryRecord(context, topic, key, bytes, headers);
+	}
+	
+	public static ProducerRecord<String, byte[]> buildBinaryRecord(IContext context, String topic, String key, byte[] bytes, List<Header> headers) throws Exception {
 		ProducerRecord<String, byte[]> record = key == null || key.isEmpty()
 				? new ProducerRecord<>(topic, bytes)
 				: new ProducerRecord<>(topic, key, bytes);

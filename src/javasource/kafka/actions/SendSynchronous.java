@@ -82,9 +82,11 @@ public class SendSynchronous extends UserAction<IMendixObject>
 		KafkaSendHelper.validateValue(value, binaryValue);
 		RecordMetadata metadata;
 		if(producer.getUseAvro()) {
-			return ProducerUtils.sendSynchronous(AvroProcessor.encodeAvro(
-					producer.getAvroSchemaHash(), producer.getAvroSchema(), value, producer.getConfluentSchemaId()==null ? 0 : producer.getConfluentSchemaId()),
-					useCachedProducer, producer, getContext(), headers, topic, key);
+			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
+			ProducerRecord<String, byte[]> producerRecord = KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, AvroProcessor.encodeAvro(
+					producer.getAvroSchemaHash(), producer.getAvroSchema(), value, producer.getConfluentSchemaId()==null ? 0 : producer.getConfluentSchemaId()), this.headers);
+			metadata = binaryProducer.send(producerRecord).get();
+			KafkaSendHelper.closeIfUncached(binaryProducer, useCachedProducer);
 		}else if (binaryValue != null) {
 			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
 			ProducerRecord<String, byte[]> producerRecord = KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, binaryValue, this.headers);

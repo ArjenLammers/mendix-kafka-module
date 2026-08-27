@@ -19,6 +19,7 @@ import com.mendix.systemwideinterfaces.core.IContext;
 import kafka.impl.AvroProcessor;
 import kafka.impl.KafkaProducerRepository;
 import kafka.impl.KafkaPropertiesFactory;
+import kafka.impl.KafkaSendHelper;
 import kafka.impl.ProducerUtils;
 import kafka.proxies.Header;
 import kafka.proxies.RecordMetaData;
@@ -85,12 +86,35 @@ public class SendSynchronousAvroWithSchema extends UserAction<IMendixObject>
 		Properties props = KafkaPropertiesFactory.getKafkaProperties(getContext(), producer);
 		// We can only send AVRO if we use the ByteArraySerializer, otherwise fall back to sending the message as String
 		if(props.get("value.serializer").equals("org.apache.kafka.common.serialization.ByteArraySerializer")) {
-			return ProducerUtils.sendSynchronous(AvroProcessor.encodeAvro(null, schema, value, schemaId==null? 0 : schemaId.intValue()), 
+			ProducerUtils.sendSynchronous(AvroProcessor.encodeAvro(null, schema, value, schemaId==null? 0 : schemaId.intValue()), 
 					useCachedProducer, producer, getContext(), headers, topic, key);
 		}else {
-			return ProducerUtils.sendSynchronous(value, useCachedProducer, producer, getContext(), headers, topic, key);
+			ProducerUtils.sendSynchronous(value, useCachedProducer, producer, getContext(), headers, topic, key);
 		}
 		
+		
+		RecordMetadata metadata;
+		if(props.get("value.serializer").equals("org.apache.kafka.common.serialization.ByteArraySerializer")) {
+			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
+			ProducerRecord<String, byte[]> producerRecord = KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, 
+					AvroProcessor.encodeAvro(null, schema, value, schemaId==null? 0 : schemaId.intValue()), 
+					this.headers);
+			metadata = binaryProducer.send(producerRecord).get();
+			KafkaSendHelper.closeIfUncached(binaryProducer, useCachedProducer);
+		} else {
+			KafkaProducer<String, String> kafkaProducer = (KafkaProducer<String, String>) KafkaSendHelper.getOrCreateStringProducer(getContext(), producer, useCachedProducer);
+			ProducerRecord<String, String> producerRecord = KafkaSendHelper.buildStringRecord(topic, key, value, this.headers);
+			metadata = kafkaProducer.send(producerRecord).get();
+			KafkaSendHelper.closeIfUncached(kafkaProducer, useCachedProducer);
+		}
+		RecordMetaData result = new RecordMetaData(getContext());
+		result.setHasOffset(metadata.hasOffset());
+		if (metadata.hasOffset())
+			result.setOffset(metadata.offset());
+		result.setPartition(metadata.partition());
+		if (metadata.hasTimestamp())
+			result.setTimestamp(new Date(metadata.timestamp()));
+		return result.getMendixObject();
 		// END USER CODE
 	}
 

@@ -78,9 +78,10 @@ public class SendAsynchronous extends UserAction<java.lang.Boolean>
 		// BEGIN USER CODE
 		KafkaSendHelper.validateValue(value, binaryValue);
 		if(producer.getUseAvro()) {
-			return ProducerUtils.sendAsynchronous(AvroProcessor.encodeAvro(producer.getAvroSchemaHash(), producer.getAvroSchema(), value,
-					producer.getConfluentSchemaId()==null ? 0 : producer.getConfluentSchemaId()),
-					useCachedProducer, producer, getContext(), headers, topic, key);
+			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
+			binaryProducer.send(KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, AvroProcessor.encodeAvro(producer.getAvroSchemaHash(), producer.getAvroSchema(), value,
+					producer.getConfluentSchemaId()==null ? 0 : producer.getConfluentSchemaId()), this.headers));
+			KafkaSendHelper.closeIfUncached(binaryProducer, useCachedProducer);
 		}else if (binaryValue != null) {
 			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
 			binaryProducer.send(KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, binaryValue, this.headers));

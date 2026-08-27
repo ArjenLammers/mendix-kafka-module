@@ -13,6 +13,7 @@ import com.mendix.systemwideinterfaces.core.IContext;
 import kafka.impl.AvroProcessor;
 import kafka.impl.KafkaProducerRepository;
 import kafka.impl.KafkaPropertiesFactory;
+import kafka.impl.KafkaSendHelper;
 import kafka.impl.ProducerUtils;
 import kafka.proxies.Header;
 import java.util.Properties;
@@ -80,11 +81,16 @@ public class SendAsynchronousAvroWithSchema extends UserAction<java.lang.Boolean
 		Properties props = KafkaPropertiesFactory.getKafkaProperties(getContext(), producer);
 		// We can only send AVRO if we use the ByteArraySerializer, otherwise fall back to sending the message as String
 		if(props.get("value.serializer").equals("org.apache.kafka.common.serialization.ByteArraySerializer")) {
-			return ProducerUtils.sendAsynchronous(AvroProcessor.encodeAvro(null, schema, value, schemaId==null? 0 : schemaId.intValue()),
-					useCachedProducer, producer, getContext(), headers, topic, key);
-		}else {
-			return ProducerUtils.sendAsynchronous(value, useCachedProducer, producer, getContext(), headers, topic, key);
+			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
+			binaryProducer.send(KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, 
+					AvroProcessor.encodeAvro(null, schema, value, schemaId==null? 0 : schemaId.intValue()), this.headers));
+			KafkaSendHelper.closeIfUncached(binaryProducer, useCachedProducer);
+		} else {
+			KafkaProducer<String, String> kafkaProducer = (KafkaProducer<String, String>) KafkaSendHelper.getOrCreateStringProducer(getContext(), producer, useCachedProducer);
+			kafkaProducer.send(KafkaSendHelper.buildStringRecord(topic, key, value, this.headers));
+			KafkaSendHelper.closeIfUncached(kafkaProducer, useCachedProducer);
 		}
+		return true;
 		// END USER CODE
 	}
 

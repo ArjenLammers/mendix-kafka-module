@@ -13,6 +13,7 @@ import com.mendix.systemwideinterfaces.core.IMendixObject;
 import kafka.proxies.Header;
 import kafka.proxies.RecordMetaData;
 
+//Probalby obsolete, use KAfkaSendHelper instead
 public class ProducerUtils {
 
 	public static <V> IMendixObject sendSynchronous(V content, boolean useCachedProducer, kafka.proxies.Producer producer,
