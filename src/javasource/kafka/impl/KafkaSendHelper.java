@@ -20,9 +20,9 @@ public class KafkaSendHelper {
 		}
 	}
 
-	public static KafkaProducer<String, String> getOrCreateStringProducer(IContext context, Producer producer, boolean useCachedProducer) throws Exception {
+	public static KafkaProducer<String, ?> getOrCreateStringProducer(IContext context, Producer producer, boolean useCachedProducer) throws Exception {
 		if (useCachedProducer) {
-			KafkaProducer<String, String> kafkaProducer = KafkaProducerRepository.get(producer.getMendixObject().getId().toLong());
+			KafkaProducer<String, ?> kafkaProducer = KafkaProducerRepository.get(producer.getMendixObject().getId().toLong());
 			if (kafkaProducer == null) {
 				kafkaProducer = new KafkaProducer<>(KafkaPropertiesFactory.getKafkaProperties(context, producer));
 				KafkaProducerRepository.put(producer.getMendixObject().getId().toLong(), kafkaProducer);
