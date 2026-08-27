@@ -14,7 +14,9 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import com.mendix.systemwideinterfaces.core.IContext;
+import kafka.impl.AvroProcessor;
 import kafka.impl.KafkaSendHelper;
+import kafka.impl.ProducerUtils;
 import kafka.proxies.RecordMetaData;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
 import com.mendix.systemwideinterfaces.core.UserAction;
@@ -79,7 +81,11 @@ public class SendSynchronous extends UserAction<IMendixObject>
 		// BEGIN USER CODE
 		KafkaSendHelper.validateValue(value, binaryValue);
 		RecordMetadata metadata;
-		if (binaryValue != null) {
+		if(producer.getUseAvro()) {
+			return ProducerUtils.sendSynchronous(AvroProcessor.encodeAvro(
+					producer.getAvroSchemaHash(), producer.getAvroSchema(), value, producer.getConfluentSchemaId()==null ? 0 : producer.getConfluentSchemaId()),
+					useCachedProducer, producer, getContext(), headers, topic, key);
+		}else if (binaryValue != null) {
 			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
 			ProducerRecord<String, byte[]> producerRecord = KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, binaryValue, this.headers);
 			metadata = binaryProducer.send(producerRecord).get();

@@ -28,9 +28,14 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 		Topics("Topics"),
 		OnReceiveMicroflow("OnReceiveMicroflow"),
 		ContentType("ContentType"),
+		UseAvro("UseAvro"),
+		AvroSchema("AvroSchema"),
+		AvroSchemaHash("AvroSchemaHash"),
+		GetAvroSchemaMicroflow("GetAvroSchemaMicroflow"),
 		Consumer_ConsumerConfig("Kafka.Consumer_ConsumerConfig"),
 		Consumer_Server("Kafka.Consumer_Server"),
-		Consumer_Microflows("Kafka.Consumer_Microflows");
+		Consumer_Microflows("Kafka.Consumer_Microflows"),
+		Consumer_Microflows_GetAvroSchema("Kafka.Consumer_Microflows_GetAvroSchema");
 
 		private final java.lang.String metaName;
 
@@ -398,6 +403,150 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 	}
 
 	/**
+	 * @return value of UseAvro
+	 */
+	public final java.lang.Boolean getUseAvro()
+	{
+		return getUseAvro(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of UseAvro
+	 */
+	public final java.lang.Boolean getUseAvro(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.Boolean) getMendixObject().getValue(context, MemberNames.UseAvro.toString());
+	}
+
+	/**
+	 * Set value of UseAvro
+	 * @param useavro
+	 */
+	public final void setUseAvro(java.lang.Boolean useavro)
+	{
+		setUseAvro(getContext(), useavro);
+	}
+
+	/**
+	 * Set value of UseAvro
+	 * @param context
+	 * @param useavro
+	 */
+	public final void setUseAvro(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Boolean useavro)
+	{
+		getMendixObject().setValue(context, MemberNames.UseAvro.toString(), useavro);
+	}
+
+	/**
+	 * @return value of AvroSchema
+	 */
+	public final java.lang.String getAvroSchema()
+	{
+		return getAvroSchema(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of AvroSchema
+	 */
+	public final java.lang.String getAvroSchema(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.String) getMendixObject().getValue(context, MemberNames.AvroSchema.toString());
+	}
+
+	/**
+	 * Set value of AvroSchema
+	 * @param avroschema
+	 */
+	public final void setAvroSchema(java.lang.String avroschema)
+	{
+		setAvroSchema(getContext(), avroschema);
+	}
+
+	/**
+	 * Set value of AvroSchema
+	 * @param context
+	 * @param avroschema
+	 */
+	public final void setAvroSchema(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String avroschema)
+	{
+		getMendixObject().setValue(context, MemberNames.AvroSchema.toString(), avroschema);
+	}
+
+	/**
+	 * @return value of AvroSchemaHash
+	 */
+	public final java.lang.String getAvroSchemaHash()
+	{
+		return getAvroSchemaHash(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of AvroSchemaHash
+	 */
+	public final java.lang.String getAvroSchemaHash(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.String) getMendixObject().getValue(context, MemberNames.AvroSchemaHash.toString());
+	}
+
+	/**
+	 * Set value of AvroSchemaHash
+	 * @param avroschemahash
+	 */
+	public final void setAvroSchemaHash(java.lang.String avroschemahash)
+	{
+		setAvroSchemaHash(getContext(), avroschemahash);
+	}
+
+	/**
+	 * Set value of AvroSchemaHash
+	 * @param context
+	 * @param avroschemahash
+	 */
+	public final void setAvroSchemaHash(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String avroschemahash)
+	{
+		getMendixObject().setValue(context, MemberNames.AvroSchemaHash.toString(), avroschemahash);
+	}
+
+	/**
+	 * @return value of GetAvroSchemaMicroflow
+	 */
+	public final java.lang.String getGetAvroSchemaMicroflow()
+	{
+		return getGetAvroSchemaMicroflow(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of GetAvroSchemaMicroflow
+	 */
+	public final java.lang.String getGetAvroSchemaMicroflow(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.String) getMendixObject().getValue(context, MemberNames.GetAvroSchemaMicroflow.toString());
+	}
+
+	/**
+	 * Set value of GetAvroSchemaMicroflow
+	 * @param getavroschemamicroflow
+	 */
+	public final void setGetAvroSchemaMicroflow(java.lang.String getavroschemamicroflow)
+	{
+		setGetAvroSchemaMicroflow(getContext(), getavroschemamicroflow);
+	}
+
+	/**
+	 * Set value of GetAvroSchemaMicroflow
+	 * @param context
+	 * @param getavroschemamicroflow
+	 */
+	public final void setGetAvroSchemaMicroflow(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String getavroschemamicroflow)
+	{
+		getMendixObject().setValue(context, MemberNames.GetAvroSchemaMicroflow.toString(), getavroschemamicroflow);
+	}
+
+	/**
 	 * @throws com.mendix.core.CoreException
 	 * @return value of Consumer_ConsumerConfig
 	 */
@@ -535,6 +684,53 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 			getMendixObject().setValue(context, MemberNames.Consumer_Microflows.toString(), null);
 		} else {
 			getMendixObject().setValue(context, MemberNames.Consumer_Microflows.toString(), consumer_microflows.getMendixObject().getId());
+		}
+	}
+
+	/**
+	 * @throws com.mendix.core.CoreException
+	 * @return value of Consumer_Microflows_GetAvroSchema
+	 */
+	public final mxmodelreflection.proxies.Microflows getConsumer_Microflows_GetAvroSchema() throws com.mendix.core.CoreException
+	{
+		return getConsumer_Microflows_GetAvroSchema(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of Consumer_Microflows_GetAvroSchema
+	 * @throws com.mendix.core.CoreException
+	 */
+	public final mxmodelreflection.proxies.Microflows getConsumer_Microflows_GetAvroSchema(com.mendix.systemwideinterfaces.core.IContext context) throws com.mendix.core.CoreException
+	{
+		mxmodelreflection.proxies.Microflows result = null;
+		com.mendix.systemwideinterfaces.core.IMendixIdentifier identifier = getMendixObject().getValue(context, MemberNames.Consumer_Microflows_GetAvroSchema.toString());
+		if (identifier != null) {
+			result = mxmodelreflection.proxies.Microflows.load(context, identifier);
+		}
+		return result;
+	}
+
+	/**
+	 * Set value of Consumer_Microflows_GetAvroSchema
+	 * @param consumer_microflows_getavroschema
+	 */
+	public final void setConsumer_Microflows_GetAvroSchema(mxmodelreflection.proxies.Microflows consumer_microflows_getavroschema)
+	{
+		setConsumer_Microflows_GetAvroSchema(getContext(), consumer_microflows_getavroschema);
+	}
+
+	/**
+	 * Set value of Consumer_Microflows_GetAvroSchema
+	 * @param context
+	 * @param consumer_microflows_getavroschema
+	 */
+	public final void setConsumer_Microflows_GetAvroSchema(com.mendix.systemwideinterfaces.core.IContext context, mxmodelreflection.proxies.Microflows consumer_microflows_getavroschema)
+	{
+		if (consumer_microflows_getavroschema == null) {
+			getMendixObject().setValue(context, MemberNames.Consumer_Microflows_GetAvroSchema.toString(), null);
+		} else {
+			getMendixObject().setValue(context, MemberNames.Consumer_Microflows_GetAvroSchema.toString(), consumer_microflows_getavroschema.getMendixObject().getId());
 		}
 	}
 
