@@ -83,6 +83,29 @@ public final class Microflows
 	{
 		aCT_ConfigObjectChangedBuilder().execute(context);
 	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCT_TestSchemaBuilder(
+		kafka.proxies.Producer _producer,
+		java.lang.String _testValue
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.ACT_TestSchema");
+		builder = builder.withParam("Producer", _producer);
+		builder = builder.withParam("TestValue", _testValue);
+		return builder;
+	}
+
+	public static void aCT_TestSchema(
+		IContext context,
+		kafka.proxies.Producer _producer,
+		java.lang.String _testValue
+	)
+	{
+		aCT_TestSchemaBuilder(
+				_producer,
+				_testValue
+			)
+			.execute(context);
+	}
 	public static com.mendix.core.actionmanagement.MicroflowCallBuilder afterStartupBuilder()
 	{
 		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.AfterStartup");
@@ -130,6 +153,26 @@ public final class Microflows
 	{
 		Object result = bCo_KeyStoreBuilder(
 				_keyStore
+			)
+			.execute(context);
+		return (boolean) result;
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder bCo_ProducerBuilder(
+		kafka.proxies.Producer _producer
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.BCo_Producer");
+		builder = builder.withParam("Producer", _producer);
+		return builder;
+	}
+
+	public static boolean bCo_Producer(
+		IContext context,
+		kafka.proxies.Producer _producer
+	)
+	{
+		Object result = bCo_ProducerBuilder(
+				_producer
 			)
 			.execute(context);
 		return (boolean) result;
@@ -258,6 +301,50 @@ public final class Microflows
 			)
 			.execute(context);
 		return result == null ? null : com.mendix.utils.ListUtils.map((java.util.List<IMendixObject>) result, obj -> kafka.proxies.Consumer.initialize(context, obj));
+	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder example_GetAvroSchemaMicroflowBuilder(
+		java.lang.Long _offset,
+		java.lang.String _key,
+		java.lang.String _messageType,
+		java.lang.Long _partition,
+		kafka.proxies.Consumer _consumer,
+		java.lang.String _topic,
+		java.lang.Long _schemaId
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.Example_GetAvroSchemaMicroflow");
+		builder = builder.withParam("Offset", _offset);
+		builder = builder.withParam("Key", _key);
+		builder = builder.withParam("MessageType", _messageType);
+		builder = builder.withParam("Partition", _partition);
+		builder = builder.withParam("Consumer", _consumer);
+		builder = builder.withParam("Topic", _topic);
+		builder = builder.withParam("SchemaId", _schemaId);
+		return builder;
+	}
+
+	public static java.lang.String example_GetAvroSchemaMicroflow(
+		IContext context,
+		java.lang.Long _offset,
+		java.lang.String _key,
+		java.lang.String _messageType,
+		java.lang.Long _partition,
+		kafka.proxies.Consumer _consumer,
+		java.lang.String _topic,
+		java.lang.Long _schemaId
+	)
+	{
+		Object result = example_GetAvroSchemaMicroflowBuilder(
+				_offset,
+				_key,
+				_messageType,
+				_partition,
+				_consumer,
+				_topic,
+				_schemaId
+			)
+			.execute(context);
+		return (java.lang.String) result;
 	}
 	public static com.mendix.core.actionmanagement.MicroflowCallBuilder example_OnReceiveMicroflow_FileBuilder(
 		java.lang.Long _offset,

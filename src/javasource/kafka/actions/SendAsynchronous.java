@@ -10,7 +10,9 @@
 package kafka.actions;
 
 import com.mendix.systemwideinterfaces.core.IContext;
+import kafka.impl.AvroProcessor;
 import kafka.impl.KafkaSendHelper;
+import kafka.impl.ProducerUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
@@ -75,7 +77,12 @@ public class SendAsynchronous extends UserAction<java.lang.Boolean>
 	{
 		// BEGIN USER CODE
 		KafkaSendHelper.validateValue(value, binaryValue);
-		if (binaryValue != null) {
+		if(producer.getUseAvro()) {
+			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
+			binaryProducer.send(KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, AvroProcessor.encodeAvro(producer.getAvroSchemaHash(), producer.getAvroSchema(), value,
+					producer.getConfluentSchemaId()==null ? 0 : producer.getConfluentSchemaId()), this.headers));
+			KafkaSendHelper.closeIfUncached(binaryProducer, useCachedProducer);
+		}else if (binaryValue != null) {
 			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
 			binaryProducer.send(KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, binaryValue, this.headers));
 			KafkaSendHelper.closeIfUncached(binaryProducer, useCachedProducer);

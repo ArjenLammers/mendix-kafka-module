@@ -1,6 +1,7 @@
 package kafka.impl;
 
 import java.io.ByteArrayInputStream;
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +34,8 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	private KafkaConsumer<String, ?> consumer;
 	private final String onReceiveMicroflow;
 	private final Map<String, IDataType> onReceiveInputParameters;
+	private final String getAvroSchemaMicroflow;
+	private final Map<String, IDataType> getAvroSchemaInputParameters;
 	private final CommitControl commitControl;
 
 	// Domain model object
@@ -63,7 +66,10 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 		this.onReceiveMicroflow = consumer.getOnReceiveMicroflow();
 		this.onReceiveInputParameters = Core.getInputParameters(this.onReceiveMicroflow);
 		
-		if (isByteArray) {
+		this.getAvroSchemaMicroflow = consumer.getGetAvroSchemaMicroflow();
+		this.getAvroSchemaInputParameters = Core.getInputParameters(this.getAvroSchemaMicroflow);
+		
+		if (isByteArray && !consumerDom.getUseAvro()) {
 			if (this.onReceiveInputParameters.containsKey("Value")) {
 				IDataType dataType = this.onReceiveInputParameters.get("Value");
 				if (!Core.getMetaObject(dataType.getObjectType()).isFileDocument()) {
@@ -76,7 +82,7 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	}
 
 	public void run() {
-		
+		LOGGER.debug("Started consumer "+consumerDom.getName());
 		consumer.subscribe(Arrays.asList(this.consumerDom.getTopics().split(";")));
 		while (!stopped.get()) {
 			try {
@@ -84,6 +90,8 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 				for (ConsumerRecord<String, ?> record : records) {
 					IContext context = Core.createSystemContext();
 					Map<String, Object> microflowParams = new HashMap<>();
+					LOGGER.debug(consumerDom.getName()+" received message for partition "+record.partition()+
+							", offset "+record.offset()+", topic "+record.topic());
 					if (this.onReceiveInputParameters.containsKey("Offset")) {
 						microflowParams.put("Offset", record.offset());
 					}
@@ -103,8 +111,76 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 
 					if (this.onReceiveInputParameters.containsKey("Value")) {
 						if (record.value() instanceof byte[]) {
-							String entityType = this.onReceiveInputParameters.get("Value").getObjectType();
-							microflowParams.put("Value", createFileDocumentFromByteArray(context, record.key(), (byte[]) record.value(), entityType));
+							if(consumerDom.getUseAvro()) {
+								byte[] payload = (byte[]) record.value();
+								int schemaId = -1;
+								if(payload!=null && payload.length>4) {
+									ByteBuffer buffer = ByteBuffer.wrap(payload);
+									byte magicByte = buffer.get(); 
+							        if (magicByte == 0) {
+							        	//TODO: trigger MF to determine schema
+							        	schemaId = buffer.getInt(); 
+							        	payload = Arrays.copyOfRange(payload, 5, payload.length);
+							        }
+								}
+								String schema = null;
+								if(getAvroSchemaMicroflow!=null) {
+									Map<String, Object> getAvroSchemaMicroflowParams = new HashMap<>();
+									if (this.getAvroSchemaInputParameters.containsKey("Offset")) {
+										getAvroSchemaMicroflowParams.put("Offset", record.offset());
+									}
+									if (this.getAvroSchemaInputParameters.containsKey("Partition")) {
+										getAvroSchemaMicroflowParams.put("Partition", record.partition());
+									}
+									if (this.getAvroSchemaInputParameters.containsKey("Consumer")) {
+										getAvroSchemaMicroflowParams.put("Consumer", consumerDom.getMendixObject());
+									}
+									if (this.getAvroSchemaInputParameters.containsKey("Topic")) {
+										getAvroSchemaMicroflowParams.put("Topic", record.topic());
+									}
+
+									if (this.getAvroSchemaInputParameters.containsKey("Key")) {
+										getAvroSchemaMicroflowParams.put("Key", record.key());
+									}
+									if (this.getAvroSchemaInputParameters.containsKey("SchemaId")) {
+										getAvroSchemaMicroflowParams.put("SchemaId", schemaId);
+									}
+									for (Header header : record.headers()) {
+										try {
+											if (this.getAvroSchemaInputParameters.containsKey(header.key())) {
+												getAvroSchemaMicroflowParams.put(header.key(), new String(header.value(), "UTF-8"));
+											}
+										} catch (Exception e) {
+											LOGGER.warn("Ignoring header " + header.key() + " for offset " + record.offset()
+													+ " because it has an invalid value.");
+										}
+									}
+									try {
+										schema = Core.microflowCall(getAvroSchemaMicroflow).withParams(getAvroSchemaMicroflowParams).execute(context);	// throws CoreException
+										while (context.isInTransaction())
+											context.endTransaction();
+									} catch (Throwable e) {
+										LOGGER.error("An error occurred while executing the microflow for consumer " + name, e);
+										try {
+											while (context.isInTransaction())
+												context.endTransaction();
+										} catch (Exception ex) {};
+									} 
+
+								}
+								if(schema==null) {
+									microflowParams.put("Value", AvroProcessor.decodeAvro(
+											consumerDom.getAvroSchemaHash(), consumerDom.getAvroSchema(), payload));									
+								}else {
+									microflowParams.put("Value", AvroProcessor.decodeAvro(
+											schema, schema, payload));
+								}
+
+
+							}else {
+								String entityType = this.onReceiveInputParameters.get("Value").getObjectType();
+								microflowParams.put("Value", createFileDocumentFromByteArray(context, record.key(), (byte[]) record.value(), entityType));
+							}
 						} else if (record.value() instanceof String) {
 							microflowParams.put("Value", (String) record.value());
 						} else {

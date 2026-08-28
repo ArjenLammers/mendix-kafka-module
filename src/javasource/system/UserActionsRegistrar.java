@@ -112,7 +112,9 @@ public class UserActionsRegistrar
     registrator.registerUserAction(kafka.actions.GetPosition.class);
     registrator.registerUserAction(kafka.actions.ListTopics.class);
     registrator.registerUserAction(kafka.actions.SendAsynchronous.class);
+    registrator.registerUserAction(kafka.actions.SendAsynchronousAvroWithSchema.class);
     registrator.registerUserAction(kafka.actions.SendSynchronous.class);
+    registrator.registerUserAction(kafka.actions.SendSynchronousAvroWithSchema.class);
     registrator.registerUserAction(kafka.actions.StartConsumer.class);
     registrator.registerUserAction(kafka.actions.StartFilteredProcessor.class);
     registrator.registerUserAction(kafka.actions.StartProcessor.class);
@@ -120,6 +122,7 @@ public class UserActionsRegistrar
     registrator.registerUserAction(kafka.actions.StopAll.class);
     registrator.registerUserAction(kafka.actions.StopProcessor.class);
     registrator.registerUserAction(kafka.actions.StopWatchingObjects.class);
+    registrator.registerUserAction(kafka.actions.TestEnDeCoding.class);
     registrator.registerUserAction(kafka.actions.WatchObjectForChange.class);
     registrator.registerUserAction(librarylogging.actions.AddLibraryLogListener.class);
     registrator.registerUserAction(librarylogging.actions.InitializeLogging.class);

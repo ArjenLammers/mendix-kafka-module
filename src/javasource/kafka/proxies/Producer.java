@@ -23,6 +23,10 @@ public class Producer implements com.mendix.systemwideinterfaces.core.IEntityPro
 		Enabled("Enabled"),
 		Reference("Reference"),
 		Name("Name"),
+		UseAvro("UseAvro"),
+		AvroSchema("AvroSchema"),
+		AvroSchemaHash("AvroSchemaHash"),
+		ConfluentSchemaId("ConfluentSchemaId"),
 		Producer_ProducerConfig("Kafka.Producer_ProducerConfig"),
 		Producer_Server("Kafka.Producer_Server");
 
@@ -191,6 +195,150 @@ public class Producer implements com.mendix.systemwideinterfaces.core.IEntityPro
 	public final void setName(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String name)
 	{
 		getMendixObject().setValue(context, MemberNames.Name.toString(), name);
+	}
+
+	/**
+	 * @return value of UseAvro
+	 */
+	public final java.lang.Boolean getUseAvro()
+	{
+		return getUseAvro(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of UseAvro
+	 */
+	public final java.lang.Boolean getUseAvro(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.Boolean) getMendixObject().getValue(context, MemberNames.UseAvro.toString());
+	}
+
+	/**
+	 * Set value of UseAvro
+	 * @param useavro
+	 */
+	public final void setUseAvro(java.lang.Boolean useavro)
+	{
+		setUseAvro(getContext(), useavro);
+	}
+
+	/**
+	 * Set value of UseAvro
+	 * @param context
+	 * @param useavro
+	 */
+	public final void setUseAvro(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Boolean useavro)
+	{
+		getMendixObject().setValue(context, MemberNames.UseAvro.toString(), useavro);
+	}
+
+	/**
+	 * @return value of AvroSchema
+	 */
+	public final java.lang.String getAvroSchema()
+	{
+		return getAvroSchema(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of AvroSchema
+	 */
+	public final java.lang.String getAvroSchema(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.String) getMendixObject().getValue(context, MemberNames.AvroSchema.toString());
+	}
+
+	/**
+	 * Set value of AvroSchema
+	 * @param avroschema
+	 */
+	public final void setAvroSchema(java.lang.String avroschema)
+	{
+		setAvroSchema(getContext(), avroschema);
+	}
+
+	/**
+	 * Set value of AvroSchema
+	 * @param context
+	 * @param avroschema
+	 */
+	public final void setAvroSchema(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String avroschema)
+	{
+		getMendixObject().setValue(context, MemberNames.AvroSchema.toString(), avroschema);
+	}
+
+	/**
+	 * @return value of AvroSchemaHash
+	 */
+	public final java.lang.String getAvroSchemaHash()
+	{
+		return getAvroSchemaHash(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of AvroSchemaHash
+	 */
+	public final java.lang.String getAvroSchemaHash(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.String) getMendixObject().getValue(context, MemberNames.AvroSchemaHash.toString());
+	}
+
+	/**
+	 * Set value of AvroSchemaHash
+	 * @param avroschemahash
+	 */
+	public final void setAvroSchemaHash(java.lang.String avroschemahash)
+	{
+		setAvroSchemaHash(getContext(), avroschemahash);
+	}
+
+	/**
+	 * Set value of AvroSchemaHash
+	 * @param context
+	 * @param avroschemahash
+	 */
+	public final void setAvroSchemaHash(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String avroschemahash)
+	{
+		getMendixObject().setValue(context, MemberNames.AvroSchemaHash.toString(), avroschemahash);
+	}
+
+	/**
+	 * @return value of ConfluentSchemaId
+	 */
+	public final java.lang.Integer getConfluentSchemaId()
+	{
+		return getConfluentSchemaId(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of ConfluentSchemaId
+	 */
+	public final java.lang.Integer getConfluentSchemaId(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.Integer) getMendixObject().getValue(context, MemberNames.ConfluentSchemaId.toString());
+	}
+
+	/**
+	 * Set value of ConfluentSchemaId
+	 * @param confluentschemaid
+	 */
+	public final void setConfluentSchemaId(java.lang.Integer confluentschemaid)
+	{
+		setConfluentSchemaId(getContext(), confluentschemaid);
+	}
+
+	/**
+	 * Set value of ConfluentSchemaId
+	 * @param context
+	 * @param confluentschemaid
+	 */
+	public final void setConfluentSchemaId(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Integer confluentschemaid)
+	{
+		getMendixObject().setValue(context, MemberNames.ConfluentSchemaId.toString(), confluentschemaid);
 	}
 
 	/**

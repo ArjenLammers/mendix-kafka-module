@@ -9,6 +9,7 @@
 
 package kafka.actions;
 
+import java.util.Properties;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.webui.CustomJavaAction;
@@ -45,8 +46,15 @@ public class StartProducer extends UserAction<java.lang.Boolean>
 	public java.lang.Boolean executeAction() throws Exception
 	{
 		// BEGIN USER CODE
-		KafkaProducer<String, String> kafkaProducer = new KafkaProducer<String, String>(
+		Properties props = KafkaPropertiesFactory.getKafkaProperties(getContext(), producer);
+		KafkaProducer<String, ?> kafkaProducer;
+		if(props.get("value.serializer").equals("org.apache.kafka.common.serialization.ByteArraySerializer")) {
+			kafkaProducer = new KafkaProducer<String, byte[]>(
 					KafkaPropertiesFactory.getKafkaProperties(getContext(), producer));
+		}else {
+			kafkaProducer = new KafkaProducer<String, String>(
+					KafkaPropertiesFactory.getKafkaProperties(getContext(), producer));
+		}
 		KafkaProducerRepository.put(producer.getMendixObject().getId().toLong(), kafkaProducer);
 		
 		return true;
