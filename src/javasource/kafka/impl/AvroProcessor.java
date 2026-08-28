@@ -92,9 +92,10 @@ public class AvroProcessor {
         // Values of Avro's "decimal" logical type are backed by bytes/fixed and are
         // therefore rejected by the JSON decoder when supplied as plain numbers.
         // Rewrite any decimal field expressed as a floating point number into the
-        // Avro JSON byte encoding the decoder expects.
-        JsonNode withDecimals = convertDecimals(avroSchema, normalized, true);
-        String normalizedContent = MAPPER.writeValueAsString(withDecimals);
+        // Avro JSON byte encoding the decoder expects. Optional string fields given
+        // as plain JSON strings are wrapped into their Avro JSON branch form.
+        JsonNode converted = convertValues(avroSchema, normalized, true);
+        String normalizedContent = MAPPER.writeValueAsString(converted);
 
         DatumReader<Object> reader = new GenericDatumReader<>(avroSchema);
         try (InputStream contentStream =
@@ -143,10 +144,11 @@ public class AvroProcessor {
         writer.write(datum, jsonEncoder);
         jsonEncoder.flush();
 
-        // The Avro JSON encoder emits "decimal" logical values as byte strings.
-        // Rewrite them into plain floating point numbers for the JSON output.
+        // The Avro JSON encoder emits "decimal" logical values as byte strings and
+        // wraps union values into branch-tagged objects. Rewrite decimals into plain
+        // floating point numbers and optional strings into plain JSON strings.
         JsonNode tree = MAPPER.readTree(out.toString(StandardCharsets.UTF_8.name()));
-        JsonNode converted = convertDecimals(avroSchema, tree, false);
+        JsonNode converted = convertValues(avroSchema, tree, false);
         return MAPPER.writeValueAsString(converted);
     }
     
@@ -285,23 +287,22 @@ public class AvroProcessor {
     }
 
     /**
-     * Recursively walks a JSON node against its Avro schema and converts every
-     * value of the {@code decimal} logical type between two representations.
+     * Recursively walks a JSON node against its Avro schema and converts values
+     * between the external JSON representation and the Avro JSON representation.
      *
-     * <p>When {@code toAvro} is {@code true} the JSON floating point numbers used
-     * in the external representation are rewritten into the Avro JSON byte-string
-     * encoding expected by the Avro JSON decoder. When {@code toAvro} is
-     * {@code false} the Avro byte-string encoding produced by the Avro JSON
-     * encoder is rewritten back into a plain floating point number.</p>
+     * <p>Values of the {@code decimal} logical type are converted between plain
+     * floating point numbers (external) and the Avro JSON byte-string encoding
+     * (Avro). Values of a union consisting only of {@code string} and {@code null}
+     * are converted between a plain JSON string (external) and the branch-tagged
+     * object {@code {"string": ...}} (Avro).</p>
      *
      * @param schema the Avro schema describing {@code node}
      * @param node   the JSON node to convert (may be {@code null})
-     * @param toAvro {@code true} to encode floats into Avro bytes, {@code false}
-     *               to decode Avro bytes into floats
-     * @return a JSON node with all decimal values converted in the requested
-     *         direction
+     * @param toAvro {@code true} to convert into the Avro JSON representation,
+     *               {@code false} to convert back into the external one
+     * @return a JSON node converted in the requested direction
      */
-    private static JsonNode convertDecimals(Schema schema, JsonNode node, boolean toAvro) {
+    private static JsonNode convertValues(Schema schema, JsonNode node, boolean toAvro) {
         if (node == null) {
             return node;
         }
@@ -319,19 +320,19 @@ public class AvroProcessor {
                     for (Schema.Field field : schema.getFields()) {
                         if (node.has(field.name())) {
                             result.set(field.name(),
-                                    convertDecimals(field.schema(), node.get(field.name()), toAvro));
+                                    convertValues(field.schema(), node.get(field.name()), toAvro));
                         }
                     }
                     return result;
                 }
                 return node;
             case UNION:
-                return convertUnionDecimals(schema, node, toAvro);
+                return convertUnionValues(schema, node, toAvro);
             case ARRAY:
                 if (node.isArray()) {
                     ArrayNode result = MAPPER.createArrayNode();
                     for (JsonNode element : node) {
-                        result.add(convertDecimals(schema.getElementType(), element, toAvro));
+                        result.add(convertValues(schema.getElementType(), element, toAvro));
                     }
                     return result;
                 }
@@ -341,7 +342,7 @@ public class AvroProcessor {
                     ObjectNode result = MAPPER.createObjectNode();
                     for (Map.Entry<String, JsonNode> entry : iterable(node)) {
                         result.set(entry.getKey(),
-                                convertDecimals(schema.getValueType(), entry.getValue(), toAvro));
+                                convertValues(schema.getValueType(), entry.getValue(), toAvro));
                     }
                     return result;
                 }
@@ -352,11 +353,27 @@ public class AvroProcessor {
     }
 
     /**
-     * Converts the decimal values contained in a union-typed JSON node, recursing
-     * into the wrapped branch that carries the value.
+     * Converts the values contained in a union-typed JSON node, recursing into the
+     * wrapped branch that carries the value. A union consisting only of
+     * {@code string} and {@code null} is represented as a plain JSON string in the
+     * external representation and is therefore wrapped or unwrapped here.
      */
-    private static JsonNode convertUnionDecimals(Schema union, JsonNode node, boolean toAvro) {
+    private static JsonNode convertUnionValues(Schema union, JsonNode node, boolean toAvro) {
         if (node.isNull()) {
+            return node;
+        }
+        Schema stringBranch = nullableStringBranch(union);
+        if (stringBranch != null) {
+            String branchName = stringBranch.getFullName();
+            if (toAvro) {
+                if (node.isTextual()) {
+                    ObjectNode wrapped = MAPPER.createObjectNode();
+                    wrapped.set(branchName, node);
+                    return wrapped;
+                }
+            } else if (node.isObject() && node.size() == 1 && node.has(branchName)) {
+                return node.get(branchName);
+            }
             return node;
         }
         if (node.isObject() && node.size() == 1) {
@@ -364,11 +381,32 @@ public class AvroProcessor {
             Schema branch = findUnionBranch(union, branchName);
             if (branch != null) {
                 ObjectNode wrapped = MAPPER.createObjectNode();
-                wrapped.set(branchName, convertDecimals(branch, node.get(branchName), toAvro));
+                wrapped.set(branchName, convertValues(branch, node.get(branchName), toAvro));
                 return wrapped;
             }
         }
         return node;
+    }
+
+    /**
+     * Returns the {@code string} branch of a union that consists solely of a
+     * {@code string} and a {@code null} branch, or {@code null} if the given union
+     * has a different shape.
+     */
+    private static Schema nullableStringBranch(Schema union) {
+        if (union.getTypes().size() != 2) {
+            return null;
+        }
+        Schema stringBranch = null;
+        boolean hasNull = false;
+        for (Schema branch : union.getTypes()) {
+            if (branch.getType() == Schema.Type.STRING) {
+                stringBranch = branch;
+            } else if (branch.getType() == Schema.Type.NULL) {
+                hasNull = true;
+            }
+        }
+        return hasNull ? stringBranch : null;
     }
 
     /**
