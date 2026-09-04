@@ -111,6 +111,7 @@ public class UserActionsRegistrar
     registrator.registerUserAction(kafka.actions.GetPartitionOffsets.class);
     registrator.registerUserAction(kafka.actions.GetPosition.class);
     registrator.registerUserAction(kafka.actions.ListTopics.class);
+    registrator.registerUserAction(kafka.actions.SeekToBeginning.class);
     registrator.registerUserAction(kafka.actions.SendAsynchronous.class);
     registrator.registerUserAction(kafka.actions.SendSynchronous.class);
     registrator.registerUserAction(kafka.actions.StartConsumer.class);

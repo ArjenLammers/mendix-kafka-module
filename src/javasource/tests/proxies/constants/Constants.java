@@ -15,6 +15,11 @@ public final class Constants
 
 	// These are the constants for the Tests module
 
+	public static java.lang.String getConsumerString()
+	{
+		return (java.lang.String)Core.getConfiguration().getConstantValue("Tests.ConsumerString");
+	}
+
 	public static java.lang.String getProducerBinary()
 	{
 		return (java.lang.String)Core.getConfiguration().getConstantValue("Tests.ProducerBinary");

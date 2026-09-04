@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -29,6 +31,7 @@ import system.proxies.FileDocument;
 public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	private final String name;
 	private final AtomicBoolean stopped = new AtomicBoolean(false);
+	private final CountDownLatch stopLatch = new CountDownLatch(1);
 
 	private KafkaConsumer<String, ?> consumer;
 	private final String onReceiveMicroflow;
@@ -76,7 +79,7 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	}
 
 	public void run() {
-		
+		try {
 		consumer.subscribe(Arrays.asList(this.consumerDom.getTopics().split(";")));
 		while (!stopped.get()) {
 			try {
@@ -171,13 +174,29 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 				try { Thread.sleep(30000); } catch (Exception ex) {}
 			}
 		}
-
+		} finally {
+			// Closing sends a LeaveGroup request, so the group is left immediately instead of after the session timeout.
+			try {
+				consumer.close(Duration.ofSeconds(10));
+			} catch (Exception e) {
+				LOGGER.warn("Failed to close Kafka consumer " + name, e);
+			}
+			stopLatch.countDown();
+		}
 	}
 
 	// Shutdown hook which can be called from a separate thread
 	public void stop() {
 		stopped.set(true);
 		consumer.wakeup();
+	}
+
+	/**
+	 * Waits until this runner has left the consumer group and released its resources.
+	 * @return false when the runner is still running after the timeout
+	 */
+	public boolean awaitStop(long timeoutMillis) throws InterruptedException {
+		return stopLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
 	}
 	
 	private IMendixObject createFileDocumentFromByteArray(IContext context, String preferredName, byte[] payload, String entityType) 

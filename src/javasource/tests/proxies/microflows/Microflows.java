@@ -140,4 +140,14 @@ public final class Microflows
 	{
 		tEST_LooseHeadersBuilder().execute(context);
 	}
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder tEST_SeekToBeginningBuilder()
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Tests.TEST_SeekToBeginning");
+		return builder;
+	}
+
+	public static void tEST_SeekToBeginning(IContext context)
+	{
+		tEST_SeekToBeginningBuilder().execute(context);
+	}
 }
