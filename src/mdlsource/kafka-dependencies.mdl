@@ -1,7 +1,0 @@
-mdl 1;
-
-/* Kafka client library; kafka-streams 4.4.0 requires jackson-databind 2.21.7, so Jackson is aligned with it. */
-alter module Kafka set jar dependency 'org.apache.kafka:kafka-clients' version '4.4.0';
-alter module Kafka set jar dependency 'org.apache.kafka:kafka-streams' version '4.4.0';
-alter module Kafka set jar dependency 'com.fasterxml.jackson.core:jackson-core' version '2.21.7';
-alter module Kafka set jar dependency 'com.fasterxml.jackson.core:jackson-databind' version '2.21.7';
