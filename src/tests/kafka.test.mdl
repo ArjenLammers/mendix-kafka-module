@@ -1,0 +1,48 @@
+/**
+ * Kafka round-trip tests against the local SSL broker (dockert/compose.yaml).
+ * Mirror Tests.TEST_Loopback and Tests.TEST_FileDocument, but assert with @expect
+ * because UnitTesting asserts only throw inside a UnitTesting run.
+ */
+
+/**
+ * @test String message sent synchronously is consumed with its header
+ * @expect $Message != empty
+ * @expect $Message/Payload = 'test'
+ */
+$UUID = call java action Tests.GenerateUUID();
+$NewHeader = create Kafka.Header (Key = 'Reference', Value = $UUID);
+$HeaderList = create list of Kafka.Header;
+add $NewHeader to $HeaderList;
+declare $ProducerName String = @Tests.ProducerString;
+retrieve $Producer from Kafka.Producer
+  where Name = $ProducerName
+  first;
+call java action Kafka.SendSynchronous(producer = $Producer, topic = @Tests.TopicString, key = empty, value = 'test', headers = $HeaderList, useCachedProducer = true);
+call java action CommunityCommons.Delay(delaytime = 5000);
+retrieve $Message from Tests.Message
+  where Reference = $UUID
+  first;
+/
+
+/**
+ * @test Binary FileDocument sent synchronously is consumed with matching size
+ * @expect $BinaryPayload != empty
+ * @expect $BinaryPayload/Size = $Contents/Size
+ */
+$UUID = call java action Tests.GenerateUUID();
+$NewHeader = create Kafka.Header (Key = 'Reference', Value = $UUID);
+$HeaderList = create list of Kafka.Header;
+add $NewHeader to $HeaderList;
+declare $ProducerName String = @Tests.ProducerBinary;
+retrieve $Producer from Kafka.Producer
+  where Name = $ProducerName
+  first;
+$Contents = create System.FileDocument;
+call java action CommunityCommons.GetFileContentsFromResource(filename = 'logo.png', fileDocument = $Contents);
+call java action Kafka.SendSynchronous(producer = $Producer, topic = @Tests.TopicBinary, key = empty, value = empty, binaryValue = $Contents, headers = $HeaderList, useCachedProducer = true);
+call java action CommunityCommons.Delay(delaytime = 5000);
+retrieve $Message from Tests.Message
+  where Reference = $UUID
+  first;
+retrieve $BinaryPayload from $Message/Tests.BinaryPayload_Message;
+/

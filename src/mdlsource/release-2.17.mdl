@@ -1,0 +1,8 @@
+mdl 1;
+
+/* Release marker: the module version is the name of the empty '__Version x.y' folder.
+   MDL cannot create an empty folder, so a page is moved in and back out to create it.
+   One-off: the drop fails on a second run once '__Version 2.16' is gone. */
+move page Kafka.Partition_ViewContents to folder '__Version 2.17';
+move page Kafka.Partition_ViewContents to folder 'Pages';
+drop folder '__Version 2.16' in Kafka;
