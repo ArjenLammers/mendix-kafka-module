@@ -53,3 +53,21 @@
   round-trips, both `tests/kafka.test.mdl` tests pass with only 1.11.4 on the classpath, OSV reports no
   known vulnerabilities for any of the nine bundled jars, and the rebuilt `DIST/Kafka-2.17.mpk` imports
   into a blank 10.21 app with the same check errors as 2.16.
+
+## 2026-10-22 — upgraded 10.21.0 → 11.12.0 (LTS) for 3.0
+
+- Converted with `mx convert --in-place <dir>` from the cached 11.12.0 toolchain, after a dry run on a
+  copy in /tmp. `_SchemaHash` after conversion equals a blank 11.12.0 project's:
+  `{SHA256}ex8TFkjI5tikVWCC05OxODFVHlheQtT9XpJxPAwVGY0=`. The project stays single-file MPR v1.
+  The converter also refreshed several bundled widget `.mpk`s.
+- One new error, CE0582: the legacy `Forms$DropDown` for `Consumer.ContentType` on
+  `Kafka.Consumer_NewEdit` is not supported by the React client (the only client in 11). Replaced
+  with a combobox via `mdlsource/upgrade-11.12.mdl` (same label and on-change microflow,
+  `clearable: false`). The old widget's `$value != empty` validation has no combobox equivalent.
+- mxcli trap: `ALTER PAGE … SET (clearable: false)` on a combobox stores PrimitiveValue `"no"`; setting it
+  inside the widget definition (CREATE/REPLACE) stores `"false"`. Found by comparing `mxcli bson dump`.
+- `mx check` on 11.12: 0 errors; `docker check` (with and without `--no-update-widgets`): passed.
+- `mxcli test --local` cannot build on the drvfs (`D:\`) mount: 11.12's Gradle `copyLibs` fails with
+  "Could not set file mode 777". On a copy in /tmp it builds and boots; both tests then fail with a null
+  `Producer`, because they need the SSL broker from `dockert/compose.yaml` and seeded Producer records.
+  Not yet run against the broker on 11.12.
