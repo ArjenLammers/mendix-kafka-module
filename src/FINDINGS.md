@@ -70,7 +70,7 @@
 - `mxcli test --local` cannot build on the drvfs (`D:\`) mount: 11.12's Gradle `copyLibs` fails with
   "Could not set file mode 777". On a copy in /tmp it builds and boots; both tests then fail with a null
   `Producer`, because they need the SSL broker from `dockert/compose.yaml` and seeded Producer records.
-  Not yet run against the broker on 11.12.
+  Since run against the broker; see the entry below.
 
 ## 2026-10-22 — storage converted MPR v1 → v2 (mprcontents/)
 
@@ -85,3 +85,19 @@
 - Verified: `mx dump-mpr` output byte-identical before/after (24.6 MB), `mx check` 0 errors,
   `mxcli fix hashes` reports the index matches every unit file, lint unchanged (0 errors, 22 warnings),
   `docker check --no-update-widgets` passed (with TMPDIR off /tmp, which has only ~360 MB free).
+
+## 2026-10-22 — tests pass on 11.12.0 against the SSL broker
+
+- Both `tests/kafka.test.mdl` tests pass on the converted v2 / 11.12.0 project (string round trip with header,
+  binary FileDocument round trip with matching size, ~5 s each).
+- Setup: `docker compose up -d` in `dockert/`. The project was copied to a Linux-native directory
+  (`~/.cache/kafka-test`, without `dockert/kafka-data`), because drvfs blocks Gradle's chmod and `/tmp` has only
+  ~360 MB free. `data-snapshot.zip` was extracted into `deployment/`, with `hsqldb/default/default.*` copied to
+  `hsqldb/kafkamodule/kafkamodule.*`. Then
+  `mxcli run --local --detach --test-endpoint --db-type hsqldb` with the three certificate runtime settings
+  from the 4.4.0 entry, then `mxcli test tests/ --attach`.
+- The 10.21 snapshot database needs two boots on 11.12: the first runs the schema sync and then stops with
+  "The database has to be updated"; the second starts cleanly.
+- `--attach` needs the app started with `--test-endpoint`; without it the run fails with "no test endpoint is being hosted".
+- `TMPDIR` must exist: a container restart removed `~/.cache/mxcli-tmp`, and mxbuild then crashed in
+  `SystemModulePlugin.LoadSystemModule` with DirectoryNotFoundException.
