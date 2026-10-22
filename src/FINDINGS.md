@@ -41,3 +41,15 @@
   `slf4j-api-1.7.36`, `snappy-java`, `jackson-annotations` taken from 2.16).
 - Verified by `mx module-import` into a blank 10.21.0 app: the same check errors as 2.16 imported the
   same way (only the expected missing Encryption/MxModelReflection/LibraryLogging references).
+
+## 2026-10-22 — 2.17 rebuilt: lz4-java pinned to 1.11.4
+
+- The Marketplace scan rejected the first 2.17 build: `at.yawk.lz4:lz4-java` <= 1.11.3 is affected by
+  GHSA-mcr4-qmvw-px4g (CVE-2026-106451, native library extracted to a shared temp dir). OSV also lists
+  GHSA-343h-94h5-c4wr and GHSA-gm45-99xc-r7wv for 1.11.2. 2.16 shipped 1.10.2, equally affected; the
+  advisory postdates that release.
+- `kafka-clients` 4.4.0 (still the latest) requires 1.11.2, so the Kafka module now declares
+  `at.yawk.lz4:lz4-java` 1.11.4 explicitly; Gradle resolves to it. Verified: native LZ4 JNI loads and
+  round-trips, both `tests/kafka.test.mdl` tests pass with only 1.11.4 on the classpath, OSV reports no
+  known vulnerabilities for any of the nine bundled jars, and the rebuilt `DIST/Kafka-2.17.mpk` imports
+  into a blank 10.21 app with the same check errors as 2.16.
