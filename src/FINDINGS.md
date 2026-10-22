@@ -71,3 +71,17 @@
   "Could not set file mode 777". On a copy in /tmp it builds and boots; both tests then fail with a null
   `Producer`, because they need the SSL broker from `dockert/compose.yaml` and seeded Producer records.
   Not yet run against the broker on 11.12.
+
+## 2026-10-22 — storage converted MPR v1 → v2 (mprcontents/)
+
+- No headless tool does this. `mx convert` keeps the format. The package route
+  (`mx create-project-package` + `mx create-project <mpk>`, which defaults to v2) is NOT lossless:
+  it gives the project root unit a new ID and strips the Sprintr feedback widget from
+  `Atlas_Core.FeedbackWidget` and two `Header` layouts.
+- Converted instead by writing each `Unit.Contents` blob to `mprcontents/<id[0:2]>/<id[2:4]>/<id>.mxunit`
+  (UnitID is a little-endian GUID), dropping the `Contents` column, `ContentsHash` = base64(sha256(file)),
+  `_MetaData._FormatVersion` = 2 and a `_Transaction` table, all copied from the layout of a blank 11.12 v2 project.
+  One v1 unit had a stale `ContentsHash`; it was recomputed.
+- Verified: `mx dump-mpr` output byte-identical before/after (24.6 MB), `mx check` 0 errors,
+  `mxcli fix hashes` reports the index matches every unit file, lint unchanged (0 errors, 22 warnings),
+  `docker check --no-update-widgets` passed (with TMPDIR off /tmp, which has only ~360 MB free).
