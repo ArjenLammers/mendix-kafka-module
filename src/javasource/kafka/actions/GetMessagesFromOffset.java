@@ -9,6 +9,7 @@
 
 package kafka.actions;
 
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Date;
@@ -21,6 +22,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.webui.CustomJavaAction;
+import kafka.impl.AvroProcessor;
 import kafka.impl.KafkaModule;
 import kafka.impl.KafkaPropertiesFactory;
 import kafka.proxies.Header;
@@ -66,21 +68,36 @@ public class GetMessagesFromOffset extends UserAction<java.util.List<IMendixObje
 		kafkaProps.put("max.poll.records", amount.intValue());
 		kafkaProps.remove("group.id");
 		
-		KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(kafkaProps);
+		KafkaConsumer<String, ?> kafkaConsumer = new KafkaConsumer<>(kafkaProps);
 		List<IMendixObject> result = new LinkedList<>();
 		
 		try {
 			TopicPartition tp = new TopicPartition(topic, partition.intValue());
 			kafkaConsumer.assign(Arrays.asList(tp));
 			kafkaConsumer.seek(tp, offset);
-			ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(5000));
-			for (ConsumerRecord<String, String> record : records) {
+			ConsumerRecords<String, ?> records = kafkaConsumer.poll(Duration.ofMillis(5000));
+			for (ConsumerRecord<String, ?> record : records) {
 				Message newMessage = new Message(getContext());
 				newMessage.setOffset(record.offset());
 				newMessage.setPartition(record.partition());
 				newMessage.setTopic(record.topic());
 				newMessage.setKey(record.key());
-				newMessage.setPayload(record.value());
+				if(consumer.getUseAvro()) {
+					byte[] payload = (byte[]) record.value();
+					if(payload!=null && payload.length>4) {
+						ByteBuffer buffer = ByteBuffer.wrap(payload);
+						byte magicByte = buffer.get(); 
+				        if (magicByte == 0) {
+				        	//TODO: trigger MF to determine schema
+				        	int schemaId = buffer.getInt(); 
+				        	payload = Arrays.copyOfRange(payload, 5, payload.length);
+				        }
+					}
+					newMessage.setPayload(AvroProcessor.decodeAvro(
+							consumer.getAvroSchemaHash(), consumer.getAvroSchema(), payload));
+				}else {
+					newMessage.setPayload((String) record.value());
+				}
 				newMessage.setTimestamp(new Date(record.timestamp()));
 				result.add(newMessage.getMendixObject());
 				

@@ -101,3 +101,26 @@
 - `--attach` needs the app started with `--test-endpoint`; without it the run fails with "no test endpoint is being hosted".
 - `TMPDIR` must exist: a container restart removed `~/.cache/mxcli-tmp`, and mxbuild then crashed in
   `SystemModulePlugin.LoadSystemModule` with DirectoryNotFoundException.
+
+## 2026-10-23 — merged PR #8 (Avro support) into 11.12.0 / MPR v2
+
+- The PR branched from 17b5302 (10.21, MPR v1), so git cannot merge the model. Merged the model with
+  `mx merge BASE MINE THEIRS` after `mx convert` of the base and PR `.mpr` to 11.12 (in a scratch area).
+  It auto-resolved everything (including `Consumer_NewEdit`, where both sides edited) except
+  the Kafka module settings (Java dependencies). That was resolved by hand: our list plus `org.apache.avro:avro` 1.12.2. Then cleared
+  the `ContentsConflicts` flag in the `.mpr` Unit table. `mx merge` keeps MPR v2 and leaves a
+  `modeler-merge-marker` file next to the result (not copied).
+- The PR's combobox triggered CE0463 after the merge; `mxcli fix widgets` fixed it and kept v2 (784 units).
+- avro 1.12.2 pulls Jackson 2.22.1, and Gradle resolves the highest version, so the Jackson pins moved 2.21.7 → 2.22.1 to match
+  what ships. It also brings commons-compress 1.28.0 and commons-codec 1.19.0, and lifts commons-io to 2.20.0 and slf4j-api to
+  2.0.18. `sync-java-deps` then still reports commons-io 2.17.0 / slf4j-api 2.0.9 as "missing": those are other modules'
+  declarations resolved upward, not real gaps.
+- `mdlsource/kafka-dependencies.mdl`: `ADD JAR DEPENDENCY` fails once the dependency exists, so the script was not
+  re-runnable after the lz4 pin. It now uses SET only; lz4 and avro were added once by hand.
+- Verified on the Linux copy against the SSL broker: build OK, both `tests/kafka.test.mdl` tests pass, and an ad-hoc
+  `Kafka.TestEnDeCoding` check gives the correct JSON (unwrapped nullable string, decimal, enum, defaults
+  filled; a second schema passed with a null hash is honoured). No Avro round trip through Kafka has been tested yet.
+- Review notes on the PR code (not changed): `AvroProcessor.schemaCache` is an unsynchronized static `HashMap`
+  used from several consumer threads, and it grows without limit when keyed by schema text. The consumer reads the Confluent schema ID
+  but only passes it to the optional GetAvroSchema microflow (there is no registry client). Turning `UseAvro` off does not reset
+  the ByteArray (de)serializer that `BCo_Producer`/`BCo_Consumer` set.
