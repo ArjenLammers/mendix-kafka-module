@@ -7,7 +7,7 @@ package kafka.proxies;
 public enum FailureHandling
 {
 	SKIP("5cf2be94-8b8c-48a0-b2f9-5452fdb3e809"),
-	STOP("6cddb3a0-47e3-4b85-9ab6-e98a7687d08b");
+	RETRY("6cddb3a0-47e3-4b85-9ab6-e98a7687d08b");
 
 	private final java.lang.String i18nCaptionKey;
 	

@@ -149,3 +149,23 @@
   hits the same message and stops there too, while other partitions keep flowing until they fail.
 - Generated proxies: only `kafka/proxies/Consumer.java` and the new `FailureHandling.java` were taken from the 11.12 build
   (LF line endings); 11.12's generator reformats every proxy, and Studio Pro regenerates the rest anyway.
+
+## 2026-11-03 — failed messages: Stop replaced by Retry (retry until it succeeds)
+
+- Supersedes the Stop option in the previous entry. `Kafka.FailureHandling` is now SKIP (default) / RETRY. RETRY retries the
+  message forever (decided by the user: nothing is lost, and a broken message blocks its partition until the cause is fixed).
+  The delay is `RetryDelaySeconds` (default 5), doubled per attempt, capped at `MaxRetryDelaySeconds` (default 300).
+  Status: `FailedAttempts`, `NextRetry`, plus `LastFailure`/`LastFailureDate`. `StoppedOnFailure` was dropped (never released).
+- The retry does not block the poll loop: the partition is moved back to the failed record and paused, and resumed when the retry is
+  due, while the loop keeps polling every 100 ms. So `max.poll.interval.ms` is never exceeded and the consumer keeps its group
+  membership. Later records of that partition wait (order kept); other partitions keep flowing. The commit at the end of a batch
+  stops at the failed record, because the paused partition's position was moved back to it.
+- Retry state lives in memory per runner thread. After a restart or a rebalance the record is retried from the committed offset
+  and the attempt count starts again at 1. With several threads or nodes, `FailedAttempts`/`NextRetry` show whichever
+  partition failed last.
+- First failure is logged at ERROR with the stack trace; later attempts at WARNING with the error chain only, to keep an
+  endless retry from flooding the log.
+- Retry test hook: payload `fail-until-released` fails until the test commits a `Tests.Message` with Reference
+  `release:<reference>`. Verified in the log: attempts 1, 2, 3 with 1 s, 2 s, 2 s delays, then "processed … after 3 failed
+  attempt(s)" once released; the message behind it was processed after it. All four tests pass. Lint +1: the second hook throw
+  (CONV013, intentional).

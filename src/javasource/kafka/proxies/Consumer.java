@@ -35,7 +35,10 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 		OnFailure("OnFailure"),
 		LastFailure("LastFailure"),
 		LastFailureDate("LastFailureDate"),
-		StoppedOnFailure("StoppedOnFailure"),
+		RetryDelaySeconds("RetryDelaySeconds"),
+		MaxRetryDelaySeconds("MaxRetryDelaySeconds"),
+		FailedAttempts("FailedAttempts"),
+		NextRetry("NextRetry"),
 		Consumer_ConsumerConfig("Kafka.Consumer_ConsumerConfig"),
 		Consumer_Server("Kafka.Consumer_Server"),
 		Consumer_Microflows("Kafka.Consumer_Microflows"),
@@ -668,39 +671,147 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 	}
 
 	/**
-	 * @return value of StoppedOnFailure
+	 * @return value of RetryDelaySeconds
 	 */
-	public final java.lang.Boolean getStoppedOnFailure()
+	public final java.lang.Integer getRetryDelaySeconds()
 	{
-		return getStoppedOnFailure(getContext());
+		return getRetryDelaySeconds(getContext());
 	}
 
 	/**
 	 * @param context
-	 * @return value of StoppedOnFailure
+	 * @return value of RetryDelaySeconds
 	 */
-	public final java.lang.Boolean getStoppedOnFailure(com.mendix.systemwideinterfaces.core.IContext context)
+	public final java.lang.Integer getRetryDelaySeconds(com.mendix.systemwideinterfaces.core.IContext context)
 	{
-		return (java.lang.Boolean) getMendixObject().getValue(context, MemberNames.StoppedOnFailure.toString());
+		return (java.lang.Integer) getMendixObject().getValue(context, MemberNames.RetryDelaySeconds.toString());
 	}
 
 	/**
-	 * Set value of StoppedOnFailure
-	 * @param stoppedonfailure
+	 * Set value of RetryDelaySeconds
+	 * @param retrydelayseconds
 	 */
-	public final void setStoppedOnFailure(java.lang.Boolean stoppedonfailure)
+	public final void setRetryDelaySeconds(java.lang.Integer retrydelayseconds)
 	{
-		setStoppedOnFailure(getContext(), stoppedonfailure);
+		setRetryDelaySeconds(getContext(), retrydelayseconds);
 	}
 
 	/**
-	 * Set value of StoppedOnFailure
+	 * Set value of RetryDelaySeconds
 	 * @param context
-	 * @param stoppedonfailure
+	 * @param retrydelayseconds
 	 */
-	public final void setStoppedOnFailure(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Boolean stoppedonfailure)
+	public final void setRetryDelaySeconds(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Integer retrydelayseconds)
 	{
-		getMendixObject().setValue(context, MemberNames.StoppedOnFailure.toString(), stoppedonfailure);
+		getMendixObject().setValue(context, MemberNames.RetryDelaySeconds.toString(), retrydelayseconds);
+	}
+
+	/**
+	 * @return value of MaxRetryDelaySeconds
+	 */
+	public final java.lang.Integer getMaxRetryDelaySeconds()
+	{
+		return getMaxRetryDelaySeconds(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of MaxRetryDelaySeconds
+	 */
+	public final java.lang.Integer getMaxRetryDelaySeconds(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.Integer) getMendixObject().getValue(context, MemberNames.MaxRetryDelaySeconds.toString());
+	}
+
+	/**
+	 * Set value of MaxRetryDelaySeconds
+	 * @param maxretrydelayseconds
+	 */
+	public final void setMaxRetryDelaySeconds(java.lang.Integer maxretrydelayseconds)
+	{
+		setMaxRetryDelaySeconds(getContext(), maxretrydelayseconds);
+	}
+
+	/**
+	 * Set value of MaxRetryDelaySeconds
+	 * @param context
+	 * @param maxretrydelayseconds
+	 */
+	public final void setMaxRetryDelaySeconds(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Integer maxretrydelayseconds)
+	{
+		getMendixObject().setValue(context, MemberNames.MaxRetryDelaySeconds.toString(), maxretrydelayseconds);
+	}
+
+	/**
+	 * @return value of FailedAttempts
+	 */
+	public final java.lang.Integer getFailedAttempts()
+	{
+		return getFailedAttempts(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of FailedAttempts
+	 */
+	public final java.lang.Integer getFailedAttempts(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.Integer) getMendixObject().getValue(context, MemberNames.FailedAttempts.toString());
+	}
+
+	/**
+	 * Set value of FailedAttempts
+	 * @param failedattempts
+	 */
+	public final void setFailedAttempts(java.lang.Integer failedattempts)
+	{
+		setFailedAttempts(getContext(), failedattempts);
+	}
+
+	/**
+	 * Set value of FailedAttempts
+	 * @param context
+	 * @param failedattempts
+	 */
+	public final void setFailedAttempts(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Integer failedattempts)
+	{
+		getMendixObject().setValue(context, MemberNames.FailedAttempts.toString(), failedattempts);
+	}
+
+	/**
+	 * @return value of NextRetry
+	 */
+	public final java.util.Date getNextRetry()
+	{
+		return getNextRetry(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of NextRetry
+	 */
+	public final java.util.Date getNextRetry(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.util.Date) getMendixObject().getValue(context, MemberNames.NextRetry.toString());
+	}
+
+	/**
+	 * Set value of NextRetry
+	 * @param nextretry
+	 */
+	public final void setNextRetry(java.util.Date nextretry)
+	{
+		setNextRetry(getContext(), nextretry);
+	}
+
+	/**
+	 * Set value of NextRetry
+	 * @param context
+	 * @param nextretry
+	 */
+	public final void setNextRetry(com.mendix.systemwideinterfaces.core.IContext context, java.util.Date nextretry)
+	{
+		getMendixObject().setValue(context, MemberNames.NextRetry.toString(), nextretry);
 	}
 
 	/**

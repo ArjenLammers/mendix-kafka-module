@@ -5,9 +5,12 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,7 +18,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.header.Header;
@@ -47,6 +49,21 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	// Domain model object
 	private final Consumer consumerDom;
 	private final boolean isByteArray;
+
+	// Partitions that wait for a failed record to be retried
+	private final Map<TopicPartition, RetryState> retries = new HashMap<>();
+
+	private static class RetryState {
+		final long offset;
+		final int attempts;
+		final long nextAttemptAt;
+
+		RetryState(long offset, int attempts, long nextAttemptAt) {
+			this.offset = offset;
+			this.attempts = attempts;
+			this.nextAttemptAt = nextAttemptAt;
+		}
+	}
 
     public KafkaConsumerRunner(Consumer consumer, IContext context) throws CoreException {
 		super(context);
@@ -90,27 +107,30 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	public void run() {
 		try {
 		LOGGER.debug("Started consumer "+consumerDom.getName());
-		clearStoppedOnFailure();
+		resetRetryStatus();
 		consumer.subscribe(Arrays.asList(this.consumerDom.getTopics().split(";")));
 		while (!stopped.get()) {
 			try {
+				resumeDueRetries();
 				ConsumerRecords<String, ?> records = consumer.poll(Duration.ofMillis(100));
-				Map<TopicPartition, Long> nextOffsets = new HashMap<>();
-				boolean stoppedOnFailure = false;
+				// Partitions that failed in this batch: their later records wait for the retry
+				Set<TopicPartition> waiting = new HashSet<>();
 				for (ConsumerRecord<String, ?> record : records) {
+					TopicPartition partition = new TopicPartition(record.topic(), record.partition());
+					if (waiting.contains(partition)) {
+						continue;
+					}
 					try {
 						processRecord(record);
+						succeeded(partition, record);
 					} catch (Throwable e) {
-						if (handleFailure(record, e)) {
-							rewindToFailedRecord(records, nextOffsets);
-							stoppedOnFailure = true;
-							stopped.set(true);
-							break;
+						if (handleFailure(partition, record, e)) {
+							waiting.add(partition);
 						}
 					}
-					nextOffsets.put(new TopicPartition(record.topic(), record.partition()), record.offset() + 1);
 				}
-				if (commitControl == CommitControl.CONSUMER && !stoppedOnFailure) {
+				// A partition that waits for a retry was moved back to its failed record, so the commit stops there.
+				if (commitControl == CommitControl.CONSUMER) {
 					consumer.commitSync();
 				}
 			} catch (WakeupException e) {
@@ -281,20 +301,36 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	}
 
 	/**
-	 * Logs a failed record and stores it on the consumer.
-	 * @return true when the consumer is configured to stop on a failed message
+	 * Logs a failed record and stores it on the consumer. With retry, moves the partition back to the record
+	 * and pauses it until the next attempt is due.
+	 * @return true when the record will be retried
 	 */
-	private boolean handleFailure(ConsumerRecord<String, ?> record, Throwable e) {
+	private boolean handleFailure(TopicPartition partition, ConsumerRecord<String, ?> record, Throwable e) {
 		String location = "topic " + record.topic() + ", partition " + record.partition() + ", offset " + record.offset();
-		FailureHandling failureHandling = consumerDom.getOnFailure();
+		IContext context = Core.createSystemContext();
+		Consumer current = consumerDom;
 		try {
-			IContext context = Core.createSystemContext();
-			Consumer current = Consumer.initialize(context, Core.retrieveId(context, consumerDom.getMendixObject().getId()));
-			failureHandling = current.getOnFailure();
+			current = Consumer.initialize(context, Core.retrieveId(context, consumerDom.getMendixObject().getId()));
+		} catch (Exception ex) {
+			LOGGER.warn("Could not read the failure settings of consumer " + name + "; using those it started with.", ex);
+		}
+
+		boolean retry = current.getOnFailure() == FailureHandling.RETRY;
+		RetryState previous = retries.get(partition);
+		int attempts = previous != null && previous.offset == record.offset() ? previous.attempts + 1 : 1;
+		long delayMillis = retryDelayMillis(current, attempts);
+		if (retry) {
+			retries.put(partition, new RetryState(record.offset(), attempts, System.currentTimeMillis() + delayMillis));
+			consumer.seek(partition, record.offset());
+			consumer.pause(Collections.singleton(partition));
+		}
+
+		try {
 			current.setLastFailure(context, location + ": " + describe(e));
 			current.setLastFailureDate(context, new java.util.Date());
-			if (failureHandling == FailureHandling.STOP) {
-				current.setStoppedOnFailure(context, true);
+			if (retry) {
+				current.setFailedAttempts(context, attempts);
+				current.setNextRetry(context, new java.util.Date(System.currentTimeMillis() + delayMillis));
 			}
 			// Without events: a commit with events counts as a configuration change and restarts all consumers.
 			Core.commitWithoutEvents(context, current.getMendixObject());
@@ -302,37 +338,73 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 			LOGGER.warn("Could not store the failure on consumer " + name, ex);
 		}
 
-		boolean stop = failureHandling == FailureHandling.STOP;
-		LOGGER.error("Consumer " + name + " failed to process the message at " + location + "; "
-				+ (stop ? "stopping the consumer. The message is processed again when the consumer restarts."
-						: "continuing with the next message."), e);
-		return stop;
+		String message = "Consumer " + name + " failed to process the message at " + location + "; "
+				+ (retry ? "attempt " + attempts + ", retrying in " + (delayMillis / 1000) + " s."
+						: "continuing with the next message.");
+		if (attempts == 1) {
+			LOGGER.error(message, e);
+		} else {
+			// The stack trace was logged with the first attempt
+			LOGGER.warn(message + " " + describe(e));
+		}
+		return retry;
 	}
 
 	/**
-	 * Moves every partition of the batch back to its first unprocessed record and commits that position,
-	 * so that a restarted consumer begins with the failed record.
+	 * The delay before retry number {@code attempts}: the retry delay, doubled per attempt, up to the maximum.
 	 */
-	private void rewindToFailedRecord(ConsumerRecords<String, ?> records, Map<TopicPartition, Long> nextOffsets) {
-		Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap<>();
-		for (TopicPartition partition : records.partitions()) {
-			long offset = nextOffsets.containsKey(partition) ? nextOffsets.get(partition) : records.records(partition).get(0).offset();
-			consumer.seek(partition, offset);
-			offsets.put(partition, new OffsetAndMetadata(offset));
-		}
-		consumer.commitSync(offsets);
+	private static long retryDelayMillis(Consumer consumer, int attempts) {
+		long initial = consumer.getRetryDelaySeconds() == null ? 5 : Math.max(1, consumer.getRetryDelaySeconds());
+		long maximum = consumer.getMaxRetryDelaySeconds() == null ? 300 : Math.max(initial, consumer.getMaxRetryDelaySeconds());
+		long delay = initial << Math.min(attempts - 1, 30);
+		return Math.min(delay, maximum) * 1000;
 	}
 
-	private void clearStoppedOnFailure() {
+	/**
+	 * Resumes the partitions whose next attempt is due, and forgets partitions this consumer no longer owns.
+	 */
+	private void resumeDueRetries() {
+		if (retries.isEmpty()) {
+			return;
+		}
+		Set<TopicPartition> assigned = consumer.assignment();
+		Set<TopicPartition> paused = consumer.paused();
+		long now = System.currentTimeMillis();
+		retries.entrySet().removeIf(entry -> !assigned.contains(entry.getKey()));
+		for (Map.Entry<TopicPartition, RetryState> entry : retries.entrySet()) {
+			if (entry.getValue().nextAttemptAt <= now && paused.contains(entry.getKey())) {
+				consumer.resume(Collections.singleton(entry.getKey()));
+			}
+		}
+	}
+
+	/**
+	 * Ends the retry of a partition once its failed record, or a later one, has been processed.
+	 */
+	private void succeeded(TopicPartition partition, ConsumerRecord<String, ?> record) {
+		RetryState state = retries.get(partition);
+		if (state == null || record.offset() < state.offset) {
+			return;
+		}
+		retries.remove(partition);
+		LOGGER.info("Consumer " + name + " processed the message at topic " + record.topic() + ", partition "
+				+ record.partition() + ", offset " + state.offset + " after " + state.attempts + " failed attempt(s).");
+		if (retries.isEmpty()) {
+			resetRetryStatus();
+		}
+	}
+
+	private void resetRetryStatus() {
 		try {
 			IContext context = Core.createSystemContext();
 			Consumer current = Consumer.initialize(context, Core.retrieveId(context, consumerDom.getMendixObject().getId()));
-			if (Boolean.TRUE.equals(current.getStoppedOnFailure())) {
-				current.setStoppedOnFailure(context, false);
+			if ((current.getFailedAttempts() != null && current.getFailedAttempts() > 0) || current.getNextRetry() != null) {
+				current.setFailedAttempts(context, 0);
+				current.setNextRetry(context, null);
 				Core.commitWithoutEvents(context, current.getMendixObject());
 			}
 		} catch (Exception e) {
-			LOGGER.warn("Could not reset the failure status of consumer " + name, e);
+			LOGGER.warn("Could not reset the retry status of consumer " + name, e);
 		}
 	}
 
@@ -354,10 +426,7 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	// Shutdown hook which can be called from a separate thread
 	public void stop() {
 		stopped.set(true);
-		// A consumer that stopped itself after a failed message is already closed.
-		if (stopLatch.getCount() > 0) {
-			consumer.wakeup();
-		}
+		consumer.wakeup();
 	}
 
 	/**
