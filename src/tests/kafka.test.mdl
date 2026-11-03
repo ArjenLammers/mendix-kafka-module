@@ -48,16 +48,17 @@ retrieve $BinaryPayload from $Message/Tests.BinaryPayload_Message;
 /
 
 /**
- * Failure handling. @cleanup none: the consumer threads must see the OnFailure setting mid-test,
- * which a rolled-back test transaction would keep locked. The Retry test restores Continue at the end.
+ * Failure handling. Consumers read Continue/Retry when they start, so each test commits the setting
+ * (@cleanup none: a rolled-back test transaction would hide it) and restarts the consumers, as saving
+ * the consumer page does. The Retry test switches back to Continue at the end.
+ * Failures and retries are only logged, so the assertions look at which messages were processed.
  */
 
 /**
- * @test Continue on failure: a failed message is recorded and the next message is processed
+ * @test Continue on failure: the failed message is skipped and the next message is processed
  * @cleanup none
+ * @expect $FailedSkipped
  * @expect $After != empty
- * @expect contains($ConsumerAfter/LastFailure, 'Failing on purpose')
- * @expect $ConsumerAfter/FailedAttempts = 0
  */
 declare $ConsumerName String = @Tests.ConsumerString;
 retrieve $Consumer from Kafka.Consumer
@@ -66,6 +67,8 @@ retrieve $Consumer from Kafka.Consumer
 change $Consumer (OnFailure = Kafka.FailureHandling.SKIP) commit without events;
 call java action CommunityCommons.EndTransaction();
 call java action CommunityCommons.StartTransaction();
+call microflow Kafka.Sub_Restart();
+call java action CommunityCommons.Delay(delaytime = 10000);
 declare $ProducerName String = @Tests.ProducerString;
 retrieve $Producer from Kafka.Producer
   where Name = $ProducerName
@@ -81,23 +84,21 @@ $AfterHeaders = create list of Kafka.Header;
 add $AfterHeader to $AfterHeaders;
 call java action Kafka.SendSynchronous(producer = $Producer, topic = @Tests.TopicString, key = 'failure-handling', value = 'after-skip', headers = $AfterHeaders, useCachedProducer = true);
 call java action CommunityCommons.Delay(delaytime = 5000);
+retrieve $Failed from Tests.Message
+  where Reference = $FailUUID
+  first;
+declare $FailedSkipped Boolean = $Failed = empty;
 retrieve $After from Tests.Message
   where Reference = $AfterUUID
-  first;
-retrieve $ConsumerAfter from Kafka.Consumer
-  where Name = $ConsumerName
   first;
 /
 
 /**
  * @test Retry on failure: the message is retried until it succeeds and the next message waits behind it
  * @cleanup none
- * @expect $AttemptsWhileFailing >= 2
- * @expect $NextRetrySet
  * @expect $WaitedBehind
  * @expect $Retried != empty
  * @expect $AfterRetry != empty
- * @expect $ConsumerAfter/FailedAttempts = 0
  */
 declare $ConsumerName String = @Tests.ConsumerString;
 retrieve $Consumer from Kafka.Consumer
@@ -106,6 +107,8 @@ retrieve $Consumer from Kafka.Consumer
 change $Consumer (OnFailure = Kafka.FailureHandling.RETRY, RetryDelaySeconds = 1, MaxRetryDelaySeconds = 2) commit without events;
 call java action CommunityCommons.EndTransaction();
 call java action CommunityCommons.StartTransaction();
+call microflow Kafka.Sub_Restart();
+call java action CommunityCommons.Delay(delaytime = 10000);
 declare $ProducerName String = @Tests.ProducerString;
 retrieve $Producer from Kafka.Producer
   where Name = $ProducerName
@@ -121,11 +124,6 @@ $AfterHeaders = create list of Kafka.Header;
 add $AfterHeader to $AfterHeaders;
 call java action Kafka.SendSynchronous(producer = $Producer, topic = @Tests.TopicString, key = 'failure-handling', value = 'after-retry', headers = $AfterHeaders, useCachedProducer = true);
 call java action CommunityCommons.Delay(delaytime = 6000);
-retrieve $ConsumerRetrying from Kafka.Consumer
-  where Name = $ConsumerName
-  first;
-declare $AttemptsWhileFailing Integer = $ConsumerRetrying/FailedAttempts;
-declare $NextRetrySet Boolean = $ConsumerRetrying/NextRetry != empty;
 retrieve $WhileRetrying from Tests.Message
   where Reference = $AfterUUID
   first;
@@ -140,8 +138,8 @@ retrieve $Retried from Tests.Message
 retrieve $AfterRetry from Tests.Message
   where Reference = $AfterUUID
   first;
-retrieve $ConsumerAfter from Kafka.Consumer
-  where Name = $ConsumerName
-  first;
-change $ConsumerAfter (OnFailure = Kafka.FailureHandling.SKIP) commit without events;
+change $Consumer (OnFailure = Kafka.FailureHandling.SKIP) commit without events;
+call java action CommunityCommons.EndTransaction();
+call java action CommunityCommons.StartTransaction();
+call microflow Kafka.Sub_Restart();
 /

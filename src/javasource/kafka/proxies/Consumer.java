@@ -33,12 +33,8 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 		AvroSchemaHash("AvroSchemaHash"),
 		GetAvroSchemaMicroflow("GetAvroSchemaMicroflow"),
 		OnFailure("OnFailure"),
-		LastFailure("LastFailure"),
-		LastFailureDate("LastFailureDate"),
 		RetryDelaySeconds("RetryDelaySeconds"),
 		MaxRetryDelaySeconds("MaxRetryDelaySeconds"),
-		FailedAttempts("FailedAttempts"),
-		NextRetry("NextRetry"),
 		Consumer_ConsumerConfig("Kafka.Consumer_ConsumerConfig"),
 		Consumer_Server("Kafka.Consumer_Server"),
 		Consumer_Microflows("Kafka.Consumer_Microflows"),
@@ -599,78 +595,6 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 	}
 
 	/**
-	 * @return value of LastFailure
-	 */
-	public final java.lang.String getLastFailure()
-	{
-		return getLastFailure(getContext());
-	}
-
-	/**
-	 * @param context
-	 * @return value of LastFailure
-	 */
-	public final java.lang.String getLastFailure(com.mendix.systemwideinterfaces.core.IContext context)
-	{
-		return (java.lang.String) getMendixObject().getValue(context, MemberNames.LastFailure.toString());
-	}
-
-	/**
-	 * Set value of LastFailure
-	 * @param lastfailure
-	 */
-	public final void setLastFailure(java.lang.String lastfailure)
-	{
-		setLastFailure(getContext(), lastfailure);
-	}
-
-	/**
-	 * Set value of LastFailure
-	 * @param context
-	 * @param lastfailure
-	 */
-	public final void setLastFailure(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String lastfailure)
-	{
-		getMendixObject().setValue(context, MemberNames.LastFailure.toString(), lastfailure);
-	}
-
-	/**
-	 * @return value of LastFailureDate
-	 */
-	public final java.util.Date getLastFailureDate()
-	{
-		return getLastFailureDate(getContext());
-	}
-
-	/**
-	 * @param context
-	 * @return value of LastFailureDate
-	 */
-	public final java.util.Date getLastFailureDate(com.mendix.systemwideinterfaces.core.IContext context)
-	{
-		return (java.util.Date) getMendixObject().getValue(context, MemberNames.LastFailureDate.toString());
-	}
-
-	/**
-	 * Set value of LastFailureDate
-	 * @param lastfailuredate
-	 */
-	public final void setLastFailureDate(java.util.Date lastfailuredate)
-	{
-		setLastFailureDate(getContext(), lastfailuredate);
-	}
-
-	/**
-	 * Set value of LastFailureDate
-	 * @param context
-	 * @param lastfailuredate
-	 */
-	public final void setLastFailureDate(com.mendix.systemwideinterfaces.core.IContext context, java.util.Date lastfailuredate)
-	{
-		getMendixObject().setValue(context, MemberNames.LastFailureDate.toString(), lastfailuredate);
-	}
-
-	/**
 	 * @return value of RetryDelaySeconds
 	 */
 	public final java.lang.Integer getRetryDelaySeconds()
@@ -740,78 +664,6 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 	public final void setMaxRetryDelaySeconds(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Integer maxretrydelayseconds)
 	{
 		getMendixObject().setValue(context, MemberNames.MaxRetryDelaySeconds.toString(), maxretrydelayseconds);
-	}
-
-	/**
-	 * @return value of FailedAttempts
-	 */
-	public final java.lang.Integer getFailedAttempts()
-	{
-		return getFailedAttempts(getContext());
-	}
-
-	/**
-	 * @param context
-	 * @return value of FailedAttempts
-	 */
-	public final java.lang.Integer getFailedAttempts(com.mendix.systemwideinterfaces.core.IContext context)
-	{
-		return (java.lang.Integer) getMendixObject().getValue(context, MemberNames.FailedAttempts.toString());
-	}
-
-	/**
-	 * Set value of FailedAttempts
-	 * @param failedattempts
-	 */
-	public final void setFailedAttempts(java.lang.Integer failedattempts)
-	{
-		setFailedAttempts(getContext(), failedattempts);
-	}
-
-	/**
-	 * Set value of FailedAttempts
-	 * @param context
-	 * @param failedattempts
-	 */
-	public final void setFailedAttempts(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Integer failedattempts)
-	{
-		getMendixObject().setValue(context, MemberNames.FailedAttempts.toString(), failedattempts);
-	}
-
-	/**
-	 * @return value of NextRetry
-	 */
-	public final java.util.Date getNextRetry()
-	{
-		return getNextRetry(getContext());
-	}
-
-	/**
-	 * @param context
-	 * @return value of NextRetry
-	 */
-	public final java.util.Date getNextRetry(com.mendix.systemwideinterfaces.core.IContext context)
-	{
-		return (java.util.Date) getMendixObject().getValue(context, MemberNames.NextRetry.toString());
-	}
-
-	/**
-	 * Set value of NextRetry
-	 * @param nextretry
-	 */
-	public final void setNextRetry(java.util.Date nextretry)
-	{
-		setNextRetry(getContext(), nextretry);
-	}
-
-	/**
-	 * Set value of NextRetry
-	 * @param context
-	 * @param nextretry
-	 */
-	public final void setNextRetry(com.mendix.systemwideinterfaces.core.IContext context, java.util.Date nextretry)
-	{
-		getMendixObject().setValue(context, MemberNames.NextRetry.toString(), nextretry);
 	}
 
 	/**

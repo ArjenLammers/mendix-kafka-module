@@ -45,6 +45,9 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	private final String getAvroSchemaMicroflow;
 	private final Map<String, IDataType> getAvroSchemaInputParameters;
 	private final CommitControl commitControl;
+	private final boolean retryOnFailure;
+	private final long retryDelaySeconds;
+	private final long maxRetryDelaySeconds;
 
 	// Domain model object
 	private final Consumer consumerDom;
@@ -71,6 +74,11 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 		this.name = consumer.getName();
 		this.props = KafkaPropertiesFactory.getKafkaProperties(context, consumer);
 		this.commitControl = consumerDom.getCommitControl();
+		// Saving any Kafka setting restarts the consumers, so the failure settings can be read once.
+		this.retryOnFailure = consumerDom.getOnFailure() == FailureHandling.RETRY;
+		this.retryDelaySeconds = consumerDom.getRetryDelaySeconds() == null ? 5 : Math.max(1, consumerDom.getRetryDelaySeconds());
+		this.maxRetryDelaySeconds = consumerDom.getMaxRetryDelaySeconds() == null ? 300
+				: Math.max(this.retryDelaySeconds, consumerDom.getMaxRetryDelaySeconds());
 		switch (commitControl) {
 		case CONSUMER:
 			props.put("enable.auto.commit", "false");
@@ -107,7 +115,6 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	public void run() {
 		try {
 		LOGGER.debug("Started consumer "+consumerDom.getName());
-		resetRetryStatus();
 		consumer.subscribe(Arrays.asList(this.consumerDom.getTopics().split(";")));
 		while (!stopped.get()) {
 			try {
@@ -301,45 +308,23 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	}
 
 	/**
-	 * Logs a failed record and stores it on the consumer. With retry, moves the partition back to the record
-	 * and pauses it until the next attempt is due.
+	 * Logs a failed record. With retry, moves the partition back to the record and pauses it until the next
+	 * attempt is due.
 	 * @return true when the record will be retried
 	 */
 	private boolean handleFailure(TopicPartition partition, ConsumerRecord<String, ?> record, Throwable e) {
 		String location = "topic " + record.topic() + ", partition " + record.partition() + ", offset " + record.offset();
-		IContext context = Core.createSystemContext();
-		Consumer current = consumerDom;
-		try {
-			current = Consumer.initialize(context, Core.retrieveId(context, consumerDom.getMendixObject().getId()));
-		} catch (Exception ex) {
-			LOGGER.warn("Could not read the failure settings of consumer " + name + "; using those it started with.", ex);
-		}
-
-		boolean retry = current.getOnFailure() == FailureHandling.RETRY;
 		RetryState previous = retries.get(partition);
 		int attempts = previous != null && previous.offset == record.offset() ? previous.attempts + 1 : 1;
-		long delayMillis = retryDelayMillis(current, attempts);
-		if (retry) {
+		long delayMillis = retryDelayMillis(attempts);
+		if (retryOnFailure) {
 			retries.put(partition, new RetryState(record.offset(), attempts, System.currentTimeMillis() + delayMillis));
 			consumer.seek(partition, record.offset());
 			consumer.pause(Collections.singleton(partition));
 		}
 
-		try {
-			current.setLastFailure(context, location + ": " + describe(e));
-			current.setLastFailureDate(context, new java.util.Date());
-			if (retry) {
-				current.setFailedAttempts(context, attempts);
-				current.setNextRetry(context, new java.util.Date(System.currentTimeMillis() + delayMillis));
-			}
-			// Without events: a commit with events counts as a configuration change and restarts all consumers.
-			Core.commitWithoutEvents(context, current.getMendixObject());
-		} catch (Exception ex) {
-			LOGGER.warn("Could not store the failure on consumer " + name, ex);
-		}
-
 		String message = "Consumer " + name + " failed to process the message at " + location + "; "
-				+ (retry ? "attempt " + attempts + ", retrying in " + (delayMillis / 1000) + " s."
+				+ (retryOnFailure ? "attempt " + attempts + ", retrying in " + (delayMillis / 1000) + " s."
 						: "continuing with the next message.");
 		if (attempts == 1) {
 			LOGGER.error(message, e);
@@ -347,17 +332,15 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 			// The stack trace was logged with the first attempt
 			LOGGER.warn(message + " " + describe(e));
 		}
-		return retry;
+		return retryOnFailure;
 	}
 
 	/**
 	 * The delay before retry number {@code attempts}: the retry delay, doubled per attempt, up to the maximum.
 	 */
-	private static long retryDelayMillis(Consumer consumer, int attempts) {
-		long initial = consumer.getRetryDelaySeconds() == null ? 5 : Math.max(1, consumer.getRetryDelaySeconds());
-		long maximum = consumer.getMaxRetryDelaySeconds() == null ? 300 : Math.max(initial, consumer.getMaxRetryDelaySeconds());
-		long delay = initial << Math.min(attempts - 1, 30);
-		return Math.min(delay, maximum) * 1000;
+	private long retryDelayMillis(int attempts) {
+		long delay = retryDelaySeconds << Math.min(attempts - 1, 30);
+		return Math.min(delay, maxRetryDelaySeconds) * 1000;
 	}
 
 	/**
@@ -389,23 +372,6 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 		retries.remove(partition);
 		LOGGER.info("Consumer " + name + " processed the message at topic " + record.topic() + ", partition "
 				+ record.partition() + ", offset " + state.offset + " after " + state.attempts + " failed attempt(s).");
-		if (retries.isEmpty()) {
-			resetRetryStatus();
-		}
-	}
-
-	private void resetRetryStatus() {
-		try {
-			IContext context = Core.createSystemContext();
-			Consumer current = Consumer.initialize(context, Core.retrieveId(context, consumerDom.getMendixObject().getId()));
-			if ((current.getFailedAttempts() != null && current.getFailedAttempts() > 0) || current.getNextRetry() != null) {
-				current.setFailedAttempts(context, 0);
-				current.setNextRetry(context, null);
-				Core.commitWithoutEvents(context, current.getMendixObject());
-			}
-		} catch (Exception e) {
-			LOGGER.warn("Could not reset the retry status of consumer " + name, e);
-		}
 	}
 
 	private static String describe(Throwable e) {

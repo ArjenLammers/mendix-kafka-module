@@ -169,3 +169,21 @@
   `release:<reference>`. Verified in the log: attempts 1, 2, 3 with 1 s, 2 s, 2 s delays, then "processed … after 3 failed
   attempt(s)" once released; the message behind it was processed after it. All four tests pass. Lint +1: the second hook throw
   (CONV013, intentional).
+
+## 2026-11-03 — failed messages: status moved from the database to the log
+
+- Removed `Consumer.LastFailure`, `LastFailureDate`, `FailedAttempts`, `NextRetry` and their page fields (never released). The
+  failure path no longer reads or writes the database. That removes the cluster problems from the review: last-writer-wins status
+  on one shared row, and one read plus one write per failed message under Continue.
+- `OnFailure`, `RetryDelaySeconds` and `MaxRetryDelaySeconds` are read once when the runner starts; saving any Kafka setting
+  restarts all consumers on all nodes. Consequence for the tests: changing the setting needs `Kafka.Sub_Restart` (+10 s to rejoin),
+  and the Retry test restarts again at the end so consumer-string is not left on Retry in memory (a later 'fail-on-purpose'
+  would otherwise block partition 1 forever).
+- Log lines (Kafka log node, on the instance that owns the partition): first failure ERROR with stack trace; later attempts
+  WARNING `attempt n, retrying in x s` with the error chain; recovery INFO `processed … after n failed attempt(s)`.
+- Tests assert on processed messages instead of status fields. Continue: the failed message is not stored and the next one is.
+  Retry: the next message waits, and both are processed after the release.
+- Studio Pro had the project open during this change (`KafkaModule.mpr.lock`, Windows PID). mxcli refused to write, and the change
+  was verified in the Linux test copy first. Once the lock was gone, the same scripts were applied to the project; the resulting
+  model is unit-for-unit identical to the tested one. Studio Pro left the model untouched; it only regenerated
+  `themesource/atlas_core/web/_generated-exclusion-variables.scss` and added `widgets/widgets-appstore-metadata.json` (not committed).
