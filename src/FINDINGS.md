@@ -187,3 +187,22 @@
   was verified in the Linux test copy first. Once the lock was gone, the same scripts were applied to the project; the resulting
   model is unit-for-unit identical to the tested one. Studio Pro left the model untouched; it only regenerated
   `themesource/atlas_core/web/_generated-exclusion-variables.scss` and added `widgets/widgets-appstore-metadata.json` (not committed).
+
+## 2026-11-03 — CVE check of all libraries (OSV), Kafka module patched
+
+- Queried OSV (api.osv.dev, Maven) for all 35 components in `vendorlib/vendorlib-sbom.json`.
+- **Regression of mine:** the Jackson pins were raised 2.21.7 → 2.22.1 for avro during the PR #8 merge. 2.22.1 lacks fixes
+  that 2.21.7 already had: databind GHSA-cxp5-3px4-pw24 (HIGH), GHSA-wv8q-qhhj-9h54 (HIGH), GHSA-q4xh-88c3-wmh7 (HIGH),
+  GHSA-gx83-3vf8-gh7j, GHSA-wjgm-6hv5-3cvf; core GHSA-7hhh-6rmp-j9qf (HIGH), GHSA-p6pp-m3f8-5c89 (HIGH). Now 2.22.3.
+  Lesson: when a pin moves to a newer minor line, check the newest patch of that line, not the first one that resolves.
+- **snappy-java 1.1.10.7** (transitive from kafka-clients 4.4.0): GHSA-gwq9-9ffj-mvrv (HIGH), GHSA-q233-g92q-qxp6 (HIGH),
+  GHSA-xqrx-qh46-34m7, published 2026-10-27, after the 2.17 scan. Pinned 1.1.10.9 in the Kafka module, like lz4.
+  Verified: native round trip with jshell (`Snappy.getNativeLibraryVersion()` 1.1.10, compress/uncompress equal).
+- After the fix, OSV reports nothing for any library the Kafka module brings. All four tests pass, and the build loads with no class errors.
+- **Still affected, not fixed: marketplace modules of the test app, not shipped in the Kafka .mpk.**
+  - LibraryLogging: log4j-core 2.25.3 (4 × MODERATE, fixed 2.25.4) and log4j-api 2.25.3 (MODERATE, fixed 2.25.5).
+  - CommunityCommons: guava 33.4.7-jre, GHSA-xxph-c9ww-hj94 (HIGH, deserialization, fixed 33.7.2).
+  - UnitTesting: httpclient5 5.6.2, GHSA-hjcp-jmpx-g3qm (MODERATE, fixed 5.6.3).
+  Fix by updating those modules from the Marketplace, not by editing their dependency lists (an update overwrites them).
+- Cluster: dependency bumps are per build, so all nodes get them together. During a rolling deploy, old and new nodes coexist;
+  Jackson and snappy patch releases keep the wire formats, so that is harmless.
