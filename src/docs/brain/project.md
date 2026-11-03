@@ -21,3 +21,15 @@ Decided 2026-11-03, after the failure-handling status on `Kafka.Consumer` turned
 cluster-safe (it was moved to the log).
 
 Anchors: none · id `90162e` · 2026-11-03
+
+## Check libraries for known vulnerabilities on every change
+
+Any change that adds, bumps or pulls in a Java library is checked against OSV (Maven) for every component in
+`vendorlib/vendorlib-sbom.json` after the dependency sync, before it is called done.
+- When a pin moves to a newer minor line, take that line's newest patch: Jackson 2.22.1 lost fixes that 2.21.7 had.
+- Fix advisories in the Kafka module by pinning (lz4-java, snappy-java). Report advisories in marketplace modules
+  (CommunityCommons, LibraryLogging, UnitTesting) rather than editing them; their updates overwrite the dependency lists.
+- Verify that native libraries (lz4, snappy, zstd) load after a bump.
+Decided 2026-11-03.
+
+Anchors: none · 2026-11-03
