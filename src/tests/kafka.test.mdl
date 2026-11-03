@@ -46,3 +46,96 @@ retrieve $Message from Tests.Message
   first;
 retrieve $BinaryPayload from $Message/Tests.BinaryPayload_Message;
 /
+
+/**
+ * Failure handling. @cleanup none: the consumer threads must see the OnFailure setting mid-test,
+ * which a rolled-back test transaction would keep locked. The Stop test restores Continue at the end.
+ */
+
+/**
+ * @test Continue on failure: a failed message is recorded and the next message is processed
+ * @cleanup none
+ * @expect $After != empty
+ * @expect contains($ConsumerAfter/LastFailure, 'Failing on purpose')
+ * @expect $ConsumerAfter/StoppedOnFailure = false
+ */
+declare $ConsumerName String = @Tests.ConsumerString;
+retrieve $Consumer from Kafka.Consumer
+  where Name = $ConsumerName
+  first;
+change $Consumer (OnFailure = Kafka.FailureHandling.SKIP) commit without events;
+call java action CommunityCommons.EndTransaction();
+call java action CommunityCommons.StartTransaction();
+declare $ProducerName String = @Tests.ProducerString;
+retrieve $Producer from Kafka.Producer
+  where Name = $ProducerName
+  first;
+$FailUUID = call java action Tests.GenerateUUID();
+$FailHeader = create Kafka.Header (Key = 'Reference', Value = $FailUUID);
+$FailHeaders = create list of Kafka.Header;
+add $FailHeader to $FailHeaders;
+call java action Kafka.SendSynchronous(producer = $Producer, topic = @Tests.TopicString, key = 'failure-handling', value = 'fail-on-purpose', headers = $FailHeaders, useCachedProducer = true);
+$AfterUUID = call java action Tests.GenerateUUID();
+$AfterHeader = create Kafka.Header (Key = 'Reference', Value = $AfterUUID);
+$AfterHeaders = create list of Kafka.Header;
+add $AfterHeader to $AfterHeaders;
+call java action Kafka.SendSynchronous(producer = $Producer, topic = @Tests.TopicString, key = 'failure-handling', value = 'after-skip', headers = $AfterHeaders, useCachedProducer = true);
+call java action CommunityCommons.Delay(delaytime = 5000);
+retrieve $After from Tests.Message
+  where Reference = $AfterUUID
+  first;
+retrieve $ConsumerAfter from Kafka.Consumer
+  where Name = $ConsumerName
+  first;
+/
+
+/**
+ * @test Stop on failure: the consumer stops at the failed message and processes it again after a restart
+ * @cleanup none
+ * @expect $WasStopped
+ * @expect $NotProcessedWhileStopped
+ * @expect $AfterRestart != empty
+ * @expect $ConsumerAfter/StoppedOnFailure = false
+ */
+declare $ConsumerName String = @Tests.ConsumerString;
+retrieve $Consumer from Kafka.Consumer
+  where Name = $ConsumerName
+  first;
+change $Consumer (OnFailure = Kafka.FailureHandling.STOP) commit without events;
+call java action CommunityCommons.EndTransaction();
+call java action CommunityCommons.StartTransaction();
+declare $ProducerName String = @Tests.ProducerString;
+retrieve $Producer from Kafka.Producer
+  where Name = $ProducerName
+  first;
+$FailUUID = call java action Tests.GenerateUUID();
+$FailHeader = create Kafka.Header (Key = 'Reference', Value = $FailUUID);
+$FailHeaders = create list of Kafka.Header;
+add $FailHeader to $FailHeaders;
+call java action Kafka.SendSynchronous(producer = $Producer, topic = @Tests.TopicString, key = 'failure-handling', value = 'fail-on-purpose', headers = $FailHeaders, useCachedProducer = true);
+$AfterUUID = call java action Tests.GenerateUUID();
+$AfterHeader = create Kafka.Header (Key = 'Reference', Value = $AfterUUID);
+$AfterHeaders = create list of Kafka.Header;
+add $AfterHeader to $AfterHeaders;
+call java action Kafka.SendSynchronous(producer = $Producer, topic = @Tests.TopicString, key = 'failure-handling', value = 'after-stop', headers = $AfterHeaders, useCachedProducer = true);
+call java action CommunityCommons.Delay(delaytime = 5000);
+retrieve $ConsumerStopped from Kafka.Consumer
+  where Name = $ConsumerName
+  first;
+declare $WasStopped Boolean = $ConsumerStopped/StoppedOnFailure;
+retrieve $WhileStopped from Tests.Message
+  where Reference = $AfterUUID
+  first;
+declare $NotProcessedWhileStopped Boolean = $WhileStopped = empty;
+change $ConsumerStopped (OnFailure = Kafka.FailureHandling.SKIP) commit without events;
+call java action CommunityCommons.EndTransaction();
+call java action CommunityCommons.StartTransaction();
+call microflow Kafka.Sub_Restart();
+call java action CommunityCommons.Delay(delaytime = 15000);
+retrieve $AfterRestart from Tests.Message
+  where Reference = $AfterUUID
+  first;
+retrieve $ConsumerAfter from Kafka.Consumer
+  where Name = $ConsumerName
+  first;
+/

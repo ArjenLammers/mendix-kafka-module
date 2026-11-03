@@ -124,3 +124,28 @@
   used from several consumer threads, and it grows without limit when keyed by schema text. The consumer reads the Confluent schema ID
   but only passes it to the optional GetAvroSchema microflow (there is no registry client). Turning `UseAvro` off does not reset
   the ByteArray (de)serializer that `BCo_Producer`/`BCo_Consumer` set.
+
+## 2026-11-03 — configurable handling of failed messages
+
+- New `Kafka.Consumer.OnFailure` (`Kafka.FailureHandling`: SKIP default, STOP), plus status written by the consumer:
+  `LastFailure`, `LastFailureDate`, `StoppedOnFailure`. Administrators can only read the status: a member-listed access rule gave
+  the new attributes write access, so `mdlsource/failure-handling.mdl` revokes it.
+- A failed message = a value that cannot be decoded, a failing Get Avro Schema microflow (before: silently fell back to the
+  default schema), or a failing on-receive microflow. Before this change a decode error escaped the per-record handling and
+  dropped the rest of the batch after a 30 s sleep. The per-record work is now `processRecord()`, and every failure goes
+  through `handleFailure()`.
+- STOP seeks every partition of the batch back to its first unprocessed record and commits that position (both commit
+  controls), so a restart begins with the failed record. Restart = `Sub_Restart` (saving any Kafka config, or app restart).
+  The status is written with `Core.commitWithoutEvents`, because a commit with events counts as a config change and restarts
+  every consumer. OnFailure is read fresh from the database at failure time.
+- Tests: two new tests in `tests/kafka.test.mdl`, plus a test hook in `Tests.Kafka_ListenerForTestTopicString` (payload
+  `fail-on-purpose` throws). They need `@cleanup none`: by default each test runs in a transaction that is rolled back, so
+  `CommunityCommons.EndTransaction` does not commit, and the test's lock on the Consumer row blocks the consumer thread on
+  HSQLDB until the test ends (the first attempt showed "did not stop within 30000 ms"). Verified in the runtime log: the same
+  offset fails twice, first STOP, then after the restart SKIP, and the next message is processed. All four tests pass.
+- Only tested with commit control CONSUMER. SERVER (auto commit) relies on the same seek: close() auto-commits the position
+  after the seek.
+- With several threads or nodes per consumer, STOP stops only the thread that hit the message. The partition is then reassigned,
+  hits the same message and stops there too, while other partitions keep flowing until they fail.
+- Generated proxies: only `kafka/proxies/Consumer.java` and the new `FailureHandling.java` were taken from the 11.12 build
+  (LF line endings); 11.12's generator reformats every proxy, and Studio Pro regenerates the rest anyway.

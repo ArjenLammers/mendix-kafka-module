@@ -32,6 +32,10 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 		AvroSchema("AvroSchema"),
 		AvroSchemaHash("AvroSchemaHash"),
 		GetAvroSchemaMicroflow("GetAvroSchemaMicroflow"),
+		OnFailure("OnFailure"),
+		LastFailure("LastFailure"),
+		LastFailureDate("LastFailureDate"),
+		StoppedOnFailure("StoppedOnFailure"),
 		Consumer_ConsumerConfig("Kafka.Consumer_ConsumerConfig"),
 		Consumer_Server("Kafka.Consumer_Server"),
 		Consumer_Microflows("Kafka.Consumer_Microflows"),
@@ -61,7 +65,7 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 		if (consumerMendixObject == null) {
 			throw new java.lang.IllegalArgumentException("The given object cannot be null.");
 		}
-		if (!com.mendix.core.Core.isSubClassOf(entityName, consumerMendixObject.getType())) {
+		if (!consumerMendixObject.isInstanceOf(entityName)) {
 			throw new java.lang.IllegalArgumentException(String.format("The given object is not a %s", entityName));
 		}	
 
@@ -544,6 +548,159 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 	public final void setGetAvroSchemaMicroflow(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String getavroschemamicroflow)
 	{
 		getMendixObject().setValue(context, MemberNames.GetAvroSchemaMicroflow.toString(), getavroschemamicroflow);
+	}
+
+	/**
+	 * Get value of OnFailure
+	 * @param onfailure
+	 */
+	public final kafka.proxies.FailureHandling getOnFailure()
+	{
+		return getOnFailure(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of OnFailure
+	 */
+	public final kafka.proxies.FailureHandling getOnFailure(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		Object obj = getMendixObject().getValue(context, MemberNames.OnFailure.toString());
+		if (obj == null) {
+			return null;
+		}
+		return kafka.proxies.FailureHandling.valueOf((java.lang.String) obj);
+	}
+
+	/**
+	 * Set value of OnFailure
+	 * @param onfailure
+	 */
+	public final void setOnFailure(kafka.proxies.FailureHandling onfailure)
+	{
+		setOnFailure(getContext(), onfailure);
+	}
+
+	/**
+	 * Set value of OnFailure
+	 * @param context
+	 * @param onfailure
+	 */
+	public final void setOnFailure(com.mendix.systemwideinterfaces.core.IContext context, kafka.proxies.FailureHandling onfailure)
+	{
+		if (onfailure != null) {
+			getMendixObject().setValue(context, MemberNames.OnFailure.toString(), onfailure.toString());
+		} else {
+			getMendixObject().setValue(context, MemberNames.OnFailure.toString(), null);
+		}
+	}
+
+	/**
+	 * @return value of LastFailure
+	 */
+	public final java.lang.String getLastFailure()
+	{
+		return getLastFailure(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of LastFailure
+	 */
+	public final java.lang.String getLastFailure(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.String) getMendixObject().getValue(context, MemberNames.LastFailure.toString());
+	}
+
+	/**
+	 * Set value of LastFailure
+	 * @param lastfailure
+	 */
+	public final void setLastFailure(java.lang.String lastfailure)
+	{
+		setLastFailure(getContext(), lastfailure);
+	}
+
+	/**
+	 * Set value of LastFailure
+	 * @param context
+	 * @param lastfailure
+	 */
+	public final void setLastFailure(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String lastfailure)
+	{
+		getMendixObject().setValue(context, MemberNames.LastFailure.toString(), lastfailure);
+	}
+
+	/**
+	 * @return value of LastFailureDate
+	 */
+	public final java.util.Date getLastFailureDate()
+	{
+		return getLastFailureDate(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of LastFailureDate
+	 */
+	public final java.util.Date getLastFailureDate(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.util.Date) getMendixObject().getValue(context, MemberNames.LastFailureDate.toString());
+	}
+
+	/**
+	 * Set value of LastFailureDate
+	 * @param lastfailuredate
+	 */
+	public final void setLastFailureDate(java.util.Date lastfailuredate)
+	{
+		setLastFailureDate(getContext(), lastfailuredate);
+	}
+
+	/**
+	 * Set value of LastFailureDate
+	 * @param context
+	 * @param lastfailuredate
+	 */
+	public final void setLastFailureDate(com.mendix.systemwideinterfaces.core.IContext context, java.util.Date lastfailuredate)
+	{
+		getMendixObject().setValue(context, MemberNames.LastFailureDate.toString(), lastfailuredate);
+	}
+
+	/**
+	 * @return value of StoppedOnFailure
+	 */
+	public final java.lang.Boolean getStoppedOnFailure()
+	{
+		return getStoppedOnFailure(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of StoppedOnFailure
+	 */
+	public final java.lang.Boolean getStoppedOnFailure(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.Boolean) getMendixObject().getValue(context, MemberNames.StoppedOnFailure.toString());
+	}
+
+	/**
+	 * Set value of StoppedOnFailure
+	 * @param stoppedonfailure
+	 */
+	public final void setStoppedOnFailure(java.lang.Boolean stoppedonfailure)
+	{
+		setStoppedOnFailure(getContext(), stoppedonfailure);
+	}
+
+	/**
+	 * Set value of StoppedOnFailure
+	 * @param context
+	 * @param stoppedonfailure
+	 */
+	public final void setStoppedOnFailure(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Boolean stoppedonfailure)
+	{
+		getMendixObject().setValue(context, MemberNames.StoppedOnFailure.toString(), stoppedonfailure);
 	}
 
 	/**

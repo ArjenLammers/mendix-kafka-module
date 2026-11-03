@@ -15,6 +15,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.header.Header;
 
@@ -26,6 +28,7 @@ import com.mendix.systemwideinterfaces.core.IMendixObject;
 
 import kafka.proxies.CommitControl;
 import kafka.proxies.Consumer;
+import kafka.proxies.FailureHandling;
 import kafka.proxies.constants.Constants;
 import system.proxies.FileDocument;
 
@@ -87,154 +90,27 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	public void run() {
 		try {
 		LOGGER.debug("Started consumer "+consumerDom.getName());
+		clearStoppedOnFailure();
 		consumer.subscribe(Arrays.asList(this.consumerDom.getTopics().split(";")));
 		while (!stopped.get()) {
 			try {
 				ConsumerRecords<String, ?> records = consumer.poll(Duration.ofMillis(100));
+				Map<TopicPartition, Long> nextOffsets = new HashMap<>();
+				boolean stoppedOnFailure = false;
 				for (ConsumerRecord<String, ?> record : records) {
-					IContext context = Core.createSystemContext();
-					Map<String, Object> microflowParams = new HashMap<>();
-					LOGGER.debug(consumerDom.getName()+" received message for partition "+record.partition()+
-							", offset "+record.offset()+", topic "+record.topic());
-					if (this.onReceiveInputParameters.containsKey("Offset")) {
-						microflowParams.put("Offset", record.offset());
-					}
-					if (this.onReceiveInputParameters.containsKey("Partition")) {
-						microflowParams.put("Partition", record.partition());
-					}
-					if (this.onReceiveInputParameters.containsKey("Consumer")) {
-						microflowParams.put("Consumer", consumerDom.getMendixObject());
-					}
-					if (this.onReceiveInputParameters.containsKey("Topic")) {
-						microflowParams.put("Topic", record.topic());
-					}
-
-					if (this.onReceiveInputParameters.containsKey("Key")) {
-						microflowParams.put("Key", record.key());
-					}
-
-					if (this.onReceiveInputParameters.containsKey("Value")) {
-						if (record.value() instanceof byte[]) {
-							if(consumerDom.getUseAvro()) {
-								byte[] payload = (byte[]) record.value();
-								int schemaId = -1;
-								if(payload!=null && payload.length>4) {
-									ByteBuffer buffer = ByteBuffer.wrap(payload);
-									byte magicByte = buffer.get(); 
-							        if (magicByte == 0) {
-							        	//TODO: trigger MF to determine schema
-							        	schemaId = buffer.getInt(); 
-							        	payload = Arrays.copyOfRange(payload, 5, payload.length);
-							        }
-								}
-								String schema = null;
-								if(getAvroSchemaMicroflow!=null) {
-									Map<String, Object> getAvroSchemaMicroflowParams = new HashMap<>();
-									if (this.getAvroSchemaInputParameters.containsKey("Offset")) {
-										getAvroSchemaMicroflowParams.put("Offset", record.offset());
-									}
-									if (this.getAvroSchemaInputParameters.containsKey("Partition")) {
-										getAvroSchemaMicroflowParams.put("Partition", record.partition());
-									}
-									if (this.getAvroSchemaInputParameters.containsKey("Consumer")) {
-										getAvroSchemaMicroflowParams.put("Consumer", consumerDom.getMendixObject());
-									}
-									if (this.getAvroSchemaInputParameters.containsKey("Topic")) {
-										getAvroSchemaMicroflowParams.put("Topic", record.topic());
-									}
-
-									if (this.getAvroSchemaInputParameters.containsKey("Key")) {
-										getAvroSchemaMicroflowParams.put("Key", record.key());
-									}
-									if (this.getAvroSchemaInputParameters.containsKey("SchemaId")) {
-										getAvroSchemaMicroflowParams.put("SchemaId", schemaId);
-									}
-									for (Header header : record.headers()) {
-										try {
-											if (this.getAvroSchemaInputParameters.containsKey(header.key())) {
-												getAvroSchemaMicroflowParams.put(header.key(), new String(header.value(), "UTF-8"));
-											}
-										} catch (Exception e) {
-											LOGGER.warn("Ignoring header " + header.key() + " for offset " + record.offset()
-													+ " because it has an invalid value.");
-										}
-									}
-									try {
-										schema = Core.microflowCall(getAvroSchemaMicroflow).withParams(getAvroSchemaMicroflowParams).execute(context);	// throws CoreException
-										while (context.isInTransaction())
-											context.endTransaction();
-									} catch (Throwable e) {
-										LOGGER.error("An error occurred while executing the microflow for consumer " + name, e);
-										try {
-											while (context.isInTransaction())
-												context.endTransaction();
-										} catch (Exception ex) {};
-									} 
-
-								}
-								if(schema==null) {
-									microflowParams.put("Value", AvroProcessor.decodeAvro(
-											consumerDom.getAvroSchemaHash(), consumerDom.getAvroSchema(), payload));									
-								}else {
-									microflowParams.put("Value", AvroProcessor.decodeAvro(
-											schema, schema, payload));
-								}
-
-
-							}else {
-								String entityType = this.onReceiveInputParameters.get("Value").getObjectType();
-								microflowParams.put("Value", createFileDocumentFromByteArray(context, record.key(), (byte[]) record.value(), entityType));
-							}
-						} else if (record.value() instanceof String) {
-							microflowParams.put("Value", (String) record.value());
-						} else {
-							LOGGER.warn("Ignoring value for offset " + record.offset() + " because it has an invalid value type.");
-						}
-					}
-
-					for (Header header : record.headers()) {
-						try {
-							if (this.onReceiveInputParameters.containsKey(header.key())) {
-								microflowParams.put(header.key(), new String(header.value(), "UTF-8"));
-							}
-						} catch (Exception e) {
-							LOGGER.warn("Ignoring header " + header.key() + " for offset " + record.offset()
-									+ " because it has an invalid value.");
-						}
-					}
-
-					if (this.onReceiveInputParameters.containsKey("Headers")) {
-						IDataType dataType = this.onReceiveInputParameters.get("Headers");
-						if (dataType.isList() && kafka.proxies.Header.entityName.equals(dataType.getObjectType())) {
-							List<IMendixObject> headerObjects = new ArrayList<>();
-							for (Header header : record.headers()) {
-								try {
-									kafka.proxies.Header headerProxy = new kafka.proxies.Header(context);
-									headerProxy.setKey(context, header.key());
-									headerProxy.setValue(context, new String(header.value(), "UTF-8"));
-									headerObjects.add(headerProxy.getMendixObject());
-								} catch (Exception e) {
-									LOGGER.warn("Ignoring header " + header.key() + " for offset " + record.offset()
-											+ " because it has an invalid value.");
-								}
-							}
-							microflowParams.put("Headers", headerObjects);
-						}
-					}
-					
 					try {
-						Core.microflowCall(onReceiveMicroflow).withParams(microflowParams).execute(context);	// throws CoreException
-						while (context.isInTransaction())
-							context.endTransaction();
+						processRecord(record);
 					} catch (Throwable e) {
-						LOGGER.error("An error occurred while executing the microflow for consumer " + name, e);
-						try {
-							while (context.isInTransaction())
-								context.endTransaction();
-						} catch (Exception ex) {};
-					} 
+						if (handleFailure(record, e)) {
+							rewindToFailedRecord(records, nextOffsets);
+							stoppedOnFailure = true;
+							stopped.set(true);
+							break;
+						}
+					}
+					nextOffsets.put(new TopicPartition(record.topic(), record.partition()), record.offset() + 1);
 				}
-				if (commitControl == CommitControl.CONSUMER) {
+				if (commitControl == CommitControl.CONSUMER && !stoppedOnFailure) {
 					consumer.commitSync();
 				}
 			} catch (WakeupException e) {
@@ -262,10 +138,226 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 		}
 	}
 
+	/**
+	 * Decodes one record and passes it to the on-receive microflow.
+	 * @throws Exception when the value cannot be decoded or one of the microflows fails
+	 */
+	private void processRecord(ConsumerRecord<String, ?> record) throws Exception {
+		IContext context = Core.createSystemContext();
+		Map<String, Object> microflowParams = new HashMap<>();
+		LOGGER.debug(consumerDom.getName()+" received message for partition "+record.partition()+
+				", offset "+record.offset()+", topic "+record.topic());
+		if (this.onReceiveInputParameters.containsKey("Offset")) {
+			microflowParams.put("Offset", record.offset());
+		}
+		if (this.onReceiveInputParameters.containsKey("Partition")) {
+			microflowParams.put("Partition", record.partition());
+		}
+		if (this.onReceiveInputParameters.containsKey("Consumer")) {
+			microflowParams.put("Consumer", consumerDom.getMendixObject());
+		}
+		if (this.onReceiveInputParameters.containsKey("Topic")) {
+			microflowParams.put("Topic", record.topic());
+		}
+
+		if (this.onReceiveInputParameters.containsKey("Key")) {
+			microflowParams.put("Key", record.key());
+		}
+
+		if (this.onReceiveInputParameters.containsKey("Value")) {
+			if (record.value() instanceof byte[]) {
+				if(consumerDom.getUseAvro()) {
+					byte[] payload = (byte[]) record.value();
+					int schemaId = -1;
+					if(payload!=null && payload.length>4) {
+						ByteBuffer buffer = ByteBuffer.wrap(payload);
+						byte magicByte = buffer.get(); 
+				        if (magicByte == 0) {
+				        	//TODO: trigger MF to determine schema
+				        	schemaId = buffer.getInt(); 
+				        	payload = Arrays.copyOfRange(payload, 5, payload.length);
+				        }
+					}
+					String schema = null;
+					if(getAvroSchemaMicroflow!=null) {
+						Map<String, Object> getAvroSchemaMicroflowParams = new HashMap<>();
+						if (this.getAvroSchemaInputParameters.containsKey("Offset")) {
+							getAvroSchemaMicroflowParams.put("Offset", record.offset());
+						}
+						if (this.getAvroSchemaInputParameters.containsKey("Partition")) {
+							getAvroSchemaMicroflowParams.put("Partition", record.partition());
+						}
+						if (this.getAvroSchemaInputParameters.containsKey("Consumer")) {
+							getAvroSchemaMicroflowParams.put("Consumer", consumerDom.getMendixObject());
+						}
+						if (this.getAvroSchemaInputParameters.containsKey("Topic")) {
+							getAvroSchemaMicroflowParams.put("Topic", record.topic());
+						}
+
+						if (this.getAvroSchemaInputParameters.containsKey("Key")) {
+							getAvroSchemaMicroflowParams.put("Key", record.key());
+						}
+						if (this.getAvroSchemaInputParameters.containsKey("SchemaId")) {
+							getAvroSchemaMicroflowParams.put("SchemaId", schemaId);
+						}
+						for (Header header : record.headers()) {
+							try {
+								if (this.getAvroSchemaInputParameters.containsKey(header.key())) {
+									getAvroSchemaMicroflowParams.put(header.key(), new String(header.value(), "UTF-8"));
+								}
+							} catch (Exception e) {
+								LOGGER.warn("Ignoring header " + header.key() + " for offset " + record.offset()
+										+ " because it has an invalid value.");
+							}
+						}
+						try {
+							schema = Core.microflowCall(getAvroSchemaMicroflow).withParams(getAvroSchemaMicroflowParams).execute(context);	// throws CoreException
+							while (context.isInTransaction())
+								context.endTransaction();
+						} catch (Throwable e) {
+							endTransactions(context);
+							throw new CoreException("The Get Avro Schema microflow " + getAvroSchemaMicroflow + " failed.", e);
+						} 
+
+					}
+					if(schema==null) {
+						microflowParams.put("Value", AvroProcessor.decodeAvro(
+								consumerDom.getAvroSchemaHash(), consumerDom.getAvroSchema(), payload));									
+					}else {
+						microflowParams.put("Value", AvroProcessor.decodeAvro(
+								schema, schema, payload));
+					}
+
+
+				}else {
+					String entityType = this.onReceiveInputParameters.get("Value").getObjectType();
+					microflowParams.put("Value", createFileDocumentFromByteArray(context, record.key(), (byte[]) record.value(), entityType));
+				}
+			} else if (record.value() instanceof String) {
+				microflowParams.put("Value", (String) record.value());
+			} else {
+				LOGGER.warn("Ignoring value for offset " + record.offset() + " because it has an invalid value type.");
+			}
+		}
+
+		for (Header header : record.headers()) {
+			try {
+				if (this.onReceiveInputParameters.containsKey(header.key())) {
+					microflowParams.put(header.key(), new String(header.value(), "UTF-8"));
+				}
+			} catch (Exception e) {
+				LOGGER.warn("Ignoring header " + header.key() + " for offset " + record.offset()
+						+ " because it has an invalid value.");
+			}
+		}
+
+		if (this.onReceiveInputParameters.containsKey("Headers")) {
+			IDataType dataType = this.onReceiveInputParameters.get("Headers");
+			if (dataType.isList() && kafka.proxies.Header.entityName.equals(dataType.getObjectType())) {
+				List<IMendixObject> headerObjects = new ArrayList<>();
+				for (Header header : record.headers()) {
+					try {
+						kafka.proxies.Header headerProxy = new kafka.proxies.Header(context);
+						headerProxy.setKey(context, header.key());
+						headerProxy.setValue(context, new String(header.value(), "UTF-8"));
+						headerObjects.add(headerProxy.getMendixObject());
+					} catch (Exception e) {
+						LOGGER.warn("Ignoring header " + header.key() + " for offset " + record.offset()
+								+ " because it has an invalid value.");
+					}
+				}
+				microflowParams.put("Headers", headerObjects);
+			}
+		}
+		
+		try {
+			Core.microflowCall(onReceiveMicroflow).withParams(microflowParams).execute(context);	// throws CoreException
+			while (context.isInTransaction())
+				context.endTransaction();
+		} catch (Throwable e) {
+			endTransactions(context);
+			throw new CoreException("The on-receive microflow " + onReceiveMicroflow + " failed.", e);
+		} 
+	}
+
+	/**
+	 * Logs a failed record and stores it on the consumer.
+	 * @return true when the consumer is configured to stop on a failed message
+	 */
+	private boolean handleFailure(ConsumerRecord<String, ?> record, Throwable e) {
+		String location = "topic " + record.topic() + ", partition " + record.partition() + ", offset " + record.offset();
+		FailureHandling failureHandling = consumerDom.getOnFailure();
+		try {
+			IContext context = Core.createSystemContext();
+			Consumer current = Consumer.initialize(context, Core.retrieveId(context, consumerDom.getMendixObject().getId()));
+			failureHandling = current.getOnFailure();
+			current.setLastFailure(context, location + ": " + describe(e));
+			current.setLastFailureDate(context, new java.util.Date());
+			if (failureHandling == FailureHandling.STOP) {
+				current.setStoppedOnFailure(context, true);
+			}
+			// Without events: a commit with events counts as a configuration change and restarts all consumers.
+			Core.commitWithoutEvents(context, current.getMendixObject());
+		} catch (Exception ex) {
+			LOGGER.warn("Could not store the failure on consumer " + name, ex);
+		}
+
+		boolean stop = failureHandling == FailureHandling.STOP;
+		LOGGER.error("Consumer " + name + " failed to process the message at " + location + "; "
+				+ (stop ? "stopping the consumer. The message is processed again when the consumer restarts."
+						: "continuing with the next message."), e);
+		return stop;
+	}
+
+	/**
+	 * Moves every partition of the batch back to its first unprocessed record and commits that position,
+	 * so that a restarted consumer begins with the failed record.
+	 */
+	private void rewindToFailedRecord(ConsumerRecords<String, ?> records, Map<TopicPartition, Long> nextOffsets) {
+		Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap<>();
+		for (TopicPartition partition : records.partitions()) {
+			long offset = nextOffsets.containsKey(partition) ? nextOffsets.get(partition) : records.records(partition).get(0).offset();
+			consumer.seek(partition, offset);
+			offsets.put(partition, new OffsetAndMetadata(offset));
+		}
+		consumer.commitSync(offsets);
+	}
+
+	private void clearStoppedOnFailure() {
+		try {
+			IContext context = Core.createSystemContext();
+			Consumer current = Consumer.initialize(context, Core.retrieveId(context, consumerDom.getMendixObject().getId()));
+			if (Boolean.TRUE.equals(current.getStoppedOnFailure())) {
+				current.setStoppedOnFailure(context, false);
+				Core.commitWithoutEvents(context, current.getMendixObject());
+			}
+		} catch (Exception e) {
+			LOGGER.warn("Could not reset the failure status of consumer " + name, e);
+		}
+	}
+
+	private static String describe(Throwable e) {
+		StringBuilder description = new StringBuilder(e.toString());
+		for (Throwable cause = e.getCause(); cause != null; cause = cause.getCause()) {
+			description.append(" | caused by: ").append(cause.toString());
+		}
+		return description.toString();
+	}
+
+	private static void endTransactions(IContext context) {
+		try {
+			while (context.isInTransaction())
+				context.endTransaction();
+		} catch (Exception ex) {};
+	}
+
 	// Shutdown hook which can be called from a separate thread
 	public void stop() {
 		stopped.set(true);
-		consumer.wakeup();
+		// A consumer that stopped itself after a failed message is already closed.
+		if (stopLatch.getCount() > 0) {
+			consumer.wakeup();
+		}
 	}
 
 	/**
