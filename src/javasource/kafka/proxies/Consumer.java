@@ -35,6 +35,7 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 		OnFailure("OnFailure"),
 		RetryDelaySeconds("RetryDelaySeconds"),
 		MaxRetryDelaySeconds("MaxRetryDelaySeconds"),
+		SchemaIdFormat("SchemaIdFormat"),
 		Consumer_ConsumerConfig("Kafka.Consumer_ConsumerConfig"),
 		Consumer_Server("Kafka.Consumer_Server"),
 		Consumer_Microflows("Kafka.Consumer_Microflows"),
@@ -664,6 +665,51 @@ public class Consumer implements com.mendix.systemwideinterfaces.core.IEntityPro
 	public final void setMaxRetryDelaySeconds(com.mendix.systemwideinterfaces.core.IContext context, java.lang.Integer maxretrydelayseconds)
 	{
 		getMendixObject().setValue(context, MemberNames.MaxRetryDelaySeconds.toString(), maxretrydelayseconds);
+	}
+
+	/**
+	 * Get value of SchemaIdFormat
+	 * @param schemaidformat
+	 */
+	public final kafka.proxies.SchemaIdFormat getSchemaIdFormat()
+	{
+		return getSchemaIdFormat(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of SchemaIdFormat
+	 */
+	public final kafka.proxies.SchemaIdFormat getSchemaIdFormat(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		Object obj = getMendixObject().getValue(context, MemberNames.SchemaIdFormat.toString());
+		if (obj == null) {
+			return null;
+		}
+		return kafka.proxies.SchemaIdFormat.valueOf((java.lang.String) obj);
+	}
+
+	/**
+	 * Set value of SchemaIdFormat
+	 * @param schemaidformat
+	 */
+	public final void setSchemaIdFormat(kafka.proxies.SchemaIdFormat schemaidformat)
+	{
+		setSchemaIdFormat(getContext(), schemaidformat);
+	}
+
+	/**
+	 * Set value of SchemaIdFormat
+	 * @param context
+	 * @param schemaidformat
+	 */
+	public final void setSchemaIdFormat(com.mendix.systemwideinterfaces.core.IContext context, kafka.proxies.SchemaIdFormat schemaidformat)
+	{
+		if (schemaidformat != null) {
+			getMendixObject().setValue(context, MemberNames.SchemaIdFormat.toString(), schemaidformat.toString());
+		} else {
+			getMendixObject().setValue(context, MemberNames.SchemaIdFormat.toString(), null);
+		}
 	}
 
 	/**

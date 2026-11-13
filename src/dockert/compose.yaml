@@ -70,6 +70,13 @@ services:
           --topic test-binary \
           --partitions 3 \
           --replication-factor 1
+        /opt/kafka/bin/kafka-topics.sh \
+          --bootstrap-server kafka:8092 \
+          --command-config /tmp/client.properties \
+          --create --if-not-exists \
+          --topic test-avro \
+          --partitions 3 \
+          --replication-factor 1
         echo "Topic 'test' created."
 
   ui:

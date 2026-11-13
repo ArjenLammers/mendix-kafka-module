@@ -206,3 +206,54 @@
   Fix by updating those modules from the Marketplace, not by editing their dependency lists (an update overwrites them).
 - Cluster: dependency bumps are per build, so all nodes get them together. During a rolling deploy, old and new nodes coexist;
   Jackson and snappy patch releases keep the wire formats, so that is harmless.
+
+## 2026-11-12 — Avro: explicit schema ID format, Get Avro Schema result cached per schema ID
+
+- New `Kafka.SchemaIdFormat` (CONFLUENT default / NONE) on `Kafka.Consumer`, on the consumer page under Use AVRO (visible
+  when Avro is on). Confluent: a message must start with byte 0 and a 4-byte schema ID, otherwise it fails (IOException
+  "does not start with byte 0 and a 4-byte schema ID") and goes through Continue/Retry. None: the whole value is Avro data,
+  schema ID -1. Replaces the first-byte guess (⚠2) in `KafkaConsumerRunner` and in the Explorer's `GetMessagesFromOffset`;
+  both use `AvroProcessor.unframe`.
+- `KafkaConsumerRunner` caches the Get Avro Schema microflow's parsed schema per schema ID, per runner thread (LRU, 100),
+  including "no schema" (= default schema). Failures are not cached. A config save restarts consumers and empties it.
+  The default schema is parsed once per runner. A consumer with no default schema and no microflow result now fails the
+  message with a clear CoreException instead of an NPE.
+- `AvroProcessor`'s shared schema cache (producers, Explorer) is now a synchronized LRU (100) instead of an unbounded
+  unsynchronized HashMap.
+- `Producer.ConfluentSchemaId` default 1 → 0 (new producers send plain Avro, not a probably-wrong ID 1). Existing rows keep
+  their value.
+- **Bug found and fixed:** `SendSynchronousAvroWithSchema` sent every message twice (the PR #8 branch added a
+  KafkaSendHelper send to return RecordMetaData but left the old `ProducerUtils.sendSynchronous` call above it). Seen as
+  pairs of equal messages on consecutive offsets of `test-avro`; gone after the fix.
+- Tests: three Avro tests in `tests/kafka.test.mdl` on a new topic `test-avro` (added to `dockert/compose.yaml` kafka-init)
+  with fixtures `Tests.TestSetup_AvroConsumer`, `Tests.Kafka_ListenerForTestTopicAvro`, `Tests.Kafka_GetAvroSchemaForTest`
+  (records each call as `schema-call:<reference>`). Verified: 3 messages with schema ID 42 → 1 microflow call; unframed
+  message with format Confluent → skipped, next processed; format None with a value starting with byte 0 (Age 0) decodes
+  correctly, microflow called per message with -1. All 7 tests pass. 1 node, 1 thread only.
+- mxcli test quirk: an XPath `(A or B) and C` whose terms concatenate strings (`'x:' + $Ref`) matched nothing, while each
+  term alone works; build the strings in a `declare` first.
+- Not tested: the Explorer (`GetMessagesFromOffset`) path, several threads or nodes.
+- Follow-up: the five script-only tests are also UnitTesting tests in the model (`Tests.TEST_FailureContinue`,
+  `TEST_FailureRetry`, `TEST_AvroConfluentSchemaCache`, `TEST_AvroConfluentRejectsUnframed`, `TEST_AvroNoneFormat`,
+  with helpers `SUB_RestartConsumers`, `SUB_SendString`, `SUB_SendAvro`, `SUB_CountSchemaCalls`; script
+  `mdlsource/tests-unit.mdl`). Asserts use StopOnFailure = false, so the clean-up (consumer-string back to Continue)
+  always runs. Verified through the UnitTesting remote API (`--constant UnitTesting.Enabled=true
+  --constant UnitTesting.RemoteApiEnabled=true --constant UnitTesting.RemoteApiPassword=…`, then POST
+  `/unittests/start` and `/unittests/status` with `{"password": …}`): 18 of 18 pass (Tests suite, UnitTesting examples,
+  JUnit examples). The project's microflows describe identically to the tested ones in the Linux copy.
+- **UnitTesting transactions:** the runner starts a transaction on the test context and the microflow call nests a second
+  one, so `CommunityCommons.EndTransaction` only ends the inner one and the outer one is rolled back at the end. Records
+  committed that way are never seen by the consumer threads (their own sessions): `TEST_FailureRetry` first failed because
+  its release marker never arrived. Fix: `Tests.CommitMessageNow` commits it in a context of its own (the script test
+  uses it too). Setting changes still work: `Kafka.Sub_Restart` retrieves the consumers inside the test's transaction, so
+  the test must `commit without events` its change (an uncommitted change is not seen by that retrieve; a run without
+  the commit ran the Retry test with Continue).
+- Lint after the test refactor: 36 warnings (24 before this change), the 12 new ones all CONV013 (default error handling on
+  Java calls) in the new test microflows, the same pattern as the existing TEST_ microflows. Report 76/100 (81 before).
+- 2026-11-13: the five UnitTesting tests got What/Why documentation and a note (annotation) at each step: setup, what
+  is sent, what is waited for, what is expected, and the clean-up. Rebuilt with `tests-unit-rebuild.mdl` (exec refuses to
+  splice notes into stored flows). 18 of 18 still pass. Lint counts notes as activities: CONV009 (info) now fires on
+  `TEST_FailureRetry` and `TEST_AvroConfluentSchemaCache`; report 75/100. One `docker check` run failed with no
+  message and passed on the immediate rerun (0 errors).
+- 2026-11-13: `tests/kafka.test.mdl` removed at the user's request: all Kafka tests now live in the model as UnitTesting
+  tests (`Tests.TEST_*`), run from the UnitTesting page or its remote API. `mxcli test` has nothing to run any more.

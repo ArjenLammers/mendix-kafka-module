@@ -9,8 +9,9 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.avro.LogicalType;
@@ -34,6 +35,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mendix.core.Core;
 import com.mendix.logging.ILogNode;
 
+import kafka.proxies.SchemaIdFormat;
+
 /**
  * Utility class for converting between JSON-encoded data and the binary Avro
  * format using the Apache Avro library (org.apache.avro).
@@ -44,16 +47,71 @@ public class AvroProcessor {
 	
     private static final ObjectMapper MAPPER = new ObjectMapper();
     
-	private static HashMap<String, Schema> schemaCache = new HashMap<String, Schema>();
+	private static final int SCHEMA_CACHE_SIZE = 100;
+
+	// Shared by all producer and consumer threads; the least recently used schema is dropped beyond the limit.
+	private static final Map<String, Schema> schemaCache = Collections.synchronizedMap(
+			new LinkedHashMap<String, Schema>(16, 0.75f, true) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected boolean removeEldestEntry(Map.Entry<String, Schema> eldest) {
+					return size() > SCHEMA_CACHE_SIZE;
+				}
+			});
 
 	private static Schema getSchemaCached(String schemaHash, String schema) {
         Schema avroSchema = schemaCache.get(schemaHash);
-        if(avroSchema==null) {	
-        	LOGGER.info("Initializing AVRO schema ...");
-        	avroSchema = new Schema.Parser().parse(schema);
+        if(avroSchema==null) {
+        	// Two threads may parse the same schema at the same time; both results are equal.
+        	avroSchema = parseSchema(schema);
         	schemaCache.put(schemaHash, avroSchema);
         }
 		return avroSchema;
+	}
+
+	/**
+	 * Parses an Avro schema without caching it.
+	 */
+	public static Schema parseSchema(String schema) {
+		LOGGER.info("Initializing AVRO schema ...");
+		return new Schema.Parser().parse(schema);
+	}
+
+	/**
+	 * An Avro message split into the schema ID it refers to and its Avro data.
+	 */
+	public static class AvroMessage {
+		/** False when the schema ID format is None */
+		public final boolean hasSchemaId;
+		/** The schema ID, or -1 when the message has none */
+		public final int schemaId;
+		public final byte[] data;
+
+		AvroMessage(boolean hasSchemaId, int schemaId, byte[] data) {
+			this.hasSchemaId = hasSchemaId;
+			this.schemaId = schemaId;
+			this.data = data;
+		}
+	}
+
+	/**
+	 * Splits a message into its schema ID and Avro data according to the consumer's schema ID format.
+	 *
+	 * @param payload the message value
+	 * @param format  how the message refers to its schema; null is treated as Confluent
+	 * @throws IOException when the format is Confluent and the message does not start with byte 0 and a schema ID
+	 */
+	public static AvroMessage unframe(byte[] payload, SchemaIdFormat format) throws IOException {
+		if (format == SchemaIdFormat.NONE) {
+			return new AvroMessage(false, -1, payload);
+		}
+		if (payload == null || payload.length < 5 || payload[0] != 0) {
+			throw new IOException("The message does not start with byte 0 and a 4-byte schema ID (Confluent format)."
+					+ " Set the consumer's schema ID format to None for plain Avro messages.");
+		}
+		int schemaId = ByteBuffer.wrap(payload, 1, 4).getInt();
+		return new AvroMessage(true, schemaId, Arrays.copyOfRange(payload, 5, payload.length));
 	}
 	
     /**
@@ -132,8 +190,18 @@ public class AvroProcessor {
      * @throws IOException if the schema is invalid or the content cannot be decoded
      */
     public static String decodeAvro(String schemaHash, String schema, byte[] content) throws IOException {
-        Schema avroSchema = getSchemaCached(schemaHash==null? schema : schemaHash, schema);
+        return decodeAvro(getSchemaCached(schemaHash==null? schema : schemaHash, schema), content);
+    }
 
+    /**
+     * Decodes binary Avro data into a JSON-encoded String according to the given parsed schema.
+     *
+     * @param avroSchema the parsed Avro schema
+     * @param content    the binary Avro data to decode
+     * @return a String containing the JSON representation of the decoded data
+     * @throws IOException if the content cannot be decoded
+     */
+    public static String decodeAvro(Schema avroSchema, byte[] content) throws IOException {
         DatumReader<Object> reader = new GenericDatumReader<>(avroSchema);
         Decoder binaryDecoder = DecoderFactory.get().binaryDecoder(content, null);
         Object datum = reader.read(null, binaryDecoder);

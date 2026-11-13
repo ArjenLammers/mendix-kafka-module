@@ -9,7 +9,6 @@
 
 package kafka.actions;
 
-import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Date;
@@ -21,7 +20,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import com.mendix.systemwideinterfaces.core.IContext;
-import com.mendix.webui.CustomJavaAction;
 import kafka.impl.AvroProcessor;
 import kafka.impl.KafkaModule;
 import kafka.impl.KafkaPropertiesFactory;
@@ -83,18 +81,9 @@ public class GetMessagesFromOffset extends UserAction<java.util.List<IMendixObje
 				newMessage.setTopic(record.topic());
 				newMessage.setKey(record.key());
 				if(consumer.getUseAvro()) {
-					byte[] payload = (byte[]) record.value();
-					if(payload!=null && payload.length>4) {
-						ByteBuffer buffer = ByteBuffer.wrap(payload);
-						byte magicByte = buffer.get(); 
-				        if (magicByte == 0) {
-				        	//TODO: trigger MF to determine schema
-				        	int schemaId = buffer.getInt(); 
-				        	payload = Arrays.copyOfRange(payload, 5, payload.length);
-				        }
-					}
+					AvroProcessor.AvroMessage message = AvroProcessor.unframe((byte[]) record.value(), consumer.getSchemaIdFormat());
 					newMessage.setPayload(AvroProcessor.decodeAvro(
-							consumer.getAvroSchemaHash(), consumer.getAvroSchema(), payload));
+							consumer.getAvroSchemaHash(), consumer.getAvroSchema(), message.data));
 				}else {
 					newMessage.setPayload((String) record.value());
 				}

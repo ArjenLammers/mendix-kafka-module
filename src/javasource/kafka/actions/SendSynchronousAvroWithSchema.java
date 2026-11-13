@@ -20,7 +20,6 @@ import kafka.impl.AvroProcessor;
 import kafka.impl.KafkaProducerRepository;
 import kafka.impl.KafkaPropertiesFactory;
 import kafka.impl.KafkaSendHelper;
-import kafka.impl.ProducerUtils;
 import kafka.proxies.Header;
 import kafka.proxies.RecordMetaData;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
@@ -84,16 +83,8 @@ public class SendSynchronousAvroWithSchema extends UserAction<IMendixObject>
 	{
 		// BEGIN USER CODE
 		Properties props = KafkaPropertiesFactory.getKafkaProperties(getContext(), producer);
-		// We can only send AVRO if we use the ByteArraySerializer, otherwise fall back to sending the message as String
-		if(props.get("value.serializer").equals("org.apache.kafka.common.serialization.ByteArraySerializer")) {
-			ProducerUtils.sendSynchronous(AvroProcessor.encodeAvro(null, schema, value, schemaId==null? 0 : schemaId.intValue()), 
-					useCachedProducer, producer, getContext(), headers, topic, key);
-		}else {
-			ProducerUtils.sendSynchronous(value, useCachedProducer, producer, getContext(), headers, topic, key);
-		}
-		
-		
 		RecordMetadata metadata;
+		// We can only send AVRO if we use the ByteArraySerializer, otherwise fall back to sending the message as String
 		if(props.get("value.serializer").equals("org.apache.kafka.common.serialization.ByteArraySerializer")) {
 			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
 			ProducerRecord<String, byte[]> producerRecord = KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, 
