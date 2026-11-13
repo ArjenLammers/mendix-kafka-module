@@ -257,3 +257,27 @@
   message and passed on the immediate rerun (0 errors).
 - 2026-11-13: `tests/kafka.test.mdl` removed at the user's request: all Kafka tests now live in the model as UnitTesting
   tests (`Tests.TEST_*`), run from the UnitTesting page or its remote API. `mxcli test` has nothing to run any more.
+- 2026-11-13: end-to-end Avro test `Tests.TEST_AvroOrderEndToEnd` (scripts `mdlsource/tests-avro-order.mdl`,
+  `tests-avro.mdl`, `tests-unit.mdl`). An order schema (`Tests.AvroSchemaOrder`, served by `Kafka_GetAvroSchemaForTest`
+  for schema ID 43) with an enum, timestamp-millis, decimals, nullable string/int, a nested record, a nullable named
+  record, an array of records and an array of strings. Two orders (full, and minimal with every optional empty) go
+  export mapping → Avro (Confluent framing) → Kafka → consumer → JSON → import mapping, then are compared field by
+  field. The listener now stores the JSON in `Tests.Message.Body` (unlimited) instead of `Payload`. 19 of 19 pass.
+  What it showed:
+  - Mendix reserves the enumeration value `NEW` (CE7247): an Avro enum with symbol `NEW` cannot map to a Mendix enum
+    one to one (map it to a String, or rename the symbol).
+  - An export mapping **group** writes `{}` when there is no object, which Avro rejects for a union
+    ("Expected start-union. Got END_OBJECT"). A wrapped optional (`{"shop.Address": {...}}`) needs a wrapper entity
+    (`AvroShippingAddress`) so the element is left out when it is empty (`null values LeaveOutElement`).
+  - The import mapping creates the wrapper object for `"priority": null` (without a value). Compare optionals by value,
+    not by whether the wrapper exists.
+  - Value converters for timestamp-millis failed to build (CE0228/CE0230/CE5015): the millis go into a Long attribute
+    (`CreatedAtMillis`) and `SUB_EpochMillisToDateTime` / `SUB_DateTimeToEpochMillis` convert them.
+  - A JSON structure sample with a raw control character silently creates nothing.
+  - `run --local` runtime settings `CACertificates`/`ClientCertificates` need absolute paths; a relative path fails at
+    boot with "not a valid PKCS12 certificate" (NoSuchFileException). The mxbuild NullReference on the first boot
+    attempt recurred once and passed on the retry.
+  - `exec` of a script with `create or modify java action` rewrote `CommitMessageNow.java` without the class Javadoc and
+    with CRLF (the model keeps the documentation); restored the committed file.
+  - Lint: 40 warnings (36 before): 3 CONV013 and QUAL003 (32 activities) on `TEST_AvroOrderEndToEnd`. Report 73/100.
+    `docker check`: 0 errors.
