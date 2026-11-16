@@ -10,18 +10,16 @@
 package kafka.actions;
 
 import com.mendix.systemwideinterfaces.core.IContext;
-import kafka.impl.AvroProcessor;
 import kafka.impl.KafkaSendHelper;
-import kafka.impl.ProducerUtils;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
 import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
- * Sends ('produces') a message in a Kafka topic.
+ * Sends ('produces') a message in a Kafka topic without waiting for the broker's acknowledgement.
  * 
- * Before using this action, make sure a producer with this name has been stared using the StartProducer action.
+ * With an Avro configuration on the producer, the value is JSON and is encoded as Avro with the schema from the configuration's Get Avro Schema microflow. Schema ID format Confluent needs a schema ID, which is written in front of the message; with format None the schema ID is optional and only passed to the microflow.
+ * 
+ * Before using this action, make sure a producer with this name has been started using the StartProducer action.
  * 
  * This action will always return true.
  */
@@ -43,6 +41,7 @@ public class SendAsynchronous extends UserAction<java.lang.Boolean>
 	private final java.util.List<IMendixObject> __headers;
 	private final java.util.List<kafka.proxies.Header> headers;
 	private final java.lang.Boolean useCachedProducer;
+	private final java.lang.Long schemaId;
 
 	public SendAsynchronous(
 		IContext context,
@@ -52,7 +51,8 @@ public class SendAsynchronous extends UserAction<java.lang.Boolean>
 		java.lang.String _value,
 		IMendixObject _binaryValue,
 		java.util.List<IMendixObject> _headers,
-		java.lang.Boolean _useCachedProducer
+		java.lang.Boolean _useCachedProducer,
+		java.lang.Long _schemaId
 	)
 	{
 		super(context);
@@ -70,28 +70,17 @@ public class SendAsynchronous extends UserAction<java.lang.Boolean>
 			.map(headersElement -> kafka.proxies.Header.initialize(getContext(), headersElement))
 			.collect(java.util.stream.Collectors.toList());
 		this.useCachedProducer = _useCachedProducer;
+		this.schemaId = _schemaId;
 	}
 
 	@java.lang.Override
 	public java.lang.Boolean executeAction() throws Exception
 	{
 		// BEGIN USER CODE
-		KafkaSendHelper.validateValue(value, binaryValue);
-		if(producer.getUseAvro()) {
-			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
-			binaryProducer.send(KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, AvroProcessor.encodeAvro(producer.getAvroSchemaHash(), producer.getAvroSchema(), value,
-					producer.getConfluentSchemaId()==null ? 0 : producer.getConfluentSchemaId()), this.headers));
-			KafkaSendHelper.closeIfUncached(binaryProducer, useCachedProducer);
-		}else if (binaryValue != null) {
-			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
-			binaryProducer.send(KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, binaryValue, this.headers));
-			KafkaSendHelper.closeIfUncached(binaryProducer, useCachedProducer);
-		} else {
-			KafkaProducer<String, String> kafkaProducer = KafkaSendHelper.getOrCreateStringProducer(getContext(), producer, useCachedProducer);
-			kafkaProducer.send(KafkaSendHelper.buildStringRecord(topic, key, value, this.headers));
-			KafkaSendHelper.closeIfUncached(kafkaProducer, useCachedProducer);
-		}
+
+		KafkaSendHelper.send(getContext(), producer, topic, key, value, binaryValue, headers, useCachedProducer, schemaId, false);
 		return true;
+
 		// END USER CODE
 	}
 

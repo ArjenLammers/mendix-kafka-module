@@ -15,14 +15,17 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import org.apache.avro.Schema;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import com.mendix.systemwideinterfaces.core.IContext;
 import kafka.impl.AvroProcessor;
+import kafka.impl.AvroSchemaResolver;
 import kafka.impl.KafkaModule;
 import kafka.impl.KafkaPropertiesFactory;
+import kafka.proxies.AvroConfiguration;
 import kafka.proxies.Header;
 import kafka.proxies.Message;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
@@ -66,6 +69,10 @@ public class GetMessagesFromOffset extends UserAction<java.util.List<IMendixObje
 		kafkaProps.put("max.poll.records", amount.intValue());
 		kafkaProps.remove("group.id");
 		
+		// The Explorer resolves schemas like the consumer does, with a cache for this call only
+		AvroConfiguration avroConfiguration = consumer.getConsumer_AvroConfiguration(getContext());
+		AvroSchemaResolver avroSchemaResolver = avroConfiguration == null ? null : new AvroSchemaResolver(avroConfiguration);
+
 		KafkaConsumer<String, ?> kafkaConsumer = new KafkaConsumer<>(kafkaProps);
 		List<IMendixObject> result = new LinkedList<>();
 		
@@ -80,10 +87,11 @@ public class GetMessagesFromOffset extends UserAction<java.util.List<IMendixObje
 				newMessage.setPartition(record.partition());
 				newMessage.setTopic(record.topic());
 				newMessage.setKey(record.key());
-				if(consumer.getUseAvro()) {
-					AvroProcessor.AvroMessage message = AvroProcessor.unframe((byte[]) record.value(), consumer.getSchemaIdFormat());
-					newMessage.setPayload(AvroProcessor.decodeAvro(
-							consumer.getAvroSchemaHash(), consumer.getAvroSchema(), message.data));
+				if(avroSchemaResolver != null) {
+					AvroProcessor.AvroMessage message = AvroProcessor.unframe((byte[]) record.value(), avroSchemaResolver.getFormat());
+					Schema schema = avroSchemaResolver.resolve(null, message.schemaId,
+							() -> AvroSchemaResolver.recordValues(record, consumer.getMendixObject()));
+					newMessage.setPayload(AvroProcessor.decodeAvro(schema, message.data));
 				}else {
 					newMessage.setPayload((String) record.value());
 				}

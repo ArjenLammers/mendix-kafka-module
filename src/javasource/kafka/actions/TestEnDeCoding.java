@@ -36,7 +36,8 @@ public class TestEnDeCoding extends UserAction<java.lang.String>
 	public java.lang.String executeAction() throws Exception
 	{
 		// BEGIN USER CODE
-		return AvroProcessor.decodeAvro(null, Schema, AvroProcessor.encodeAvro(null, Schema, Content));
+		org.apache.avro.Schema avroSchema = AvroProcessor.parseSchemaCached(Schema);
+		return AvroProcessor.decodeAvro(avroSchema, AvroProcessor.encodeAvro(avroSchema, Content, null));
 		// END USER CODE
 	}
 

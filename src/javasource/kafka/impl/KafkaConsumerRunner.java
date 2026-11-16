@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,10 +28,10 @@ import com.mendix.systemwideinterfaces.core.IContext;
 import com.mendix.systemwideinterfaces.core.IDataType;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
 
+import kafka.proxies.AvroConfiguration;
 import kafka.proxies.CommitControl;
 import kafka.proxies.Consumer;
 import kafka.proxies.FailureHandling;
-import kafka.proxies.SchemaIdFormat;
 import kafka.proxies.constants.Constants;
 import system.proxies.FileDocument;
 
@@ -44,32 +43,17 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 	private KafkaConsumer<String, ?> consumer;
 	private final String onReceiveMicroflow;
 	private final Map<String, IDataType> onReceiveInputParameters;
-	private final String getAvroSchemaMicroflow;
-	private final Map<String, IDataType> getAvroSchemaInputParameters;
 	private final CommitControl commitControl;
 	private final boolean retryOnFailure;
 	private final long retryDelaySeconds;
 	private final long maxRetryDelaySeconds;
-	private final SchemaIdFormat schemaIdFormat;
+	// Resolves the schemas of Avro messages, for this thread only; null when the consumer does not use Avro.
+	// Saving any Kafka setting restarts the consumers, which empties its cache.
+	private final AvroSchemaResolver avroSchemaResolver;
 
 	// Domain model object
 	private final Consumer consumerDom;
 	private final boolean isByteArray;
-
-	private static final int SCHEMA_CACHE_SIZE = 100;
-
-	// Schemas from the Get Avro Schema microflow per schema ID, for this thread only; null means the default schema.
-	// Saving any Kafka setting restarts the consumers, which empties it.
-	private final Map<Integer, Schema> schemasById = new LinkedHashMap<Integer, Schema>(16, 0.75f, true) {
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		protected boolean removeEldestEntry(Map.Entry<Integer, Schema> eldest) {
-			return size() > SCHEMA_CACHE_SIZE;
-		}
-	};
-	// The consumer's default schema, parsed when it is first needed
-	private Schema defaultSchema;
 
 	// Partitions that wait for a failed record to be retried
 	private final Map<TopicPartition, RetryState> retries = new HashMap<>();
@@ -97,7 +81,8 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 		this.retryDelaySeconds = consumerDom.getRetryDelaySeconds() == null ? 5 : Math.max(1, consumerDom.getRetryDelaySeconds());
 		this.maxRetryDelaySeconds = consumerDom.getMaxRetryDelaySeconds() == null ? 300
 				: Math.max(this.retryDelaySeconds, consumerDom.getMaxRetryDelaySeconds());
-		this.schemaIdFormat = consumerDom.getSchemaIdFormat() == null ? SchemaIdFormat.CONFLUENT : consumerDom.getSchemaIdFormat();
+		AvroConfiguration avroConfiguration = consumerDom.getConsumer_AvroConfiguration(context);
+		this.avroSchemaResolver = avroConfiguration == null ? null : new AvroSchemaResolver(avroConfiguration);
 		switch (commitControl) {
 		case CONSUMER:
 			props.put("enable.auto.commit", "false");
@@ -116,10 +101,11 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 		this.onReceiveMicroflow = consumer.getOnReceiveMicroflow();
 		this.onReceiveInputParameters = Core.getInputParameters(this.onReceiveMicroflow);
 		
-		this.getAvroSchemaMicroflow = consumer.getGetAvroSchemaMicroflow();
-		this.getAvroSchemaInputParameters = Core.getInputParameters(this.getAvroSchemaMicroflow);
-		
-		if (isByteArray && !consumerDom.getUseAvro()) {
+		if (avroSchemaResolver != null && !isByteArray) {
+			throw new CoreException("Consumer " + this.name + " uses Avro configuration " + avroSchemaResolver.getConfigurationName()
+					+ ", but its value deserializer is not ByteArrayDeserializer. Save the consumer to set it.");
+		}
+		if (isByteArray && avroSchemaResolver == null) {
 			if (this.onReceiveInputParameters.containsKey("Value")) {
 				IDataType dataType = this.onReceiveInputParameters.get("Value");
 				if (!Core.getMetaObject(dataType.getObjectType()).isFileDocument()) {
@@ -212,9 +198,11 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 
 		if (this.onReceiveInputParameters.containsKey("Value")) {
 			if (record.value() instanceof byte[]) {
-				if(consumerDom.getUseAvro()) {
-					AvroProcessor.AvroMessage message = AvroProcessor.unframe((byte[]) record.value(), schemaIdFormat);
-					microflowParams.put("Value", AvroProcessor.decodeAvro(resolveSchema(context, record, message), message.data));
+				if(avroSchemaResolver != null) {
+					AvroProcessor.AvroMessage message = AvroProcessor.unframe((byte[]) record.value(), avroSchemaResolver.getFormat());
+					Schema schema = avroSchemaResolver.resolve(context, message.schemaId,
+							() -> AvroSchemaResolver.recordValues(record, consumerDom.getMendixObject()));
+					microflowParams.put("Value", AvroProcessor.decodeAvro(schema, message.data));
 				}else {
 					String entityType = this.onReceiveInputParameters.get("Value").getObjectType();
 					microflowParams.put("Value", createFileDocumentFromByteArray(context, record.key(), (byte[]) record.value(), entityType));
@@ -264,84 +252,6 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 			endTransactions(context);
 			throw new CoreException("The on-receive microflow " + onReceiveMicroflow + " failed.", e);
 		} 
-	}
-
-	/**
-	 * The schema to decode a message with: the Get Avro Schema microflow's schema, or the consumer's default schema
-	 * when there is no microflow or it returns none. The microflow's result is cached per schema ID; messages without
-	 * a schema ID call it every time.
-	 */
-	private Schema resolveSchema(IContext context, ConsumerRecord<String, ?> record, AvroProcessor.AvroMessage message)
-			throws CoreException {
-		if (getAvroSchemaMicroflow == null || getAvroSchemaMicroflow.isEmpty()) {
-			return defaultSchema();
-		}
-		if (message.hasSchemaId && schemasById.containsKey(message.schemaId)) {
-			Schema cached = schemasById.get(message.schemaId);
-			return cached != null ? cached : defaultSchema();
-		}
-		String schema = callGetAvroSchemaMicroflow(context, record, message.schemaId);
-		// A schema that cannot be parsed fails the message and is not cached
-		Schema parsed = schema == null || schema.isEmpty() ? null : AvroProcessor.parseSchema(schema);
-		if (message.hasSchemaId) {
-			schemasById.put(message.schemaId, parsed);
-			LOGGER.debug("Consumer " + name + " cached the schema for schema ID " + message.schemaId
-					+ (parsed == null ? " (default schema)" : ""));
-		}
-		return parsed != null ? parsed : defaultSchema();
-	}
-
-	private Schema defaultSchema() throws CoreException {
-		if (defaultSchema == null) {
-			String schema = consumerDom.getAvroSchema();
-			if (schema == null || schema.isEmpty()) {
-				throw new CoreException("Consumer " + name + " has no default Avro schema, and no schema was provided by a Get Avro Schema microflow.");
-			}
-			defaultSchema = AvroProcessor.parseSchema(schema);
-		}
-		return defaultSchema;
-	}
-
-	private String callGetAvroSchemaMicroflow(IContext context, ConsumerRecord<String, ?> record, int schemaId)
-			throws CoreException {
-		Map<String, Object> getAvroSchemaMicroflowParams = new HashMap<>();
-		if (this.getAvroSchemaInputParameters.containsKey("Offset")) {
-			getAvroSchemaMicroflowParams.put("Offset", record.offset());
-		}
-		if (this.getAvroSchemaInputParameters.containsKey("Partition")) {
-			getAvroSchemaMicroflowParams.put("Partition", record.partition());
-		}
-		if (this.getAvroSchemaInputParameters.containsKey("Consumer")) {
-			getAvroSchemaMicroflowParams.put("Consumer", consumerDom.getMendixObject());
-		}
-		if (this.getAvroSchemaInputParameters.containsKey("Topic")) {
-			getAvroSchemaMicroflowParams.put("Topic", record.topic());
-		}
-		if (this.getAvroSchemaInputParameters.containsKey("Key")) {
-			getAvroSchemaMicroflowParams.put("Key", record.key());
-		}
-		if (this.getAvroSchemaInputParameters.containsKey("SchemaId")) {
-			getAvroSchemaMicroflowParams.put("SchemaId", schemaId);
-		}
-		for (Header header : record.headers()) {
-			try {
-				if (this.getAvroSchemaInputParameters.containsKey(header.key())) {
-					getAvroSchemaMicroflowParams.put(header.key(), new String(header.value(), "UTF-8"));
-				}
-			} catch (Exception e) {
-				LOGGER.warn("Ignoring header " + header.key() + " for offset " + record.offset()
-						+ " because it has an invalid value.");
-			}
-		}
-		try {
-			String schema = Core.microflowCall(getAvroSchemaMicroflow).withParams(getAvroSchemaMicroflowParams).execute(context);	// throws CoreException
-			while (context.isInTransaction())
-				context.endTransaction();
-			return schema;
-		} catch (Throwable e) {
-			endTransactions(context);
-			throw new CoreException("The Get Avro Schema microflow " + getAvroSchemaMicroflow + " failed.", e);
-		}
 	}
 
 	/**

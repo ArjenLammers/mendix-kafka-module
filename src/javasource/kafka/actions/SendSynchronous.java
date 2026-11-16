@@ -9,24 +9,18 @@
 
 package kafka.actions;
 
-import java.util.Date;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import com.mendix.systemwideinterfaces.core.IContext;
-import kafka.impl.AvroProcessor;
 import kafka.impl.KafkaSendHelper;
-import kafka.impl.ProducerUtils;
-import kafka.proxies.RecordMetaData;
 import com.mendix.systemwideinterfaces.core.IMendixObject;
 import com.mendix.systemwideinterfaces.core.UserAction;
 
 /**
- * Sends ('produces') a message in a Kafka topic.
+ * Sends ('produces') a message in a Kafka topic and waits until the broker has acknowledged it.
  * 
- * Before using this action, make sure a producer with this name has been stared using the StartProducer action.
+ * With an Avro configuration on the producer, the value is JSON and is encoded as Avro with the schema from the configuration's Get Avro Schema microflow. Schema ID format Confluent needs a schema ID, which is written in front of the message; with format None the schema ID is optional and only passed to the microflow.
  * 
- * This action will always return true.
+ * Before using this action, make sure a producer with this name has been started using the StartProducer action.
  */
 public class SendSynchronous extends UserAction<IMendixObject>
 {
@@ -46,6 +40,7 @@ public class SendSynchronous extends UserAction<IMendixObject>
 	private final java.util.List<IMendixObject> __headers;
 	private final java.util.List<kafka.proxies.Header> headers;
 	private final java.lang.Boolean useCachedProducer;
+	private final java.lang.Long schemaId;
 
 	public SendSynchronous(
 		IContext context,
@@ -55,7 +50,8 @@ public class SendSynchronous extends UserAction<IMendixObject>
 		java.lang.String _value,
 		IMendixObject _binaryValue,
 		java.util.List<IMendixObject> _headers,
-		java.lang.Boolean _useCachedProducer
+		java.lang.Boolean _useCachedProducer,
+		java.lang.Long _schemaId
 	)
 	{
 		super(context);
@@ -73,39 +69,19 @@ public class SendSynchronous extends UserAction<IMendixObject>
 			.map(headersElement -> kafka.proxies.Header.initialize(getContext(), headersElement))
 			.collect(java.util.stream.Collectors.toList());
 		this.useCachedProducer = _useCachedProducer;
+		this.schemaId = _schemaId;
 	}
 
 	@java.lang.Override
 	public IMendixObject executeAction() throws Exception
 	{
 		// BEGIN USER CODE
-		KafkaSendHelper.validateValue(value, binaryValue);
-		RecordMetadata metadata;
-		if(producer.getUseAvro()) {
-			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
-			ProducerRecord<String, byte[]> producerRecord = KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, AvroProcessor.encodeAvro(
-					producer.getAvroSchemaHash(), producer.getAvroSchema(), value, producer.getConfluentSchemaId()==null ? 0 : producer.getConfluentSchemaId()), this.headers);
-			metadata = binaryProducer.send(producerRecord).get();
-			KafkaSendHelper.closeIfUncached(binaryProducer, useCachedProducer);
-		}else if (binaryValue != null) {
-			KafkaProducer<String, byte[]> binaryProducer = KafkaSendHelper.getOrCreateBinaryProducer(getContext(), producer, useCachedProducer);
-			ProducerRecord<String, byte[]> producerRecord = KafkaSendHelper.buildBinaryRecord(getContext(), topic, key, binaryValue, this.headers);
-			metadata = binaryProducer.send(producerRecord).get();
-			KafkaSendHelper.closeIfUncached(binaryProducer, useCachedProducer);
-		} else {
-			KafkaProducer<String, String> kafkaProducer = KafkaSendHelper.getOrCreateStringProducer(getContext(), producer, useCachedProducer);
-			ProducerRecord<String, String> producerRecord = KafkaSendHelper.buildStringRecord(topic, key, value, this.headers);
-			metadata = kafkaProducer.send(producerRecord).get();
-			KafkaSendHelper.closeIfUncached(kafkaProducer, useCachedProducer);
-		}
-		RecordMetaData result = new RecordMetaData(getContext());
-		result.setHasOffset(metadata.hasOffset());
-		if (metadata.hasOffset())
-			result.setOffset(metadata.offset());
-		result.setPartition(metadata.partition());
-		if (metadata.hasTimestamp())
-			result.setTimestamp(new Date(metadata.timestamp()));
-		return result.getMendixObject();
+
+		// Waits for the broker's acknowledgement
+		RecordMetadata metadata = KafkaSendHelper.send(getContext(), producer, topic, key, value, binaryValue, headers,
+				useCachedProducer, schemaId, true);
+		return KafkaSendHelper.toRecordMetaData(getContext(), metadata).getMendixObject();
+
 		// END USER CODE
 	}
 

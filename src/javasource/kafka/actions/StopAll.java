@@ -10,7 +10,7 @@
 package kafka.actions;
 
 import com.mendix.systemwideinterfaces.core.IContext;
-import com.mendix.webui.CustomJavaAction;
+import kafka.impl.AvroSchemaResolver;
 import kafka.impl.KafkaConsumerRepository;
 import kafka.impl.KafkaProcessorRepository;
 import kafka.impl.KafkaProducerRepository;
@@ -46,6 +46,8 @@ public class StopAll extends UserAction<java.lang.Boolean>
 	{
 		// BEGIN USER CODE
 		boolean isOk = true;
+		// Schemas are resolved again after a restart, e.g. when an Avro configuration changed
+		AvroSchemaResolver.clearProducerResolvers();
 		try {	
 			KafkaProducerRepository.closeAll();
 		} catch (Exception e) {

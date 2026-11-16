@@ -37,34 +37,31 @@ Statements about import/export mappings beyond that are general Mendix behaviour
 <p>The module converts between Avro binary and <b>JSON text</b>. A Mendix developer never handles Avro objects: received messages arrive in the on-receive microflow as a JSON string, and messages are sent by passing a JSON string. Import and export mappings do the rest.</p>
 <h3>Receiving</h3>
 <ol>
-<li>The consumer reads the message value as bytes (Use AVRO switches the consumer to <code>ByteArrayDeserializer</code>).</li>
-<li>The <b>schema ID format</b> decides how the bytes are split: <b>Confluent</b> expects byte <code>0</code>, a 4-byte schema ID, then the Avro data; <b>None</b> treats the whole value as Avro data (schema ID −1).</li>
-<li>The schema is taken from the <b>Get Avro Schema microflow</b> (if set and it returns one), otherwise from the consumer's <b>default schema</b>. The microflow's result is cached per schema ID per consumer thread until the consumers restart.</li>
+<li>The consumer reads the message value as bytes: a consumer with an <b>Avro configuration</b> is switched to <code>ByteArrayDeserializer</code> when it is saved.</li>
+<li>The configuration's <b>schema ID format</b> decides how the bytes are split: <b>Confluent</b> expects byte <code>0</code>, a 4-byte schema ID, then the Avro data; <b>None</b> treats the whole value as Avro data (no schema ID).</li>
+<li>The schema always comes from the configuration's <b>Get Avro Schema microflow</b>; there is no stored schema. The microflow gets the schema ID (empty when there is none) and can also take the topic, key, partition, offset, consumer and any header. Its result is cached per schema ID per consumer thread until the consumers restart; without a schema ID it runs for every message.</li>
 <li>The data is decoded with that schema and written as JSON. Decimals become plain numbers, and optional strings are unwrapped; everything else stays in Avro's JSON form (details in section 3).</li>
 <li>The JSON is passed as the <code>Value</code> (String) parameter of the on-receive microflow. Key and headers are passed as strings, as for non-Avro consumers.</li>
 <li>If any step fails (wrong format, schema microflow error, invalid schema, data that does not match the schema), the message goes through the consumer's failure handling: <b>Continue</b> logs and skips it, <b>Retry</b> retries it until it succeeds.</li>
 </ol>
 <h3>Sending</h3>
 <ol>
-<li>The microflow builds a JSON string (usually with an export mapping) and calls a send action.</li>
+<li>The microflow builds a JSON string (usually with an export mapping) and calls <code>SendSynchronous</code> or <code>SendAsynchronous</code>, optionally with a <b>schema ID</b>. The producer must have an Avro configuration.</li>
+<li>The schema comes from the configuration's Get Avro Schema microflow, called with the schema ID (empty when none is given), the topic, the key, the producer and any header; it is cached per schema ID on each node until the producers restart.</li>
 <li>The module fills in schema defaults for fields that are left out, converts decimals and optional strings to Avro's JSON form, and encodes the result with the schema.</li>
-<li>If a Confluent schema ID other than 0 is given, byte 0 and the 4-byte ID are put in front of the data.</li>
+<li>With schema ID format <b>Confluent</b> the schema ID is required, and byte 0 and the 4-byte ID are put in front of the data. With <b>None</b> the data is sent as is; the schema ID, if any, is only passed to the microflow.</li>
 <li>If the JSON does not fit the schema, the send action fails with an <code>AvroTypeException</code> in the calling microflow; nothing is sent.</li>
 </ol>
 
 <h2 id="config">2. Configuration</h2>
 <table>
 <tr><th>Where</th><th>Setting / action</th><th>What it does</th></tr>
-<tr><td rowspan="5">Consumer</td><td>Use AVRO</td><td>Decode values as Avro. The on-receive microflow's <code>Value</code> parameter must be a String.</td></tr>
-<tr><td>Default Avro Schema</td><td>Schema used when there is no Get Avro Schema microflow or it returns nothing.</td></tr>
-<tr><td>Get Avro Schema Microflow</td><td>Returns the schema (String) per schema ID. Optional parameters by name: <code>SchemaId</code> (Integer), <code>Topic</code>, <code>Partition</code>, <code>Offset</code>, <code>Key</code>, <code>Consumer</code>, and any header name. <b>Its result is cached per schema ID</b>, so it must return the same schema for the same ID and must not choose by key, partition or header. Without a schema ID (format None) it runs for every message.</td></tr>
-<tr><td>Schema ID format</td><td><b>Confluent</b> (default): every message must start with byte 0 and a 4-byte schema ID, as Confluent-compatible serializers write (Confluent Platform/Cloud, Redpanda, Karapace, Apicurio in compatibility mode). <b>None</b>: plain Avro data.</td></tr>
-<tr><td>When a message fails</td><td>Continue or Retry; applies to Avro decoding errors too.</td></tr>
-<tr><td rowspan="3">Producer</td><td>Use AVRO</td><td>Encode values as Avro with the producer's schema (switches the producer to <code>ByteArraySerializer</code>).</td></tr>
-<tr><td>Avro Schema</td><td>Schema used by <code>SendSynchronous</code> / <code>SendAsynchronous</code>.</td></tr>
-<tr><td>Confluent Schema Id</td><td>Schema ID to put in front of each message; <b>0 (default) sends plain Avro</b>. Must match the ID of the schema in your registry; the module does not look it up.</td></tr>
-<tr><td rowspan="3">Java actions</td><td>SendSynchronous / SendAsynchronous</td><td>With a producer that uses Avro, the <code>value</code> is JSON and is encoded with the producer's schema and schema ID.</td></tr>
-<tr><td>SendSynchronousAvroWithSchema / SendAsynchronousAvroWithSchema</td><td>Same, with the schema and schema ID passed per call. If the producer does not use <code>ByteArraySerializer</code>, the JSON is sent as a plain string instead.</td></tr>
+<tr><td rowspan="3">Avro configuration<br>(Server page, Avro tab)</td><td>Name</td><td>Shared by the consumers and producers of the server that refer to it.</td></tr>
+<tr><td>Schema ID format</td><td><b>Confluent</b> (default): every message starts with byte 0 and a 4-byte schema ID, as Confluent-compatible serializers write (Confluent Platform/Cloud, Redpanda, Karapace, Apicurio in compatibility mode). Consumers read the ID from each message and fail a message without it; producers need a schema ID per send. <b>None</b>: plain Avro data.</td></tr>
+<tr><td>Get Avro Schema microflow</td><td><b>Required: the only way the schema is resolved.</b> Returns the schema (String). Optional parameters by name: <code>SchemaId</code> (Integer, empty when there is none), <code>Topic</code>, <code>Key</code>, any header name, and <code>Partition</code>, <code>Offset</code>, <code>Consumer</code> (receiving) or <code>Producer</code> (sending). <b>Its result is cached per schema ID</b>, so for the same ID it must return the same schema. Without a schema ID it runs for every message and may choose by topic, key or header.</td></tr>
+<tr><td>Consumer</td><td>Avro configuration</td><td>Decode values as Avro; empty means no Avro. The on-receive microflow's <code>Value</code> parameter must be a String. Saving sets <code>ByteArrayDeserializer</code>.</td></tr>
+<tr><td>Producer</td><td>Avro configuration</td><td>Encode values as Avro; empty means no Avro. Saving sets <code>ByteArraySerializer</code>.</td></tr>
+<tr><td rowspan="2">Java actions</td><td>SendSynchronous / SendAsynchronous</td><td>With a producer that has an Avro configuration, the <code>value</code> is JSON and is encoded as Avro; <code>binaryValue</code> cannot be used. Optional <code>schemaId</code>: required with format Confluent, passed to the microflow with format None, refused for a producer without an Avro configuration.</td></tr>
 <tr><td>TestEnDeCoding</td><td>Encodes JSON with a schema and decodes it again: a quick way to see the JSON the consumer will produce for a schema.</td></tr>
 </table>
 
@@ -109,18 +106,18 @@ Statements about import/export mappings beyond that are general Mendix behaviour
  <ul><li>A field added <b>in the middle</b> by the producer: the values shift. In the test, <code>{"name":"Ada","email":"ada@example.com","age":41}</code> was received as <code>{"name":"Ada","age":15}</code>: <b>age 15 instead of 41, no error</b>.</li>
  <li>A field added <b>at the end</b>: silently ignored (<code>{"name":"Ada","age":41}</code>).</li>
  <li>The consumer's schema is newer than the producer's: fails (<code>EOFException: null</code>).</li></ul>
- With the Confluent format, let the Get Avro Schema microflow return the exact schema for each schema ID (from your registry); then every message is decoded with the schema it was written with. With format None, the producer and consumer schemas must be identical.<br>Using one schema for both writing and reading is not a defect in itself: it is exactly right as long as that schema is the one the producer wrote with. The risk is only in choosing it (default schema or microflow) per message.</li>
+ With the Confluent format, let the Get Avro Schema microflow return the exact schema for each schema ID (from your registry); then every message is decoded with the schema it was written with. With format None, the microflow must return the schema the producer wrote with, for example chosen by a header.<br>Using one schema for both writing and reading is not a defect in itself: it is exactly right as long as that schema is the one the producer wrote with. The risk is only in the Get Avro Schema microflow choosing the right schema per message.</li>
 <li><span class="sev med">Medium — optional fields other than strings are wrapped.</span> <code>["null","int"]</code>, optional records, enums, arrays, timestamps and decimals arrive as <code>{"int":41}</code>, <code>{"crm.Address":{…}}</code> etc., and must be sent in that form (a plain value fails). Only <code>["null","string"]</code> is unwrapped. In an import mapping each wrapper is an extra object level. Unions of several non-null types are always wrapped and have no single mappable shape.</li>
 <li><span class="sev med">Medium — dates and times are numbers.</span> date, time, timestamp-millis/micros and local-timestamp arrive as numbers (days, milliseconds or microseconds) and must be sent as numbers; an ISO date string fails. Convert them in a microflow. Studio Pro types these elements as Integer.</li>
 <li><span class="sev med">Medium — decimal precision is not checked; values are rounded silently.</span> A value with more decimals than the scale is rounded half-up (<code>0.125</code> → <code>0.13</code> with scale 2). A value with more digits than the precision is written anyway (<code>123456.78</code> with precision 4), which strict readers may reject. Decimals do arrive and can be sent with full precision (also as a JSON string for very large values).</li>
 <li><span class="sev med">Medium — bytes and fixed are not usable.</span> They are represented as Latin-1 characters (Avro's JSON form), not base64. Binary content cannot be passed through a mapping.</li>
 <li><span class="sev med">Medium — maps with varying keys cannot be mapped.</span> An import mapping only knows the keys from its sample JSON. The JSON itself is correct; handle it in a microflow or Java.</li>
 <li><span class="sev low">Low — unknown fields are dropped silently</span> when sending, and fields that are missing get their defaults. A typo in a field name therefore loses the value without an error when the field has a default.</li>
-<li><span class="sev med">Medium — no schema registry client.</span> The module does not fetch schemas or register them. On the consumer side the Get Avro Schema microflow plays the registry (cached per schema ID); on the producer side the Confluent Schema Id is entered by hand.</li>
-<li><span class="sev low">Low — only the Confluent 4-byte format is recognised.</span> Apicurio's 8-byte IDs, AWS Glue's UUID format and Avro single-object encoding are not supported. Schema IDs in Kafka headers can be read by the Get Avro Schema microflow (header parameters), but the cache is keyed by the payload's schema ID only.</li>
+<li><span class="sev med">Medium — no schema registry client.</span> The module does not fetch schemas or register them. The Avro configuration's Get Avro Schema microflow plays the registry on both sides (cached per schema ID); the schema ID to send is passed to the send action by the calling microflow.</li>
+<li><span class="sev med">Medium — without a schema ID the microflow runs for every message.</span> With format None (or a send without a schema ID) nothing can be cached by ID, so the Get Avro Schema microflow is called per message. Parsing is cached by schema text, but the microflow call itself costs time; keep it light (no database retrieve per message) or use the Confluent format.</li>
+<li><span class="sev low">Low — only the Confluent 4-byte format is recognised.</span> Apicurio's 8-byte IDs, AWS Glue's UUID format and Avro single-object encoding are not supported. A schema chosen by a Kafka header works with format None (the microflow gets the header as a parameter), but is then not cached.</li>
 <li><span class="sev low">Low — keys are plain strings.</span> Avro-encoded message keys are not decoded or encoded; headers are strings.</li>
-<li><span class="sev low">Low — the Explorer decodes with the default schema only.</span> The message explorer (<code>GetMessagesFromOffset</code>) honours the schema ID format but does not call the Get Avro Schema microflow.</li>
-<li><span class="sev low">Low — schema changes need a restart.</span> The consumer's default schema and the Get Avro Schema results are cached until the consumers restart; saving any Kafka setting restarts them on all nodes.</li>
+<li><span class="sev low">Low — schema changes need a restart.</span> The Get Avro Schema results are cached until the consumers and producers restart; saving any Kafka setting, including an Avro configuration, restarts them on all nodes.</li>
 <li><span class="sev low">Low — recursive schemas</span> work in the module, but an import mapping only maps the depth present in its sample JSON.</li>
 <li><span class="sev med">Medium — some enum symbols cannot be Mendix enumeration keys.</span> Mendix reserves names such as <code>NEW</code> (CE7247). An Avro enum with such a symbol cannot be mapped one to one to a Mendix enumeration; map it to a String attribute, or rename the symbol in the schema.</li>
 <li><span class="sev med">Medium — a wrapped optional needs a wrapper entity on export.</span> An export mapping <em>group</em> writes <code>{}</code> when there is no object, which Avro rejects for a union (<code>Expected start-union. Got END_OBJECT</code>). Model the wrapper (e.g. <code>{"shop.Address": {…}}</code>) as an entity of its own and set the mapping to leave out empty elements; see 5.8.</li>
@@ -273,14 +270,22 @@ Statements about import/export mappings beyond that are general Mendix behaviour
 <h3>5.7 Get Avro Schema microflow</h3>
 <p>A microflow with an Integer parameter <code>SchemaId</code> that returns the schema text, for example from an entity <code>MyModule.AvroSchema</code> (SchemaId, Definition) filled from your schema registry:</p>
 <pre>retrieve $Schema from MyModule.AvroSchema where SchemaId = $SchemaId (first)
-return $Schema/Definition   -- empty → the consumer's default schema is used</pre>
-<p>Because the result is cached per schema ID per consumer thread, the microflow runs once per schema version per thread on each node, not once per message. It must therefore depend only on the schema ID.</p>
+return $Schema/Definition   -- empty fails the message (no default schema)</pre>
+<p>The same microflow serves receiving and sending. With a schema ID the result is cached (per consumer thread, and per Avro configuration for all sending threads of a node), so the microflow runs once per schema version, not once per message; for a given schema ID it must therefore always return the same schema.</p>
+<p>Without a schema ID (format None, or a send without one) it runs for every message and decides itself, for example by a header:</p>
+<pre>-- parameters: $SchemaId (Integer), $MessageType (String, filled from the header MessageType)
+if $SchemaId != empty then
+  retrieve $Schema from MyModule.AvroSchema where SchemaId = $SchemaId (first)
+else
+  retrieve $Schema from MyModule.AvroSchema where MessageType = $MessageType (first)
+return $Schema/Definition</pre>
+<p>Sending with format Confluent: <code>SendSynchronous(producer, topic, key, value = $Json, …, schemaId = 42)</code> calls the microflow with <code>SchemaId</code> 42 (once per node) and writes 42 in front of the message.</p>
 
 <h3 id="e2e">5.8 End-to-end: an order through export mapping, Kafka and import mapping</h3>
 <p>The UnitTesting test <code>Tests.TEST_AvroOrderEndToEnd</code> runs an extensive order through the whole chain against a real broker, and compares what arrives with what was sent, field by field:</p>
 <ol>
 <li><code>SUB_CreateSampleOrder</code> builds an order in memory: a full one (every optional filled, a note with non-ASCII characters, a description with quotes and €, two lines, two tags) and a minimal one (every optional empty, no tags).</li>
-<li>The export mapping <code>EMM_AvroOrder</code> turns each into JSON; <code>SendSynchronousAvroWithSchema</code> encodes it with the schema below and Confluent schema ID 43.</li>
+<li>The export mapping <code>EMM_AvroOrder</code> turns each into JSON; <code>SendSynchronous</code> (producer with the Confluent test Avro configuration, schema ID 43) encodes it with the schema below and Confluent schema ID 43.</li>
 <li>The consumer (format Confluent) reads ID 43, gets the schema from the Get Avro Schema microflow <code>Kafka_GetAvroSchemaForTest</code>, decodes the message, and the listener stores the JSON.</li>
 <li>The import mapping <code>IMM_AvroOrder</code> turns the received JSON back into objects; <code>SUB_CompareOrders</code> compares them with the originals (lines matched by SKU, tags by value).</li>
 </ol>

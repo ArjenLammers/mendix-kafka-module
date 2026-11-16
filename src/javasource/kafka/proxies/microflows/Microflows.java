@@ -83,29 +83,6 @@ public final class Microflows
 	{
 		aCT_ConfigObjectChangedBuilder().execute(context);
 	}
-	public static com.mendix.core.actionmanagement.MicroflowCallBuilder aCT_TestSchemaBuilder(
-		kafka.proxies.Producer _producer,
-		java.lang.String _testValue
-	)
-	{
-		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.ACT_TestSchema");
-		builder = builder.withParam("Producer", _producer);
-		builder = builder.withParam("TestValue", _testValue);
-		return builder;
-	}
-
-	public static void aCT_TestSchema(
-		IContext context,
-		kafka.proxies.Producer _producer,
-		java.lang.String _testValue
-	)
-	{
-		aCT_TestSchemaBuilder(
-				_producer,
-				_testValue
-			)
-			.execute(context);
-	}
 	public static com.mendix.core.actionmanagement.MicroflowCallBuilder afterStartupBuilder()
 	{
 		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.AfterStartup");
@@ -117,6 +94,35 @@ public final class Microflows
 		Object result = afterStartupBuilder().execute(context);
 		return (boolean) result;
 	}
+	/**
+	 * Stores the complete name of the selected Get Avro Schema microflow, which the module calls by name.
+	 */
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder bCo_AvroConfigurationBuilder(
+		kafka.proxies.AvroConfiguration _avroConfiguration
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.BCo_AvroConfiguration");
+		builder = builder.withParam("AvroConfiguration", _avroConfiguration);
+		return builder;
+	}
+
+	/**
+	 * Stores the complete name of the selected Get Avro Schema microflow, which the module calls by name.
+	 */
+	public static boolean bCo_AvroConfiguration(
+		IContext context,
+		kafka.proxies.AvroConfiguration _avroConfiguration
+	)
+	{
+		Object result = bCo_AvroConfigurationBuilder(
+				_avroConfiguration
+			)
+			.execute(context);
+		return (boolean) result;
+	}
+	/**
+	 * Sets the value deserializer to ByteArrayDeserializer when the consumer uses Avro, and stores the complete name of the on-receive microflow, which the module calls by name.
+	 */
 	public static com.mendix.core.actionmanagement.MicroflowCallBuilder bCo_ConsumerBuilder(
 		kafka.proxies.Consumer _consumer
 	)
@@ -126,6 +132,9 @@ public final class Microflows
 		return builder;
 	}
 
+	/**
+	 * Sets the value deserializer to ByteArrayDeserializer when the consumer uses Avro, and stores the complete name of the on-receive microflow, which the module calls by name.
+	 */
 	public static boolean bCo_Consumer(
 		IContext context,
 		kafka.proxies.Consumer _consumer
@@ -157,6 +166,9 @@ public final class Microflows
 			.execute(context);
 		return (boolean) result;
 	}
+	/**
+	 * Sets the value serializer to ByteArraySerializer when the producer uses Avro.
+	 */
 	public static com.mendix.core.actionmanagement.MicroflowCallBuilder bCo_ProducerBuilder(
 		kafka.proxies.Producer _producer
 	)
@@ -166,6 +178,9 @@ public final class Microflows
 		return builder;
 	}
 
+	/**
+	 * Sets the value serializer to ByteArraySerializer when the producer uses Avro.
+	 */
 	public static boolean bCo_Producer(
 		IContext context,
 		kafka.proxies.Producer _producer
@@ -302,6 +317,9 @@ public final class Microflows
 			.execute(context);
 		return result == null ? null : com.mendix.utils.ListUtils.map((java.util.List<IMendixObject>) result, obj -> kafka.proxies.Consumer.initialize(context, obj));
 	}
+	/**
+	 * Template for a Get Avro Schema microflow; select it (or a copy) in an Avro configuration. Every parameter is optional and is filled by name. The result is cached per schema ID until the consumers and producers restart, so for the same schema ID it must return the same schema.
+	 */
 	public static com.mendix.core.actionmanagement.MicroflowCallBuilder example_GetAvroSchemaMicroflowBuilder(
 		java.lang.Long _offset,
 		java.lang.String _key,
@@ -309,7 +327,8 @@ public final class Microflows
 		java.lang.Long _partition,
 		kafka.proxies.Consumer _consumer,
 		java.lang.String _topic,
-		java.lang.Long _schemaId
+		java.lang.Long _schemaId,
+		kafka.proxies.Producer _producer
 	)
 	{
 		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.Example_GetAvroSchemaMicroflow");
@@ -320,9 +339,13 @@ public final class Microflows
 		builder = builder.withParam("Consumer", _consumer);
 		builder = builder.withParam("Topic", _topic);
 		builder = builder.withParam("SchemaId", _schemaId);
+		builder = builder.withParam("Producer", _producer);
 		return builder;
 	}
 
+	/**
+	 * Template for a Get Avro Schema microflow; select it (or a copy) in an Avro configuration. Every parameter is optional and is filled by name. The result is cached per schema ID until the consumers and producers restart, so for the same schema ID it must return the same schema.
+	 */
 	public static java.lang.String example_GetAvroSchemaMicroflow(
 		IContext context,
 		java.lang.Long _offset,
@@ -331,7 +354,8 @@ public final class Microflows
 		java.lang.Long _partition,
 		kafka.proxies.Consumer _consumer,
 		java.lang.String _topic,
-		java.lang.Long _schemaId
+		java.lang.Long _schemaId,
+		kafka.proxies.Producer _producer
 	)
 	{
 		Object result = example_GetAvroSchemaMicroflowBuilder(
@@ -341,7 +365,8 @@ public final class Microflows
 				_partition,
 				_consumer,
 				_topic,
-				_schemaId
+				_schemaId,
+				_producer
 			)
 			.execute(context);
 		return (java.lang.String) result;
@@ -513,6 +538,31 @@ public final class Microflows
 	{
 		iVK_RetrieveTopicsBuilder(
 				_explorer
+			)
+			.execute(context);
+	}
+	/**
+	 * Validates and saves an Avro configuration from its page.
+	 */
+	public static com.mendix.core.actionmanagement.MicroflowCallBuilder iVK_SaveAvroConfigurationBuilder(
+		kafka.proxies.AvroConfiguration _avroConfiguration
+	)
+	{
+		com.mendix.core.actionmanagement.MicroflowCallBuilder builder = Core.microflowCall("Kafka.IVK_SaveAvroConfiguration");
+		builder = builder.withParam("AvroConfiguration", _avroConfiguration);
+		return builder;
+	}
+
+	/**
+	 * Validates and saves an Avro configuration from its page.
+	 */
+	public static void iVK_SaveAvroConfiguration(
+		IContext context,
+		kafka.proxies.AvroConfiguration _avroConfiguration
+	)
+	{
+		iVK_SaveAvroConfigurationBuilder(
+				_avroConfiguration
 			)
 			.execute(context);
 	}

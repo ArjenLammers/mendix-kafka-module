@@ -49,7 +49,8 @@ public class AvroProcessor {
     
 	private static final int SCHEMA_CACHE_SIZE = 100;
 
-	// Shared by all producer and consumer threads; the least recently used schema is dropped beyond the limit.
+	// Parsed schemas by schema text, shared by all producer and consumer threads; the least recently used schema is
+	// dropped beyond the limit.
 	private static final Map<String, Schema> schemaCache = Collections.synchronizedMap(
 			new LinkedHashMap<String, Schema>(16, 0.75f, true) {
 				private static final long serialVersionUID = 1L;
@@ -60,43 +61,36 @@ public class AvroProcessor {
 				}
 			});
 
-	private static Schema getSchemaCached(String schemaHash, String schema) {
-        Schema avroSchema = schemaCache.get(schemaHash);
+	/**
+	 * Parses an Avro schema, or returns it from the cache when the same schema text was parsed before.
+	 */
+	public static Schema parseSchemaCached(String schema) {
+        Schema avroSchema = schemaCache.get(schema);
         if(avroSchema==null) {
         	// Two threads may parse the same schema at the same time; both results are equal.
-        	avroSchema = parseSchema(schema);
-        	schemaCache.put(schemaHash, avroSchema);
+        	LOGGER.info("Initializing AVRO schema ...");
+        	avroSchema = new Schema.Parser().parse(schema);
+        	schemaCache.put(schema, avroSchema);
         }
 		return avroSchema;
-	}
-
-	/**
-	 * Parses an Avro schema without caching it.
-	 */
-	public static Schema parseSchema(String schema) {
-		LOGGER.info("Initializing AVRO schema ...");
-		return new Schema.Parser().parse(schema);
 	}
 
 	/**
 	 * An Avro message split into the schema ID it refers to and its Avro data.
 	 */
 	public static class AvroMessage {
-		/** False when the schema ID format is None */
-		public final boolean hasSchemaId;
-		/** The schema ID, or -1 when the message has none */
-		public final int schemaId;
+		/** The schema ID, or null when the message has none (schema ID format None) */
+		public final Integer schemaId;
 		public final byte[] data;
 
-		AvroMessage(boolean hasSchemaId, int schemaId, byte[] data) {
-			this.hasSchemaId = hasSchemaId;
+		AvroMessage(Integer schemaId, byte[] data) {
 			this.schemaId = schemaId;
 			this.data = data;
 		}
 	}
 
 	/**
-	 * Splits a message into its schema ID and Avro data according to the consumer's schema ID format.
+	 * Splits a message into its schema ID and Avro data according to the Avro configuration's schema ID format.
 	 *
 	 * @param payload the message value
 	 * @param format  how the message refers to its schema; null is treated as Confluent
@@ -104,43 +98,27 @@ public class AvroProcessor {
 	 */
 	public static AvroMessage unframe(byte[] payload, SchemaIdFormat format) throws IOException {
 		if (format == SchemaIdFormat.NONE) {
-			return new AvroMessage(false, -1, payload);
+			return new AvroMessage(null, payload);
 		}
 		if (payload == null || payload.length < 5 || payload[0] != 0) {
 			throw new IOException("The message does not start with byte 0 and a 4-byte schema ID (Confluent format)."
-					+ " Set the consumer's schema ID format to None for plain Avro messages.");
+					+ " Set the Avro configuration's schema ID format to None for plain Avro messages.");
 		}
 		int schemaId = ByteBuffer.wrap(payload, 1, 4).getInt();
-		return new AvroMessage(true, schemaId, Arrays.copyOfRange(payload, 5, payload.length));
+		return new AvroMessage(schemaId, Arrays.copyOfRange(payload, 5, payload.length));
 	}
 	
     /**
-     * Encodes JSON data into the binary Avro format according to the given schema. 
-     * Same as encodeAvro(schemaHash, schema, content, 0).
+     * Encodes JSON data into the binary Avro format according to the given schema and, when a schema ID is given,
+     * prepends it according to Confluent's wire format (magic byte 0, then the schema ID in bytes 1-4).
      *
-     * @param schemaHash  a hash value of the Avro schema string used to identify the schema
-     * @param schema  a String containing the Avro schema (JSON schema definition)
-     * @param content a String containing the JSON-encoded data to encode
+     * @param avroSchema the parsed Avro schema
+     * @param content    a String containing the JSON-encoded data to encode
+     * @param schemaId   the schema ID to prepend, or null to write the Avro data only
      * @return the binary Avro representation of the data as a byte array
-     * @throws IOException if the schema is invalid or the content cannot be encoded
+     * @throws IOException if the content cannot be encoded
      */
-    public static byte[] encodeAvro(String schemaHash, String schema, String content) throws IOException {
-    	return encodeAvro(schemaHash, schema, content, 0);
-    }
-	
-    /**
-     * Encodes JSON data into the binary Avro format according to the given schema and prepends the schema id 
-     * according to Confluent's wire format (bytes 1-4, prefixed by magic byte).
-     *
-     * @param schemaHash  a hash value of the Avro schema string used to identify the schema
-     * @param schema  a String containing the Avro schema (JSON schema definition)
-     * @param content a String containing the JSON-encoded data to encode
-     * @return the binary Avro representation of the data as a byte array
-     * @throws IOException if the schema is invalid or the content cannot be encoded
-     */
-    public static byte[] encodeAvro(String schemaHash, String schema, String content, int schemaId) throws IOException {
-        Schema avroSchema = getSchemaCached(schemaHash==null? schema : schemaHash, schema);
-        
+    public static byte[] encodeAvro(Schema avroSchema, String content, Integer schemaId) throws IOException {
         // The Avro JsonDecoder is strict and requires every field defined by the
         // schema to be present in the JSON input. Omitting an optional field would
         // otherwise cause the decoder to raise an error. To honor the schema's
@@ -168,7 +146,7 @@ public class AvroProcessor {
             binaryEncoder.flush();
             
             byte[] rawPayload = out.toByteArray();
-            if(schemaId!=0) {
+            if(schemaId!=null) {
             	ByteBuffer buffer = ByteBuffer.allocate(1 + 4 + rawPayload.length);
             	buffer.put((byte) 0x00);
             	buffer.putInt(schemaId);
@@ -178,19 +156,6 @@ public class AvroProcessor {
             	return rawPayload;
             }
         }
-    }
-
-    /**
-     * Decodes binary Avro data into a JSON-encoded String according to the given schema.
-     *
-     * @param schemaHash  a hash value of the Avro schema string used to identify the schema
-     * @param schema  a String containing the Avro schema (JSON schema definition)
-     * @param content the binary Avro data to decode
-     * @return a String containing the JSON representation of the decoded data
-     * @throws IOException if the schema is invalid or the content cannot be decoded
-     */
-    public static String decodeAvro(String schemaHash, String schema, byte[] content) throws IOException {
-        return decodeAvro(getSchemaCached(schemaHash==null? schema : schemaHash, schema), content);
     }
 
     /**

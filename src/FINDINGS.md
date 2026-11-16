@@ -281,3 +281,55 @@
     with CRLF (the model keeps the documentation); restored the committed file.
   - Lint: 40 warnings (36 before): 3 CONV013 and QUAL003 (32 activities) on `TEST_AvroOrderEndToEnd`. Report 73/100.
     `docker check`: 0 errors.
+- 2026-11-16: **Avro configuration entity (breaking change).** `Kafka.AvroConfiguration` (per server: Name, SchemaIdFormat,
+  Get Avro Schema microflow) replaces the Avro attributes of Consumer (UseAvro, AvroSchema, AvroSchemaHash,
+  GetAvroSchemaMicroflow, SchemaIdFormat) and Producer (UseAvro, AvroSchema, AvroSchemaHash, ConfluentSchemaId), which are
+  dropped without migration (the user's choice): existing Avro settings must be entered again. The schema is only
+  resolved by the microflow, on both sides (`kafka.impl.AvroSchemaResolver`). `SendSynchronous`/`SendAsynchronous` got an
+  optional `schemaId`; `SendSynchronousAvroWithSchema`/`SendAsynchronousAvroWithSchema` and `ACT_TestSchema` were removed.
+  Scripts: `avro-configuration-rebuild.mdl` (one-off drops), `avro-configuration.mdl`, `avro-configuration-pages.mdl`
+  (one-shot), `tests-avro.mdl`, `tests-unit.mdl`, `avro-configuration-drop.mdl`.
+  - `BCo_Producer` existed but was never registered on Producer, so Use AVRO never set the ByteArraySerializer on a
+    producer; it is now registered (and sets it when the producer has an Avro configuration).
+  - The Avro sends used to read the producer's Avro settings from the object; the reference to the Avro configuration is
+    also read from the object (`getValue` of the association), so a send does no extra retrieve. The send-side resolver
+    is cached per configuration ID per node and emptied by `StopAll` (every restart, so on every node after a config save).
+  - mxcli: `create or modify entity` replaces the event handler list, so an entity whose before-commit microflow takes
+    the entity needs `create entity if not exists` first and the full definition (with handlers) after the microflow.
+    `alter entity … add event handler` is not re-runnable without `if not exists`.
+  - mxcli: decisions and free annotations cannot be spliced (MDL-V1-REBUILD); the changed microflows were dropped in a
+    one-off script and re-created. `create object then show page` from `describe` output does not parse; the entity is
+    required (`create object Kafka.AvroConfiguration then show page …`).
+  - mxcli: a combo box in a nested data view resolves its association against the inner data view (CE8812) and
+    `$dataView1.Assoc` is refused; wrapped in a data view on the page parameter instead.
+  - A data grid inserted by mxcli was stored with an older widget definition (CE0463, hidden by `docker check`, which
+    updates widgets on a temporary copy); `mxcli fix widgets` fixed it in the project (it also re-serialised 4 Tests
+    constants and IVK_SaveAvroConfiguration without visible changes).
+  - `exec` of `create or modify java action` regenerates the Java file with CRLF and without the class Javadoc; the files
+    were written by hand afterwards in Studio Pro's layout. `system/UserActionsRegistrar.java` had to drop the two
+    removed actions (the copy's generated version also lists the local test endpoint, so it was edited, not copied).
+  - Verified in the Linux copy through the UnitTesting remote API: 20 of 20 pass, including the new
+    `TEST_AvroSendRequiresSchemaId` and send-side assertions (per send without a schema ID; at most once for 3 sends with
+    ID 42). Schema-call records confirmed the send side caches per ID. Not tested: the Explorer path, the new pages in a
+    browser (no browser in this container; mxbuild check only), several threads or nodes.
+  - Lint: 40 warnings (unchanged), no new warnings on Kafka objects. Report 72/100 (73 before). `docker check`, as stored
+    and with widget updates: 0 errors.
+- 2026-11-16: **Avro test data kept for inspection.** The Avro test setup (`Tests.TestSetup_AvroConfiguration`,
+  `TestSetup_AvroConsumer`) now runs `TestSetup_PersistAvroConfiguration`/`TestSetup_PersistAvroConsumer` through the new
+  Java action `Tests.ExecuteInOwnTransaction` (own system context, committed), so `tests-avro-CONFLUENT`/`tests-avro-NONE`
+  and the consumer-avro link survive the UnitTesting rollback. The setup must run before a test changes the consumer
+  itself, or the two transactions wait for each other. The producer link stays in memory: persisting it would make
+  producer-binary an Avro producer and break TEST_FileDocument. Received Avro messages record the consumer's Avro
+  configuration in `Tests.Message.AvroConfiguration`. The Data tab of `Tests.Administration` got that column and a View
+  button (`Tests.Message_View`: all fields, full body, headers). Verified in the copy: 20 of 20 pass; OQL shows both
+  configurations, consumer-avro on tests-avro-CONFLUENT, and 6/2 new messages labelled CONFLUENT/NONE.
+  - Empty created date on the Data tab: not member access (mxcli refuses per-member rights on audit members, MDL-SEC01 /
+    CE0066; the rule's default covers it). The grid sorts by createdDate descending and rows without a value sort first:
+    30 messages stored before createdDate was enabled for Tests.Message (all older than 22 Oct in the copy) fill the top.
+    Mendix does not backfill; deleting those rows fixes the view.
+  - mxcli: `create or modify java action` compares the whole Java file with its own rendering (CRLF, no class Javadoc)
+    and rewrites it on any difference, so after a Studio Pro save every re-run rewrote the Java files. The Java action
+    statements moved to one-shot scripts (`avro-configuration-actions.mdl`, `tests-java-actions.mdl`); all other scripts
+    re-run without writing anything (checked on the project, Java files byte-identical afterwards).
+  - Studio Pro re-saved the Kafka domain model while the project was open (layout only, kept as is).
+  - Lint 42 warnings (+2 CONV013 on the setup's Java call), report 71/100, docker check 0 errors.
