@@ -333,3 +333,56 @@
     re-run without writing anything (checked on the project, Java files byte-identical afterwards).
   - Studio Pro re-saved the Kafka domain model while the project was open (layout only, kept as is).
   - Lint 42 warnings (+2 CONV013 on the setup's Java call), report 71/100, docker check 0 errors.
+- 2026-11-18: **TestEnDeCoding moved to the Tests module, saved Avro test producer, undated test messages removed.**
+  - `Kafka.TestEnDeCoding` is now `Tests.TestEnDeCoding` (folder Resources; calls `kafka.impl.AvroProcessor`). Nothing
+    in the model used it. New test `Tests.TEST_AvroEnDeCoding` round-trips a person with Age 0 without a broker. Breaking
+    for apps that called the Kafka action; the module's own docs no longer list it.
+  - The Avro sends of the tests (`SUB_SendAvro`, `SUB_SendAvroOrder`, `TEST_AvroSendRequiresSchemaId`) use a saved producer
+    `producer-avro` (constant `Tests.ProducerAvro`), set up by `TestSetup_AvroProducer` → `TestSetup_PersistAvroProducer`
+    through `ExecuteInOwnTransaction`, like the consumer: created from producer-binary's server with
+    `ByteArraySerializer`, and linked to the Avro configuration of the last send. producer-binary is no longer touched,
+    so TEST_FileDocument is unaffected. Committed without events, so no restart of the consumers during the test. The
+    send-side resolver cache is keyed by Avro configuration, so switching the producer between CONFLUENT and NONE per
+    send is safe.
+  - The 30 Tests.Message rows without createdDate were deleted in the Linux copy's database through the runtime (a
+    one-off `mxcli test --attach` with `@cleanup none`), with their 27 headers and 6 binary payloads: the associations
+    have no delete behaviour, so deleting only the messages would orphan them, and payloads are file documents whose
+    files raw SQL would leave behind. Other databases (e.g. Studio Pro's local one) still have their own undated rows.
+  - Pre-existing, not changed: `Kafka.Producer` has its after-delete handler `OnCh_ConfigChange` registered twice, so a
+    producer delete restarts the configuration twice.
+  - Verified in the copy: UnitTesting remote API 21 of 21 pass; OQL shows producer-avro on tests-avro-CONFLUENT with
+    ByteArraySerializer, producer-binary without Avro, and 0 messages without createdDate. Lint 44 warnings (+2 CONV013
+    on the setup's Java calls, as for the consumer), report 70/100, docker check 0 errors. Re-runs write nothing.
+- 2026-11-18: **Avro schema evolution: reader schema per record, record name and schema ID for the on-receive microflow.**
+  - The on-receive microflow of an Avro consumer can take `RecordName` (full name of the decoded schema; for a top-level
+    union, the branch the message holds) and `SchemaId`. They are set after the headers, so a header of the same name does
+    not replace them. The record name comes from the writer schema the Get Avro Schema microflow returns for the ID; the
+    producer's subject naming strategy does not matter (schemas are fetched by ID). Example:
+    `Kafka.Example_OnReceiveMicroflow_Avro`.
+  - Avro configuration: optional Get Reader Schema microflow (`AvroConfiguration_Microflows_Reader` →
+    `GetReaderSchemaMicroflow`, set by BCo_AvroConfiguration; example `Kafka.Example_GetReaderSchemaMicroflow`). Parameters
+    by name: RecordName, SchemaId, Topic, Consumer. `AvroSchemaResolver.resolveForReading` resolves the writer schema as
+    before, then the reader schema once per writer schema (identity of the parsed instance) and topic, with Avro's
+    `SchemaCompatibility.checkReaderWriterCompatibility`; the outcome is cached, including an incompatibility, which fails
+    every message of that writer schema with the reason (logged once at WARNING). Empty result: decode as written. Not
+    called for a union writer schema (its record name is only known per message). `AvroProcessor.decode(writer, reader,
+    data)` uses `GenericDatumReader(writer, reader)` and returns the JSON with the record name. The Explorer
+    (`GetMessagesFromOffset`) decodes the same way. Not a breaking change: without the microflow, behaviour is unchanged.
+  - Cluster: the reader cache lives in the consumer thread's resolver (per thread, per node), filled on first use and
+    emptied by the restart that saving any Kafka setting triggers on all nodes; no shared state. During a rolling deploy
+    nodes with different reader schemas each decode correctly into their own shape.
+  - Test `Tests.TEST_AvroReaderSchema` (consumer-avro on new configuration `tests-avro-READER`; reader schema for
+    tests.Person = version 1 plus Country default NL; `Tests.Kafka_GetAvroSchemaForTest` now also returns IDs 44 to 46).
+    Verified in the Linux copy, also by OQL on the stored messages: ID 42 → `{"Age":41,"Name":"Ada","Country":"NL"}`; ID 44
+    with Email added in the middle → `{"Age":42,"Name":"Grace","Country":"NL"}`; ID 45 (Age a string) not stored, log
+    `TYPE_MISMATCH at /fields/0/type: reader type: INT not compatible with writer type: STRING`; ID 46 (union) as written
+    with RecordName tests.Pet; one reader call per writer schema. UnitTesting remote API: 22 of 22 pass. Lint: +2
+    CONV013 on the setup's Java calls (as for the other setups); the test was kept under 25 activities with
+    `SUB_CountReaderCalls`. docker check 0 errors. Re-runs write nothing. No new libraries (Avro 1.12.2's
+    SchemaCompatibility). Not tested: the Explorer path, several threads or nodes.
+  - `Kafka_GetAvroSchemaForTest` had to be rebuilt (`tests-avro-reader-rebuild.mdl`): exec found no free room in the drawn
+    flow for three more decisions.
+  - `mxcli brain promote` wrote the plan but failed to rewrite its local queue on this mount (`chmod ... operation not
+    permitted`); the queue was emptied by hand.
+  - docs/avro-messages.html: diagram with the reader schema step, receive steps, configuration table, limitation
+    (High → Medium, narrowed to format None and unions), 5.6 with the test results, a designer tip on defaults and aliases.

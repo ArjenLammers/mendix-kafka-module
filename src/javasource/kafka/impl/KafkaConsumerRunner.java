@@ -14,7 +14,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.avro.Schema;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -196,13 +195,19 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 			microflowParams.put("Key", record.key());
 		}
 
+		// Set for an Avro message; passed after the headers, so a header of the same name does not replace them
+		AvroProcessor.DecodedMessage decoded = null;
+		Integer schemaId = null;
 		if (this.onReceiveInputParameters.containsKey("Value")) {
 			if (record.value() instanceof byte[]) {
 				if(avroSchemaResolver != null) {
 					AvroProcessor.AvroMessage message = AvroProcessor.unframe((byte[]) record.value(), avroSchemaResolver.getFormat());
-					Schema schema = avroSchemaResolver.resolve(context, message.schemaId,
+					AvroSchemaResolver.ReadSchemas schemas = avroSchemaResolver.resolveForReading(context, message.schemaId,
+							record.topic(), consumerDom.getMendixObject(),
 							() -> AvroSchemaResolver.recordValues(record, consumerDom.getMendixObject()));
-					microflowParams.put("Value", AvroProcessor.decodeAvro(schema, message.data));
+					decoded = AvroProcessor.decode(schemas.writer, schemas.reader, message.data);
+					schemaId = message.schemaId;
+					microflowParams.put("Value", decoded.json);
 				}else {
 					String entityType = this.onReceiveInputParameters.get("Value").getObjectType();
 					microflowParams.put("Value", createFileDocumentFromByteArray(context, record.key(), (byte[]) record.value(), entityType));
@@ -222,6 +227,15 @@ public class KafkaConsumerRunner extends KafkaConfigurable implements Runnable {
 			} catch (Exception e) {
 				LOGGER.warn("Ignoring header " + header.key() + " for offset " + record.offset()
 						+ " because it has an invalid value.");
+			}
+		}
+
+		if (decoded != null) {
+			if (this.onReceiveInputParameters.containsKey("RecordName")) {
+				microflowParams.put("RecordName", decoded.recordName);
+			}
+			if (this.onReceiveInputParameters.containsKey("SchemaId")) {
+				microflowParams.put("SchemaId", schemaId == null ? null : Long.valueOf(schemaId));
 			}
 		}
 

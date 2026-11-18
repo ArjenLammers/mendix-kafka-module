@@ -125,7 +125,6 @@ public class UserActionsRegistrar
     registrator.registerUserAction(kafka.actions.StopAll.class);
     registrator.registerUserAction(kafka.actions.StopProcessor.class);
     registrator.registerUserAction(kafka.actions.StopWatchingObjects.class);
-    registrator.registerUserAction(kafka.actions.TestEnDeCoding.class);
     registrator.registerUserAction(kafka.actions.WatchObjectForChange.class);
     registrator.registerUserAction(librarylogging.actions.AddLibraryLogListener.class);
     registrator.registerUserAction(librarylogging.actions.InitializeLogging.class);
@@ -141,6 +140,7 @@ public class UserActionsRegistrar
     registrator.registerUserAction(tests.actions.CommitMessageNow.class);
     registrator.registerUserAction(tests.actions.ExecuteInOwnTransaction.class);
     registrator.registerUserAction(tests.actions.GenerateUUID.class);
+    registrator.registerUserAction(tests.actions.TestEnDeCoding.class);
     registrator.registerUserAction(unittesting.actions.AssertUsingExpression.class);
     registrator.registerUserAction(unittesting.actions.FindAllUnitTests.class);
     registrator.registerUserAction(unittesting.actions.Initialize.class);

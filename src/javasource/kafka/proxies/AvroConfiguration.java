@@ -26,8 +26,10 @@ public class AvroConfiguration implements com.mendix.systemwideinterfaces.core.I
 		Name("Name"),
 		SchemaIdFormat("SchemaIdFormat"),
 		GetAvroSchemaMicroflow("GetAvroSchemaMicroflow"),
+		GetReaderSchemaMicroflow("GetReaderSchemaMicroflow"),
 		AvroConfiguration_Server("Kafka.AvroConfiguration_Server"),
-		AvroConfiguration_Microflows("Kafka.AvroConfiguration_Microflows");
+		AvroConfiguration_Microflows("Kafka.AvroConfiguration_Microflows"),
+		AvroConfiguration_Microflows_Reader("Kafka.AvroConfiguration_Microflows_Reader");
 
 		private final java.lang.String metaName;
 
@@ -206,6 +208,42 @@ public class AvroConfiguration implements com.mendix.systemwideinterfaces.core.I
 	}
 
 	/**
+	 * @return value of GetReaderSchemaMicroflow
+	 */
+	public final java.lang.String getGetReaderSchemaMicroflow()
+	{
+		return getGetReaderSchemaMicroflow(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of GetReaderSchemaMicroflow
+	 */
+	public final java.lang.String getGetReaderSchemaMicroflow(com.mendix.systemwideinterfaces.core.IContext context)
+	{
+		return (java.lang.String) getMendixObject().getValue(context, MemberNames.GetReaderSchemaMicroflow.toString());
+	}
+
+	/**
+	 * Set value of GetReaderSchemaMicroflow
+	 * @param getreaderschemamicroflow
+	 */
+	public final void setGetReaderSchemaMicroflow(java.lang.String getreaderschemamicroflow)
+	{
+		setGetReaderSchemaMicroflow(getContext(), getreaderschemamicroflow);
+	}
+
+	/**
+	 * Set value of GetReaderSchemaMicroflow
+	 * @param context
+	 * @param getreaderschemamicroflow
+	 */
+	public final void setGetReaderSchemaMicroflow(com.mendix.systemwideinterfaces.core.IContext context, java.lang.String getreaderschemamicroflow)
+	{
+		getMendixObject().setValue(context, MemberNames.GetReaderSchemaMicroflow.toString(), getreaderschemamicroflow);
+	}
+
+	/**
 	 * @throws com.mendix.core.CoreException
 	 * @return value of AvroConfiguration_Server
 	 */
@@ -296,6 +334,53 @@ public class AvroConfiguration implements com.mendix.systemwideinterfaces.core.I
 			getMendixObject().setValue(context, MemberNames.AvroConfiguration_Microflows.toString(), null);
 		} else {
 			getMendixObject().setValue(context, MemberNames.AvroConfiguration_Microflows.toString(), avroconfiguration_microflows.getMendixObject().getId());
+		}
+	}
+
+	/**
+	 * @throws com.mendix.core.CoreException
+	 * @return value of AvroConfiguration_Microflows_Reader
+	 */
+	public final mxmodelreflection.proxies.Microflows getAvroConfiguration_Microflows_Reader() throws com.mendix.core.CoreException
+	{
+		return getAvroConfiguration_Microflows_Reader(getContext());
+	}
+
+	/**
+	 * @param context
+	 * @return value of AvroConfiguration_Microflows_Reader
+	 * @throws com.mendix.core.CoreException
+	 */
+	public final mxmodelreflection.proxies.Microflows getAvroConfiguration_Microflows_Reader(com.mendix.systemwideinterfaces.core.IContext context) throws com.mendix.core.CoreException
+	{
+		mxmodelreflection.proxies.Microflows result = null;
+		com.mendix.systemwideinterfaces.core.IMendixIdentifier identifier = getMendixObject().getValue(context, MemberNames.AvroConfiguration_Microflows_Reader.toString());
+		if (identifier != null) {
+			result = mxmodelreflection.proxies.Microflows.load(context, identifier);
+		}
+		return result;
+	}
+
+	/**
+	 * Set value of AvroConfiguration_Microflows_Reader
+	 * @param avroconfiguration_microflows_reader
+	 */
+	public final void setAvroConfiguration_Microflows_Reader(mxmodelreflection.proxies.Microflows avroconfiguration_microflows_reader)
+	{
+		setAvroConfiguration_Microflows_Reader(getContext(), avroconfiguration_microflows_reader);
+	}
+
+	/**
+	 * Set value of AvroConfiguration_Microflows_Reader
+	 * @param context
+	 * @param avroconfiguration_microflows_reader
+	 */
+	public final void setAvroConfiguration_Microflows_Reader(com.mendix.systemwideinterfaces.core.IContext context, mxmodelreflection.proxies.Microflows avroconfiguration_microflows_reader)
+	{
+		if (avroconfiguration_microflows_reader == null) {
+			getMendixObject().setValue(context, MemberNames.AvroConfiguration_Microflows_Reader.toString(), null);
+		} else {
+			getMendixObject().setValue(context, MemberNames.AvroConfiguration_Microflows_Reader.toString(), avroconfiguration_microflows_reader.getMendixObject().getId());
 		}
 	}
 

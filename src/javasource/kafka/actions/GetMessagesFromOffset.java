@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import org.apache.avro.Schema;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -89,9 +88,10 @@ public class GetMessagesFromOffset extends UserAction<java.util.List<IMendixObje
 				newMessage.setKey(record.key());
 				if(avroSchemaResolver != null) {
 					AvroProcessor.AvroMessage message = AvroProcessor.unframe((byte[]) record.value(), avroSchemaResolver.getFormat());
-					Schema schema = avroSchemaResolver.resolve(null, message.schemaId,
+					AvroSchemaResolver.ReadSchemas schemas = avroSchemaResolver.resolveForReading(null, message.schemaId,
+							record.topic(), consumer.getMendixObject(),
 							() -> AvroSchemaResolver.recordValues(record, consumer.getMendixObject()));
-					newMessage.setPayload(AvroProcessor.decodeAvro(schema, message.data));
+					newMessage.setPayload(AvroProcessor.decode(schemas.writer, schemas.reader, message.data).json);
 				}else {
 					newMessage.setPayload((String) record.value());
 				}

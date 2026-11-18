@@ -18,15 +18,11 @@
  .note{border-left:4px solid #3b6fd1;background:#eef3fc;padding:.6em .9em;margin:1em 0}
  .sev{font-weight:600} .sev.high{color:#9b261d} .sev.med{color:#8a5a00} .sev.low{color:#5b6475}
  ol.lim>li{margin-bottom:.9em} nav ol{columns:2}
+ .flow{margin:1em 0 1.4em} .flow svg{width:100%;height:auto;font-family:inherit}
+ .flow figcaption{font-size:.85em;color:#5b6475;margin-top:.3em}
 </style></head><body>
 <h1>Avro messages in the Kafka module</h1>
-<p class="sub">Capabilities, limitations and what can be mapped. Kafka module 3.0 (Mendix 11.12, Apache Avro 1.12.2), state of commit <code>bb205eb</code>, 13 November 2026.</p>
-
-<div class="note"><b>How this was verified.</b> Every example below is real output, not expected output: the module's own <code>AvroProcessor</code>
-was compiled into a small harness and fed 46 cases. <em>Receive</em> examples were written by a standard Avro writer (as a Java or Confluent producer would) and decoded by the module.
-<em>Send</em> examples were encoded by the module and read back by a standard Avro reader. How Studio Pro types the resulting JSON was checked by creating a JSON structure from a sample.
-The consumer/producer path (schema ID format, schema cache, failure handling) is covered by the UnitTesting tests <code>Tests.TEST_Avro*</code> against a real broker, including an end-to-end test with import and export mappings (5.8).
-Statements about import/export mappings beyond that are general Mendix behaviour, not tested per case here.</div>
+<p class="sub">Capabilities, limitations and what can be mapped. Kafka module 3.0 (Mendix 11.12, Apache Avro 1.12.2), 18 November 2026.</p>
 
 <nav><b>Contents</b><ol>
 <li><a href="#how">How it works</a></li><li><a href="#config">Configuration</a></li>
@@ -35,14 +31,123 @@ Statements about import/export mappings beyond that are general Mendix behaviour
 
 <h2 id="how">1. How it works</h2>
 <p>The module converts between Avro binary and <b>JSON text</b>. A Mendix developer never handles Avro objects: received messages arrive in the on-receive microflow as a JSON string, and messages are sent by passing a JSON string. Import and export mappings do the rest.</p>
+<figure class="flow">
+<svg viewBox="0 0 1110 652" role="img" aria-label="Avro receive and send flow">
+<defs>
+<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5b6475"/></marker>
+<marker id="ah-err" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c8372d"/></marker>
+</defs>
+<text font-size="13" font-weight="700" fill="#1d2433" x="8" y="26">Receiving</text>
+<rect x="8" y="40" width="200" height="62" rx="6" fill="#dff3e6" stroke="#2e9e5b" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="108.0" y="67.0" text-anchor="middle">Kafka topic</text>
+<text font-size="11" fill="#5b6475" x="108.0" y="83.0" text-anchor="middle">message value as bytes</text>
+<rect x="231" y="40" width="200" height="62" rx="6" fill="#f6f8fb" stroke="#9aa5b8" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="331.0" y="67.0" text-anchor="middle">Consumer</text>
+<text font-size="11" fill="#5b6475" x="331.0" y="83.0" text-anchor="middle">ByteArrayDeserializer</text>
+<rect x="454" y="40" width="200" height="62" rx="6" fill="#f6f8fb" stroke="#9aa5b8" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="554.0" y="59.0" text-anchor="middle">Split by schema ID format</text>
+<text font-size="11" fill="#5b6475" x="554.0" y="75.0" text-anchor="middle">Confluent: byte 0 + 4-byte ID</text>
+<text font-size="11" fill="#5b6475" x="554.0" y="91.0" text-anchor="middle">None: all Avro data, no ID</text>
+<rect x="677" y="40" width="200" height="62" rx="6" fill="#f6f8fb" stroke="#9aa5b8" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="777.0" y="59.0" text-anchor="middle">Decode</text>
+<text font-size="11" fill="#5b6475" x="777.0" y="75.0" text-anchor="middle">written version → reader version</text>
+<text font-size="11" fill="#5b6475" x="777.0" y="91.0" text-anchor="middle">Avro binary → JSON text</text>
+<rect x="900" y="40" width="200" height="62" rx="6" fill="#eef3fc" stroke="#3b6fd1" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="1000.0" y="59.0" text-anchor="middle">On-receive microflow</text>
+<text font-size="11" fill="#5b6475" x="1000.0" y="75.0" text-anchor="middle">Value (String) = JSON,</text>
+<text font-size="11" fill="#5b6475" x="1000.0" y="91.0" text-anchor="middle">RecordName, SchemaId</text>
+<line stroke="#5b6475" stroke-width="1.4" x1="208" y1="71.0" x2="227" y2="71.0" marker-end="url(#ah)"/>
+<line stroke="#5b6475" stroke-width="1.4" x1="431" y1="71.0" x2="450" y2="71.0" marker-end="url(#ah)"/>
+<line stroke="#5b6475" stroke-width="1.4" x1="654" y1="71.0" x2="673" y2="71.0" marker-end="url(#ah)"/>
+<line stroke="#5b6475" stroke-width="1.4" x1="877" y1="71.0" x2="896" y2="71.0" marker-end="url(#ah)"/>
+<rect x="454" y="150" width="200" height="62" rx="6" fill="#eef3fc" stroke="#3b6fd1" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="554.0" y="169.0" text-anchor="middle">Get Avro Schema microflow</text>
+<text font-size="11" fill="#5b6475" x="554.0" y="185.0" text-anchor="middle">returns the writer schema</text>
+<text font-size="11" fill="#5b6475" x="554.0" y="201.0" text-anchor="middle">cached per schema ID, per thread</text>
+<line stroke="#5b6475" stroke-width="1.4" x1="554.0" y1="102" x2="554.0" y2="146" marker-end="url(#ah)"/>
+<text font-size="11" fill="#5b6475" x="546.0" y="128" text-anchor="end">schema ID (or empty), topic, key,</text>
+<text font-size="11" fill="#5b6475" x="546.0" y="142" text-anchor="end">partition, offset, consumer, headers</text>
+<rect x="677" y="150" width="200" height="74" rx="6" fill="#eef3fc" stroke="#3b6fd1" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="777.0" y="167.0" text-anchor="middle">Get Reader Schema</text>
+<text font-size="11" fill="#5b6475" x="777.0" y="183.0" text-anchor="middle">microflow (optional): returns</text>
+<text font-size="11" fill="#5b6475" x="777.0" y="199.0" text-anchor="middle">the version you expect,</text>
+<text font-size="11" fill="#5b6475" x="777.0" y="215.0" text-anchor="middle">cached per writer schema</text>
+<line stroke="#5b6475" stroke-width="1.4" x1="654" y1="181.0" x2="673" y2="181.0" marker-end="url(#ah)"/>
+<text font-size="11" fill="#5b6475" x="665.5" y="144" text-anchor="middle">RecordName</text>
+<line stroke="#5b6475" stroke-width="1.4" x1="777.0" y1="150" x2="777.0" y2="106" marker-end="url(#ah)"/>
+<text font-size="11" fill="#5b6475" x="783.0" y="124" text-anchor="start">writer + reader schema,</text>
+<text font-size="11" fill="#5b6475" x="783.0" y="138">checked for compatibility</text>
+<rect x="900" y="150" width="200" height="74" rx="6" fill="#fdf3f2" stroke="#c8372d" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="1000.0" y="167.0" text-anchor="middle">Any step fails</text>
+<text font-size="11" fill="#5b6475" x="1000.0" y="183.0" text-anchor="middle">incl. an incompatible version</text>
+<text font-size="11" fill="#5b6475" x="1000.0" y="199.0" text-anchor="middle">→ failure handling:</text>
+<text font-size="11" fill="#5b6475" x="1000.0" y="215.0" text-anchor="middle">Continue (skip) or Retry</text>
+<line stroke="#c8372d" stroke-width="1.4" stroke-dasharray="4 3" x1="1000.0" y1="104" x2="1000.0" y2="146" marker-end="url(#ah-err)"/>
+<text font-size="13" font-weight="700" fill="#1d2433" x="8" y="286">Sending</text>
+<rect x="8" y="300" width="200" height="62" rx="6" fill="#eef3fc" stroke="#3b6fd1" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="108.0" y="327.0" text-anchor="middle">Microflow</text>
+<text font-size="11" fill="#5b6475" x="108.0" y="343.0" text-anchor="middle">export mapping → JSON</text>
+<rect x="231" y="300" width="200" height="62" rx="6" fill="#f6f8fb" stroke="#9aa5b8" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="331.0" y="319.0" text-anchor="middle">SendSynchronous /</text>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="331.0" y="335.0" text-anchor="middle">SendAsynchronous</text>
+<text font-size="11" fill="#5b6475" x="331.0" y="351.0" text-anchor="middle">optional schemaId</text>
+<rect x="454" y="300" width="200" height="62" rx="6" fill="#f6f8fb" stroke="#9aa5b8" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="554.0" y="319.0" text-anchor="middle">Encode with the schema</text>
+<text font-size="11" fill="#5b6475" x="554.0" y="335.0" text-anchor="middle">fills schema defaults</text>
+<text font-size="11" fill="#5b6475" x="554.0" y="351.0" text-anchor="middle">JSON → Avro binary</text>
+<rect x="677" y="300" width="200" height="62" rx="6" fill="#f6f8fb" stroke="#9aa5b8" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="777.0" y="319.0" text-anchor="middle">Frame by schema ID format</text>
+<text font-size="11" fill="#5b6475" x="777.0" y="335.0" text-anchor="middle">Confluent: byte 0 + 4-byte ID</text>
+<text font-size="11" fill="#5b6475" x="777.0" y="351.0" text-anchor="middle">None: Avro data as is</text>
+<rect x="900" y="300" width="200" height="62" rx="6" fill="#dff3e6" stroke="#2e9e5b" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="1000.0" y="327.0" text-anchor="middle">Kafka topic</text>
+<text font-size="11" fill="#5b6475" x="1000.0" y="343.0" text-anchor="middle">ByteArraySerializer</text>
+<line stroke="#5b6475" stroke-width="1.4" x1="208" y1="331.0" x2="227" y2="331.0" marker-end="url(#ah)"/>
+<line stroke="#5b6475" stroke-width="1.4" x1="431" y1="331.0" x2="450" y2="331.0" marker-end="url(#ah)"/>
+<line stroke="#5b6475" stroke-width="1.4" x1="654" y1="331.0" x2="673" y2="331.0" marker-end="url(#ah)"/>
+<line stroke="#5b6475" stroke-width="1.4" x1="877" y1="331.0" x2="896" y2="331.0" marker-end="url(#ah)"/>
+<rect x="454" y="410" width="200" height="62" rx="6" fill="#eef3fc" stroke="#3b6fd1" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="554.0" y="429.0" text-anchor="middle">Get Avro Schema microflow</text>
+<text font-size="11" fill="#5b6475" x="554.0" y="445.0" text-anchor="middle">of the Avro configuration</text>
+<text font-size="11" fill="#5b6475" x="554.0" y="461.0" text-anchor="middle">cached per schema ID, per node</text>
+<polyline points="331.0,362 331.0,441.0 450,441.0" fill="none" stroke="#5b6475" stroke-width="1.4" marker-end="url(#ah)"/>
+<text font-size="11" fill="#5b6475" x="323.0" y="441.0" text-anchor="end">schema ID (or empty), topic,</text>
+<text font-size="11" fill="#5b6475" x="323.0" y="455.0" text-anchor="end">key, producer, headers</text>
+<line stroke="#5b6475" stroke-width="1.4" x1="554.0" y1="410" x2="554.0" y2="366" marker-end="url(#ah)"/>
+<text font-size="11" fill="#5b6475" x="560.0" y="388" text-anchor="start">schema</text>
+<rect x="677" y="410" width="200" height="74" rx="6" fill="#fdf3f2" stroke="#c8372d" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="777.0" y="427.0" text-anchor="middle">Send fails</text>
+<text font-size="11" fill="#5b6475" x="777.0" y="443.0" text-anchor="middle">JSON does not fit the schema, or</text>
+<text font-size="11" fill="#5b6475" x="777.0" y="459.0" text-anchor="middle">Confluent without a schema ID:</text>
+<text font-size="11" fill="#5b6475" x="777.0" y="475.0" text-anchor="middle">error in the caller, nothing sent</text>
+<line stroke="#c8372d" stroke-width="1.4" stroke-dasharray="4 3" x1="654" y1="356" x2="707" y2="406" marker-end="url(#ah-err)"/>
+<text font-size="13" font-weight="700" fill="#1d2433" x="8" y="516">Message value on the topic</text>
+<text font-size="11" fill="#5b6475" x="16" y="560">Confluent</text>
+<rect x="110" y="530" width="130" height="48" rx="6" fill="#fff1d6" stroke="#c9a14a" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="175.0" y="550.0" text-anchor="middle">0x00</text>
+<text font-size="11" fill="#5b6475" x="175.0" y="566.0" text-anchor="middle">magic byte</text>
+<rect x="240" y="530" width="220" height="48" rx="6" fill="#fff1d6" stroke="#c9a14a" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="350.0" y="550.0" text-anchor="middle">schema ID</text>
+<text font-size="11" fill="#5b6475" x="350.0" y="566.0" text-anchor="middle">4 bytes, big-endian</text>
+<rect x="460" y="530" width="420" height="48" rx="6" fill="#eef3fc" stroke="#3b6fd1" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="670.0" y="550.0" text-anchor="middle">Avro binary data</text>
+<text font-size="11" fill="#5b6475" x="670.0" y="566.0" text-anchor="middle">encoded with the schema</text>
+<text font-size="11" fill="#5b6475" x="16" y="624">None</text>
+<rect x="110" y="594" width="420" height="48" rx="6" fill="#eef3fc" stroke="#3b6fd1" stroke-width="1.2"/>
+<text font-size="12.5" font-weight="600" fill="#1d2433" x="320.0" y="614.0" text-anchor="middle">Avro binary data</text>
+<text font-size="11" fill="#5b6475" x="320.0" y="630.0" text-anchor="middle">encoded with the schema; no schema ID</text>
+</svg>
+<figcaption>Receiving and sending an Avro message. Without a Get Reader Schema microflow a message is decoded exactly as it was written. Blue boxes are your microflows, green boxes Kafka; the module does the rest.</figcaption>
+</figure>
 <h3>Receiving</h3>
 <ol>
 <li>The consumer reads the message value as bytes: a consumer with an <b>Avro configuration</b> is switched to <code>ByteArrayDeserializer</code> when it is saved.</li>
 <li>The configuration's <b>schema ID format</b> decides how the bytes are split: <b>Confluent</b> expects byte <code>0</code>, a 4-byte schema ID, then the Avro data; <b>None</b> treats the whole value as Avro data (no schema ID).</li>
 <li>The schema always comes from the configuration's <b>Get Avro Schema microflow</b>; there is no stored schema. The microflow gets the schema ID (empty when there is none) and can also take the topic, key, partition, offset, consumer and any header. Its result is cached per schema ID per consumer thread until the consumers restart; without a schema ID it runs for every message.</li>
-<li>The data is decoded with that schema and written as JSON. Decimals become plain numbers, and optional strings are unwrapped; everything else stays in Avro's JSON form (details in section 3).</li>
-<li>The JSON is passed as the <code>Value</code> (String) parameter of the on-receive microflow. Key and headers are passed as strings, as for non-Avro consumers.</li>
-<li>If any step fails (wrong format, schema microflow error, invalid schema, data that does not match the schema), the message goes through the consumer's failure handling: <b>Continue</b> logs and skips it, <b>Retry</b> retries it until it succeeds.</li>
+<li>That schema is the <b>writer schema</b>: the version the producer wrote with. If the configuration has a <b>Get Reader Schema microflow</b>, it is called with the writer schema's full name (<code>RecordName</code>, e.g. <code>shop.Order</code>) and returns the version your app expects (the <b>reader schema</b>), or empty. The two are checked for compatibility; the result is cached per writer schema and topic.</li>
+<li>The data is decoded with the writer schema and, if there is one, translated to the reader schema (Avro schema resolution: fields only the writer has are dropped, fields only the reader has get the reader's default, aliases match renamed fields). It is written as JSON. Decimals become plain numbers, and optional strings are unwrapped; everything else stays in Avro's JSON form (details in section 3).</li>
+<li>The JSON is passed as the <code>Value</code> (String) parameter of the on-receive microflow, with the record name (<code>RecordName</code>; for a union, the type of this message) and <code>SchemaId</code> if the microflow declares them, so a topic with several record types can be handled per type. Key and headers are passed as strings, as for non-Avro consumers.</li>
+<li>If any step fails (wrong format, schema microflow error, invalid schema, a writer schema that cannot be translated to the reader schema, data that does not match the schema), the message goes through the consumer's failure handling: <b>Continue</b> logs and skips it, <b>Retry</b> retries it until it succeeds.</li>
 </ol>
 <h3>Sending</h3>
 <ol>
@@ -56,13 +161,13 @@ Statements about import/export mappings beyond that are general Mendix behaviour
 <h2 id="config">2. Configuration</h2>
 <table>
 <tr><th>Where</th><th>Setting / action</th><th>What it does</th></tr>
-<tr><td rowspan="3">Avro configuration<br>(Server page, Avro tab)</td><td>Name</td><td>Shared by the consumers and producers of the server that refer to it.</td></tr>
+<tr><td rowspan="4">Avro configuration<br>(Server page, Avro tab)</td><td>Name</td><td>Shared by the consumers and producers of the server that refer to it.</td></tr>
 <tr><td>Schema ID format</td><td><b>Confluent</b> (default): every message starts with byte 0 and a 4-byte schema ID, as Confluent-compatible serializers write (Confluent Platform/Cloud, Redpanda, Karapace, Apicurio in compatibility mode). Consumers read the ID from each message and fail a message without it; producers need a schema ID per send. <b>None</b>: plain Avro data.</td></tr>
 <tr><td>Get Avro Schema microflow</td><td><b>Required: the only way the schema is resolved.</b> Returns the schema (String). Optional parameters by name: <code>SchemaId</code> (Integer, empty when there is none), <code>Topic</code>, <code>Key</code>, any header name, and <code>Partition</code>, <code>Offset</code>, <code>Consumer</code> (receiving) or <code>Producer</code> (sending). <b>Its result is cached per schema ID</b>, so for the same ID it must return the same schema. Without a schema ID it runs for every message and may choose by topic, key or header.</td></tr>
-<tr><td>Consumer</td><td>Avro configuration</td><td>Decode values as Avro; empty means no Avro. The on-receive microflow's <code>Value</code> parameter must be a String. Saving sets <code>ByteArrayDeserializer</code>.</td></tr>
+<tr><td>Get Reader Schema microflow</td><td><b>Optional, for consumers: schema evolution.</b> Returns the version of a record your app expects (the schema your JSON structure and import mapping were made from), or empty to decode as written. Optional parameters by name: <code>RecordName</code> (full name of the writer schema), <code>SchemaId</code>, <code>Topic</code>, <code>Consumer</code>. Cached per writer schema and topic until the consumers restart, so for the same record name it must return the same schema. Not called for a writer schema that is a union of several types.</td></tr>
+<tr><td>Consumer</td><td>Avro configuration</td><td>Decode values as Avro; empty means no Avro. The on-receive microflow's <code>Value</code> parameter must be a String; it can also take <code>RecordName</code> (String) and <code>SchemaId</code> (Integer), see <code>Kafka.Example_OnReceiveMicroflow_Avro</code>. Saving sets <code>ByteArrayDeserializer</code>.</td></tr>
 <tr><td>Producer</td><td>Avro configuration</td><td>Encode values as Avro; empty means no Avro. Saving sets <code>ByteArraySerializer</code>.</td></tr>
-<tr><td rowspan="2">Java actions</td><td>SendSynchronous / SendAsynchronous</td><td>With a producer that has an Avro configuration, the <code>value</code> is JSON and is encoded as Avro; <code>binaryValue</code> cannot be used. Optional <code>schemaId</code>: required with format Confluent, passed to the microflow with format None, refused for a producer without an Avro configuration.</td></tr>
-<tr><td>TestEnDeCoding</td><td>Encodes JSON with a schema and decodes it again: a quick way to see the JSON the consumer will produce for a schema.</td></tr>
+<tr><td>Java actions</td><td>SendSynchronous / SendAsynchronous</td><td>With a producer that has an Avro configuration, the <code>value</code> is JSON and is encoded as Avro; <code>binaryValue</code> cannot be used. Optional <code>schemaId</code>: required with format Confluent, passed to the microflow with format None, refused for a producer without an Avro configuration.</td></tr>
 </table>
 
 <h2 id="types">3. What can be mapped: type by type</h2>
@@ -101,12 +206,11 @@ Statements about import/export mappings beyond that are general Mendix behaviour
 
 <h2 id="limits">4. Limitations</h2>
 <ol class="lim">
-<li><span class="sev high">High — no schema evolution; a version mismatch can give wrong data without an error.</span>
- The module decodes with one schema, as both writer and reader schema. Avro data does not contain field names, so if the producer wrote with a different schema version than the one the consumer resolves, the bytes are read against the wrong layout:
- <ul><li>A field added <b>in the middle</b> by the producer: the values shift. In the test, <code>{"name":"Ada","email":"ada@example.com","age":41}</code> was received as <code>{"name":"Ada","age":15}</code>: <b>age 15 instead of 41, no error</b>.</li>
- <li>A field added <b>at the end</b>: silently ignored (<code>{"name":"Ada","age":41}</code>).</li>
- <li>The consumer's schema is newer than the producer's: fails (<code>EOFException: null</code>).</li></ul>
- With the Confluent format, let the Get Avro Schema microflow return the exact schema for each schema ID (from your registry); then every message is decoded with the schema it was written with. With format None, the microflow must return the schema the producer wrote with, for example chosen by a header.<br>Using one schema for both writing and reading is not a defect in itself: it is exactly right as long as that schema is the one the producer wrote with. The risk is only in the Get Avro Schema microflow choosing the right schema per message.</li>
+<li><span class="sev med">Medium — schema evolution needs the writer schema per message and, for a stable shape, a reader schema.</span>
+Avro data contains no field names. Decoded with a schema other than the one it was written with, the bytes are read against the wrong layout: a field added in the middle shifts the values without an error (5.6). So:
+<ul><li>The Get Avro Schema microflow must return the exact schema for each schema ID (from your registry). With format <b>Confluent</b> that is always possible; with format <b>None</b> the message says nothing about its version, so the producer has to tell it otherwise (for example in a header the microflow reads).</li>
+<li>To keep the JSON in the shape your import mapping expects while producers move on, add a <b>Get Reader Schema microflow</b>: every message is then translated to the reader version, and a version that cannot be translated fails with the reason (e.g. <code>TYPE_MISMATCH at /fields/0/type: reader type: INT not compatible with writer type: STRING</code>) instead of giving wrong data.</li>
+<li>A writer schema that is a <b>union of several record types</b> is always decoded as written: its record name is only known per message. The on-receive microflow gets the type of each message as <code>RecordName</code>.</li></ul></li>
 <li><span class="sev med">Medium — optional fields other than strings are wrapped.</span> <code>["null","int"]</code>, optional records, enums, arrays, timestamps and decimals arrive as <code>{"int":41}</code>, <code>{"crm.Address":{…}}</code> etc., and must be sent in that form (a plain value fails). Only <code>["null","string"]</code> is unwrapped. In an import mapping each wrapper is an extra object level. Unions of several non-null types are always wrapped and have no single mappable shape.</li>
 <li><span class="sev med">Medium — dates and times are numbers.</span> date, time, timestamp-millis/micros and local-timestamp arrive as numbers (days, milliseconds or microseconds) and must be sent as numbers; an ISO date string fails. Convert them in a microflow. Studio Pro types these elements as Integer.</li>
 <li><span class="sev med">Medium — decimal precision is not checked; values are rounded silently.</span> A value with more decimals than the scale is rounded half-up (<code>0.125</code> → <code>0.13</code> with scale 2). A value with more digits than the precision is written anyway (<code>123456.78</code> with precision 4), which strict readers may reject. Decimals do arrive and can be sent with full precision (also as a JSON string for very large values).</li>
@@ -244,7 +348,8 @@ Statements about import/export mappings beyond that are general Mendix behaviour
 <pre class="err">Fails: AvroTypeException: Expected int. Got END_OBJECT</pre>
 </div>
 
-<h3>5.6 Schema evolution: why the schema must match the writer's</h3>
+<h3>5.6 Schema evolution</h3>
+<p><b>Without a reader schema</b>, a message is decoded with the schema the Get Avro Schema microflow returns. If that is not the exact schema the producer wrote with, this happens:</p>
 <div class="case">
 <div class="ctitle">Producer added a field in the middle: wrong value, no error</div>
 <div class="lbl">Schema</div><pre>{"type": "record", "name": "Person", "fields": [{"name": "name", "type": "string"}, {"name": "age", "type": "int"}]}</pre>
@@ -267,6 +372,25 @@ Statements about import/export mappings beyond that are general Mendix behaviour
 <pre class="err">Fails: EOFException: null</pre>
 </div>
 
+<p><b>With a reader schema</b> (Get Reader Schema microflow), the writer schema comes from the schema ID and every message is translated to the version the consumer expects. Results of the UnitTesting test <code>Tests.TEST_AvroReaderSchema</code> against a real broker, with the reader schema below for <code>tests.Person</code>:</p>
+<div class="case">
+<div class="lbl">Reader schema</div><pre>{"type":"record","name":"Person","namespace":"tests","fields":[{"name":"Age","type":"int"},{"name":"Name","type":"string"},{"name":"Country","type":"string","default":"NL"}]}</pre>
+<table>
+<tr><th>Written with</th><th>Sent</th><th>The on-receive microflow gets</th></tr>
+<tr><td>ID 42: Age, Name (older: no Country)</td><td><code>{"Age":41,"Name":"Ada"}</code></td><td><code>{"Age":41,"Name":"Ada","Country":"NL"}</code>, RecordName <code>tests.Person</code>, SchemaId 42</td></tr>
+<tr><td>ID 44: Age, <b>Email</b>, Name (newer: field added in the middle)</td><td><code>{"Age":42,"Email":"grace@example.com","Name":"Grace"}</code></td><td><code>{"Age":42,"Name":"Grace","Country":"NL"}</code>: values in place, Email dropped</td></tr>
+<tr><td>ID 45: Age as a <b>string</b> (incompatible)</td><td><code>{"Age":"forty","Name":"Bad"}</code></td><td>Nothing: the message fails with <code>TYPE_MISMATCH at /fields/0/type</code> and goes through the failure handling</td></tr>
+<tr><td>ID 46: union of <code>tests.Person</code> and <code>tests.Pet</code></td><td><code>{"tests.Pet":{"Name":"Rex"}}</code></td><td><code>{"tests.Pet":{"Name":"Rex"}}</code> as written, RecordName <code>tests.Pet</code></td></tr>
+</table>
+<p>The reader schema microflow ran once per writer schema (once for both messages with ID 44).</p>
+</div>
+<p>A Get Reader Schema microflow typically returns a constant per record type, the schema the import mapping was made from:</p>
+<pre>-- parameters: $RecordName (String)
+if $RecordName = 'shop.Order' then return @MyModule.OrderReaderSchema
+if $RecordName = 'shop.Customer' then return @MyModule.CustomerReaderSchema
+return empty   -- other records: decode as written</pre>
+<p>On a topic with several record types, the on-receive microflow chooses the import mapping by <code>$RecordName</code>. The record name comes from the writer schema itself (its namespace and name), not from a header; the producer's subject naming strategy (<code>TopicNameStrategy</code>, <code>RecordNameStrategy</code>, <code>TopicRecordNameStrategy</code>) does not matter to the consumer, because schemas are fetched by ID.</p>
+
 <h3>5.7 Get Avro Schema microflow</h3>
 <p>A microflow with an Integer parameter <code>SchemaId</code> that returns the schema text, for example from an entity <code>MyModule.AvroSchema</code> (SchemaId, Definition) filled from your schema registry:</p>
 <pre>retrieve $Schema from MyModule.AvroSchema where SchemaId = $SchemaId (first)
@@ -285,7 +409,7 @@ return $Schema/Definition</pre>
 <p>The UnitTesting test <code>Tests.TEST_AvroOrderEndToEnd</code> runs an extensive order through the whole chain against a real broker, and compares what arrives with what was sent, field by field:</p>
 <ol>
 <li><code>SUB_CreateSampleOrder</code> builds an order in memory: a full one (every optional filled, a note with non-ASCII characters, a description with quotes and €, two lines, two tags) and a minimal one (every optional empty, no tags).</li>
-<li>The export mapping <code>EMM_AvroOrder</code> turns each into JSON; <code>SendSynchronous</code> (producer with the Confluent test Avro configuration, schema ID 43) encodes it with the schema below and Confluent schema ID 43.</li>
+<li>The export mapping <code>EMM_AvroOrder</code> turns each into JSON; <code>SendSynchronous</code> (the saved test producer <code>producer-avro</code> with the Confluent test Avro configuration, schema ID 43) encodes it with the schema below and Confluent schema ID 43.</li>
 <li>The consumer (format Confluent) reads ID 43, gets the schema from the Get Avro Schema microflow <code>Kafka_GetAvroSchemaForTest</code>, decodes the message, and the listener stores the JSON.</li>
 <li>The import mapping <code>IMM_AvroOrder</code> turns the received JSON back into objects; <code>SUB_CompareOrders</code> compares them with the originals (lines matched by SKU, tags by value).</li>
 </ol>
@@ -510,6 +634,7 @@ return $Schema/Definition</pre>
   "tags": []
 }</pre>
 <p>Both orders survive the round trip unchanged, including the timestamp to the millisecond, decimals, non-ASCII text and quotes. On export the mapping leaves out empty elements, and the module fills them in from the schema defaults (<code>null</code>, <code>[]</code>), as the minimal order shows.</p>
+<p>Without a broker, the Tests module's Java action <code>Tests.TestEnDeCoding</code> encodes JSON with a schema and decodes it again: a quick way to see the JSON a consumer will produce for a schema (test <code>TEST_AvroEnDeCoding</code>).</p>
 
 <h2 id="tips">6. Recommendations for schema designers</h2>
 <ul>
@@ -518,6 +643,7 @@ return $Schema/Definition</pre>
 <li>Avoid <code>bytes</code>/<code>fixed</code> for anything the Mendix app has to read; use a base64 string field.</li>
 <li>Avoid maps with dynamic keys; use an array of key/value records instead.</li>
 <li>Use the Confluent format with a Get Avro Schema microflow that returns the exact schema per ID, so schema versions never get mixed up.</li>
+<li>Give every new field a default and never change a field's type, so consumers with an older reader schema can keep translating new versions; rename with <code>aliases</code> rather than a plain rename.</li>
 <li>Keep decimal values within the declared precision and scale; the module will not warn.</li>
 </ul>
 </body></html>

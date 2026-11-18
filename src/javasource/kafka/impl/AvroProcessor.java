@@ -17,6 +17,7 @@ import java.util.Map;
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.io.BinaryEncoder;
@@ -86,6 +87,20 @@ public class AvroProcessor {
 		AvroMessage(Integer schemaId, byte[] data) {
 			this.schemaId = schemaId;
 			this.data = data;
+		}
+	}
+
+	/**
+	 * A decoded Avro message: its JSON and the full name of the record it holds.
+	 */
+	public static class DecodedMessage {
+		public final String json;
+		/** The full name of the decoded schema (e.g. shop.Order); for a union, of the type this message holds */
+		public final String recordName;
+
+		DecodedMessage(String json, String recordName) {
+			this.json = json;
+			this.recordName = recordName;
 		}
 	}
 
@@ -167,13 +182,29 @@ public class AvroProcessor {
      * @throws IOException if the content cannot be decoded
      */
     public static String decodeAvro(Schema avroSchema, byte[] content) throws IOException {
-        DatumReader<Object> reader = new GenericDatumReader<>(avroSchema);
+        return decode(avroSchema, null, content).json;
+    }
+
+    /**
+     * Decodes binary Avro data written with the writer schema into JSON shaped by the reader schema. Avro's schema
+     * resolution translates between the two: fields only the writer has are skipped, fields only the reader has get
+     * the reader's default, and aliases in the reader schema match renamed fields. The caller checks first that the
+     * two schemas are compatible.
+     *
+     * @param writerSchema the schema the data was written with
+     * @param readerSchema the schema to decode to, or null to decode exactly as written
+     * @param content      the binary Avro data to decode
+     * @throws IOException if the content cannot be decoded
+     */
+    public static DecodedMessage decode(Schema writerSchema, Schema readerSchema, byte[] content) throws IOException {
+        Schema schema = readerSchema != null ? readerSchema : writerSchema;
+        DatumReader<Object> reader = new GenericDatumReader<>(writerSchema, schema);
         Decoder binaryDecoder = DecoderFactory.get().binaryDecoder(content, null);
         Object datum = reader.read(null, binaryDecoder);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Encoder jsonEncoder = EncoderFactory.get().jsonEncoder(avroSchema, out);
-        DatumWriter<Object> writer = new GenericDatumWriter<>(avroSchema);
+        Encoder jsonEncoder = EncoderFactory.get().jsonEncoder(schema, out);
+        DatumWriter<Object> writer = new GenericDatumWriter<>(schema);
         writer.write(datum, jsonEncoder);
         jsonEncoder.flush();
 
@@ -181,8 +212,11 @@ public class AvroProcessor {
         // wraps union values into branch-tagged objects. Rewrite decimals into plain
         // floating point numbers and optional strings into plain JSON strings.
         JsonNode tree = MAPPER.readTree(out.toString(StandardCharsets.UTF_8.name()));
-        JsonNode converted = convertValues(avroSchema, tree, false);
-        return MAPPER.writeValueAsString(converted);
+        JsonNode converted = convertValues(schema, tree, false);
+        String recordName = schema.getType() == Schema.Type.UNION
+                ? schema.getTypes().get(GenericData.get().resolveUnion(schema, datum)).getFullName()
+                : schema.getFullName();
+        return new DecodedMessage(MAPPER.writeValueAsString(converted), recordName);
     }
     
     
